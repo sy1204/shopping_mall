@@ -1,0 +1,61 @@
+
+> shopping_mall@1.0.0 build
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./app/shop/[id]/page.tsx:9:1
+Export getProductById doesn't exist in target module
+[0m [90m  7 |[39m [36mimport[39m [33mInquirySection[39m [36mfrom[39m [32m'@/components/board/InquirySection'[39m[33m;[39m
+ [90m  8 |[39m [36mimport[39m [33mBreadcrumb[39m [36mfrom[39m [32m'@/components/ui/Breadcrumb'[39m[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m [36mimport[39m { getProductById } [36mfrom[39m [32m'@/utils/dummyData'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 10 |[39m [36mimport[39m { notFound } [36mfrom[39m [32m'next/navigation'[39m[33m;[39m
+ [90m 11 |[39m [36mimport[39m { useAuth } [36mfrom[39m [32m'@/context/AuthContext'[39m[33m;[39m
+ [90m 12 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
+
+The export getProductById was not found in module [project]/utils/dummyData.ts [app-client] (ecmascript).
+Did you mean to import createDummyCartItem?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./app/shop/[id]/page.tsx [Client Component Browser]
+    ./app/shop/[id]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/shop/[id]/page.tsx [Client Component SSR]
+    ./app/shop/[id]/page.tsx [Server Component]
+
+
+./app/shop/[id]/page.tsx:9:1
+Export getProductById doesn't exist in target module
+[0m [90m  7 |[39m [36mimport[39m [33mInquirySection[39m [36mfrom[39m [32m'@/components/board/InquirySection'[39m[33m;[39m
+ [90m  8 |[39m [36mimport[39m [33mBreadcrumb[39m [36mfrom[39m [32m'@/components/ui/Breadcrumb'[39m[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m [36mimport[39m { getProductById } [36mfrom[39m [32m'@/utils/dummyData'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 10 |[39m [36mimport[39m { notFound } [36mfrom[39m [32m'next/navigation'[39m[33m;[39m
+ [90m 11 |[39m [36mimport[39m { useAuth } [36mfrom[39m [32m'@/context/AuthContext'[39m[33m;[39m
+ [90m 12 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
+
+The export getProductById was not found in module [project]/utils/dummyData.ts [app-ssr] (ecmascript).
+Did you mean to import createDummyCartItem?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./app/shop/[id]/page.tsx [Client Component Browser]
+    ./app/shop/[id]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/shop/[id]/page.tsx [Client Component SSR]
+    ./app/shop/[id]/page.tsx [Server Component]
+
+
+    at <unknown> (./app/shop/[id]/page.tsx:9:1)
+    at <unknown> (./app/shop/[id]/page.tsx:9:1)

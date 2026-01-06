@@ -2,10 +2,10 @@
 'use client';
 
 import { getProducts, deleteProduct } from "@/utils/productStorage";
+import { Product } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Product } from "@/utils/dummyData";
 import { useToast } from "@/context/ToastContext";
 
 export default function AdminProductsPage() {

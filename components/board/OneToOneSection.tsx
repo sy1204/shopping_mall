@@ -2,7 +2,8 @@
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
-import { addOneToOneInquiry, getMyInquiries, OneToOneInquiry } from "@/utils/boardStorage";
+import { addOneToOneInquiry, getMyInquiries } from "@/utils/boardStorage";
+import { OneToOneInquiry } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function OneToOneSection() {

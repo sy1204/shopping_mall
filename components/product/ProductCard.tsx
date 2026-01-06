@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import type { Product } from "@/utils/dummyData";
+import type { Product } from "@/types";
 import Bracket from "@/components/ui/Bracket";
 import Dash from "@/components/ui/Dash";
 import { useState } from "react";

@@ -4,7 +4,7 @@
 import { getProducts } from "@/utils/productStorage";
 import ProductCard from "@/components/product/ProductCard";
 import { useEffect, useState, Suspense } from "react";
-import { Product } from "@/utils/dummyData";
+import { Product } from "@/types";
 import { useSearchParams } from "next/navigation";
 
 function ShopContent() {

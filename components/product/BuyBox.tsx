@@ -1,11 +1,11 @@
 // components/product/BuyBox.tsx
 'use client';
 
-import { Product } from '@/utils/dummyData';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { useRouter } from 'next/navigation';
+import { Product } from '@/types';
 
 export default function BuyBox({ product }: { product: Product }) {
     const [selectedSize, setSelectedSize] = useState<string>('');

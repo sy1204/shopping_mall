@@ -2,16 +2,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Product } from '@/utils/dummyData';
-
-export interface CartItem extends Product {
-    cartItemId: string; // Unique ID for cart item (product ID + options)
-    quantity: number;
-    selectedOptions: {
-        size?: string;
-        color?: string;
-    };
-}
+import { Product, CartItem } from '@/types';
 
 interface CartContextType {
     items: CartItem[];
@@ -29,7 +20,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Load cart from localStorage on mount
     useEffect(() => {
         const savedCart = localStorage.getItem('shopping-cart');
         if (savedCart) {
@@ -42,7 +32,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsLoaded(true);
     }, []);
 
-    // Save cart to localStorage whenever it changes
     useEffect(() => {
         if (isLoaded) {
             localStorage.setItem('shopping-cart', JSON.stringify(items));
@@ -83,10 +72,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     const totalPrice = items.reduce((acc, item) => {
-        const price = item.price * (item.discount_rate ? (100 - item.discount_rate) / 100 : 1); // logic check: dummy data price is final or original? assumes final price in 'price' field usually, but waiting for clarification. 
-        // Based on BuyBox component: Price is displayed as main, original is separate.
-        // Let's assume 'price' is the selling price for simplicity, ignoring discount calc logic here if it was already applied.
-        // Actually looking at dummyData: price: 348000, original_price: 498000. So price IS the discounted price.
         return acc + (item.price * item.quantity);
     }, 0);
 

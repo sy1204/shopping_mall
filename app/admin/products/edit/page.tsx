@@ -1,12 +1,12 @@
 // app/admin/products/edit/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getProducts, updateProduct } from '@/utils/productStorage';
-import { Product } from '@/utils/dummyData';
+import { Product } from '@/types';
 
-export default function ProductEditPage() {
+function EditContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const productId = searchParams?.get('id');
@@ -128,5 +128,13 @@ export default function ProductEditPage() {
                 </div>
             </form>
         </div>
+    );
+}
+
+export default function ProductEditPage() {
+    return (
+        <Suspense fallback={<div className="p-8">Loading...</div>}>
+            <EditContent />
+        </Suspense>
     );
 }

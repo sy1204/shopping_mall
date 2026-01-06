@@ -1,5 +1,6 @@
 // utils/productStorage.ts
-import { Product, DUMMY_PRODUCTS } from "./dummyData";
+import { Product } from "@/types";
+import { DUMMY_PRODUCTS } from "./dummyData";
 
 const PRODUCT_STORAGE_KEY = 'shop_products';
 
@@ -8,24 +9,12 @@ export const getProducts = (): Product[] => {
 
     const saved = localStorage.getItem(PRODUCT_STORAGE_KEY);
     if (!saved) {
-        // Initialize with dummy data if empty
         localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(DUMMY_PRODUCTS));
         return DUMMY_PRODUCTS;
     }
 
     try {
-        const products: Product[] = JSON.parse(saved);
-
-        // Auto-sync images for dummy products (p1 to p10) to ensure latest high-quality images
-        const updated = products.map(p => {
-            const dummy = DUMMY_PRODUCTS.find(d => d.id === p.id);
-            if (dummy && p.id.startsWith('p')) {
-                return { ...p, images: dummy.images };
-            }
-            return p;
-        });
-
-        return updated;
+        return JSON.parse(saved);
     } catch (e) {
         console.error('Failed to parse products', e);
         return DUMMY_PRODUCTS;
@@ -42,7 +31,6 @@ export const saveProduct = (productData: Omit<Product, 'id' | 'like_count' | 're
 
     const currentProducts = getProducts();
     const updatedProducts = [newProduct, ...currentProducts];
-
     localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(updatedProducts));
     return newProduct;
 };

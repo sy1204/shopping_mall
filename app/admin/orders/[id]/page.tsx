@@ -1,26 +1,32 @@
 // app/admin/orders/[id]/page.tsx
 'use client';
 
-import { getOrders, updateOrderStatus, Order } from "@/utils/orderStorage";
+import { getOrders, updateOrderStatus } from "@/utils/orderStorage";
+import { Order } from "@/types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Image from "next/image";
 
-export default function OrderDetailPage({ params }: { params: { id: string } }) {
+type Props = {
+    params: Promise<{ id: string }>;
+};
+
+export default function OrderDetailPage({ params }: Props) {
     const router = useRouter();
+    const resolvedParams = use(params);
+    const orderId = resolvedParams.id;
     const [order, setOrder] = useState<Order | null>(null);
 
     useEffect(() => {
-        const id = params.id;
         const orders = getOrders();
-        const found = orders.find(o => o.id === id);
+        const found = orders.find(o => o.id === orderId);
         if (found) {
             setOrder(found);
         } else {
             alert('Order not found');
             router.push('/admin/orders');
         }
-    }, [params.id, router]);
+    }, [orderId, router]);
 
     const handleStatusChange = (newStatus: Order['status']) => {
         if (!order) return;
@@ -30,7 +36,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         }
     };
 
-    if (!order) return <div>Loading...</div>;
+    if (!order) return <div className="p-8 font-mono">LOADING_ORDER_DATA...</div>;
 
     return (
         <div>
@@ -40,7 +46,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                 </button>
             </div>
 
-            <div className="bg-white border rounded-lg shadow-sm p-8 mb-8">
+            <div className="bg-white border rounded shadow-sm p-8 mb-8">
                 <div className="flex justify-between items-start border-b pb-6 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold mb-2">주문번호 #{order.id}</h1>
@@ -113,7 +119,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                             {order.items.map((item, idx) => (
                                 <div key={idx} className="flex gap-4">
                                     <div className="relative w-16 h-20 bg-gray-100 flex-shrink-0">
-                                        <Image src={item.images[0]} alt={item.name} fill className="object-cover" />
+                                        <Image src={item.images[0]} alt={item.name} fill className="object-cover" unoptimized />
                                     </div>
                                     <div>
                                         <p className="font-bold text-sm">{item.brand}</p>

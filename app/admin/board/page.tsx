@@ -3,14 +3,8 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-    Notice, FAQ, OneToOneInquiry, Review,
-    getNotices, addNotice,
-    getFAQs, addFAQ,
-    getAllOneToOneInquiries,
-    getAllReviews,
-    initializeBoardData
-} from "@/utils/boardStorage";
+import { getNotices, addNotice, getFAQs, addFAQ, getAllOneToOneInquiries, getAllReviews, initializeBoardData } from "@/utils/boardStorage";
+import { Notice, FAQ, OneToOneInquiry, Review } from "@/types";
 
 export default function AdminBoardPage() {
     const searchParams = useSearchParams();
@@ -99,7 +93,7 @@ export default function AdminBoardPage() {
                                     <select
                                         className="border p-2 w-full"
                                         value={noticeForm.category}
-                                        onChange={e => setNoticeForm({ ...noticeForm, category: e.target.value })}
+                                        onChange={e => setNoticeForm({ ...noticeForm, category: e.target.value as 'StyleShop' | 'Customer' })}
                                     >
                                         <option value="StyleShop">스타일 숍</option>
                                         <option value="Customer">고객센터</option>
@@ -272,6 +266,6 @@ export default function AdminBoardPage() {
                     </>
                 )}
             </div>
-        </div >
+        </div>
     );
 }

@@ -1,7 +1,8 @@
 // app/admin/orders/page.tsx
 'use client';
 
-import { getOrders, updateOrderStatus, Order } from "@/utils/orderStorage";
+import { getOrders, updateOrderStatus } from "@/utils/orderStorage";
+import { Order } from "@/types";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -33,7 +34,7 @@ export default function AdminOrdersPage() {
 
     const handleStatusChange = (orderId: string, newStatus: string) => {
         if (window.confirm(`주문 상태를 "${newStatus}"(으)로 변경하시겠습니까?`)) {
-            updateOrderStatus(orderId, newStatus as any);
+            updateOrderStatus(orderId, newStatus as Order['status']);
             const updated = getOrders();
             setOrders(updated);
             setFilteredOrders(applyFilter(updated, filter));
@@ -45,7 +46,7 @@ export default function AdminOrdersPage() {
         const currentOrder = orders.find(o => o.id === orderId);
         if (currentOrder && currentOrder.adminMemo === newMemo) return;
 
-        updateOrderStatus(orderId, currentOrder?.status as any, { adminMemo: newMemo });
+        updateOrderStatus(orderId, currentOrder?.status as Order['status'], { adminMemo: newMemo });
         const updated = getOrders();
         setOrders(updated);
         setFilteredOrders(applyFilter(updated, filter));
@@ -101,7 +102,7 @@ export default function AdminOrdersPage() {
                                 <td className="p-4">
                                     <div className="font-bold text-[var(--neural-black)]">{order.items[0].name}</div>
                                     <div className="text-[10px] font-mono text-[var(--tech-silver)] uppercase tracking-wider">
-                                        {Array.from(new Map(Object.entries(order.items[0].selectedOptions || {})).entries()).map(([k, v]) => `${k}: ${v}`).join(', ')}
+                                        {Object.entries(order.items[0].selectedOptions || {}).map(([k, v]) => `${k}: ${v}`).join(', ')}
                                         {order.items.length > 1 && ` 외 ${order.items.length - 1}건`}
                                     </div>
                                 </td>

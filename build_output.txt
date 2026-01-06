@@ -1,0 +1,58 @@
+
+> shopping_mall@1.0.0 build
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.1s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/30) ...
+  Generating static pages using 15 workers (7/30) 
+  Generating static pages using 15 workers (14/30) 
+  Generating static pages using 15 workers (22/30) 
+✓ Generating static pages using 15 workers (30/30) in 269.9ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin
+├ ○ /admin/board
+├ ○ /admin/design
+├ ○ /admin/login
+├ ○ /admin/orders
+├ ƒ /admin/orders/[id]
+├ ○ /admin/products
+├ ƒ /admin/products/[id]
+├ ○ /admin/products/edit
+├ ○ /admin/products/new
+├ ○ /admin/settings
+├ ○ /admin/stats
+├ ○ /admin/users
+├ ƒ /admin/users/[id]
+├ ○ /auth/login
+├ ○ /board
+├ ○ /checkout
+├ ○ /checkout/order
+├ ○ /checkout/success
+├ ○ /cs
+├ ○ /events
+├ ○ /faq
+├ ○ /find-account
+├ ○ /login
+├ ○ /mypage
+├ ○ /mypage/check-password
+├ ƒ /mypage/orders/[id]
+├ ○ /mypage/profile/edit
+├ ○ /open-shop
+├ ○ /shop
+├ ƒ /shop/[id]
+└ ○ /signup
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -2,7 +2,8 @@
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
-import { addProductInquiry, getProductInquiries, ProductInquiry } from "@/utils/boardStorage";
+import { addProductInquiry, getProductInquiries } from "@/utils/boardStorage";
+import { ProductInquiry } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function InquirySection({ productId }: { productId: string }) {

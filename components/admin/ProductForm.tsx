@@ -1,9 +1,8 @@
 // components/admin/ProductForm.tsx
-// components/admin/ProductForm.tsx
 'use client';
 
-import { Product } from "@/utils/dummyData";
-import { saveProduct, updateProduct, getProductById } from "@/utils/productStorage";
+import { saveProduct, updateProduct } from "@/utils/productStorage";
+import { Product } from "@/types";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -34,7 +33,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 discount_rate: initialData.discount_rate?.toString() || '0',
                 price: initialData.price.toString(),
                 category: initialData.category,
-                images: initialData.images.join('\n'),
+                images: (initialData.images || []).join('\n'),
                 story_content: initialData.story_content || ''
             });
         }
@@ -55,7 +54,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 }
             }
         }
-    }, [formData.original_price, formData.discount_rate]);
+    }, [formData.original_price, formData.discount_rate, initialData]);
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -95,40 +94,40 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-2xl bg-white p-8 rounded-lg shadow-sm border">
-            <h2 className="text-xl font-bold mb-6">{isEdit ? '상품 수정' : '새 상품 등록'}</h2>
+        <form onSubmit={handleSubmit} className="max-w-2xl bg-white p-8 rounded border shadow-sm">
+            <h2 className="text-xl font-bold mb-6 font-mono tracking-tight uppercase">{isEdit ? 'EDit Product' : 'Register New Product'}</h2>
 
             <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">브랜드</label>
-                        <input name="brand" value={formData.brand} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Brand</label>
+                        <input name="brand" value={formData.brand} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" required />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">상품명</label>
-                        <input name="name" value={formData.name} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Product Name</label>
+                        <input name="name" value={formData.name} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" required />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">정가 (Original Price)</label>
-                        <input type="number" name="original_price" value={formData.original_price} onChange={handleChange} className="w-full border p-2 rounded" required placeholder="예: 50000" />
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Original Price</label>
+                        <input type="number" name="original_price" value={formData.original_price} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" required placeholder="50000" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">할인율 (%)</label>
-                        <input type="number" name="discount_rate" value={formData.discount_rate} onChange={handleChange} className="w-full border p-2 rounded" placeholder="0" />
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Discount (%)</label>
+                        <input type="number" name="discount_rate" value={formData.discount_rate} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" placeholder="0" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">최종 판매가</label>
-                        <input type="number" name="price" value={formData.price} readOnly className="w-full border p-2 rounded bg-gray-100 text-gray-500 font-bold" />
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Final Price</label>
+                        <input type="number" name="price" value={formData.price} readOnly className="w-full border p-2 rounded bg-gray-50 text-black font-bold font-mono text-sm" />
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium mb-1">카테고리</label>
-                    <select name="category" value={formData.category} onChange={handleChange} className="w-full border p-2 rounded" required>
-                        <option value="">카테고리 선택</option>
+                    <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Category</label>
+                    <select name="category" value={formData.category} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" required>
+                        <option value="">Select Category</option>
                         <option value="Top">상의 (Top)</option>
                         <option value="Bottom">하의 (Bottom)</option>
                         <option value="Outerwear">아우터 (Outerwear)</option>
@@ -139,31 +138,31 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium mb-1">이미지 URL (줄바꿈으로 구분)</label>
+                    <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Image URLs (One per line)</label>
                     <textarea
                         name="images"
                         value={formData.images}
                         onChange={handleChange}
-                        className="w-full border p-2 rounded h-32 font-mono text-sm"
+                        className="w-full border p-2 rounded h-32 font-mono text-xs focus:border-black outline-none transition-colors"
                         placeholder="https://example.com/image1.jpg"
                         required
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium mb-1">상세 설명 (Markdown 지원)</label>
+                    <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Description (Markdown)</label>
                     <textarea
                         name="story_content"
                         value={formData.story_content}
                         onChange={handleChange}
-                        className="w-full border p-2 rounded h-48 font-mono text-sm"
+                        className="w-full border p-2 rounded h-48 focus:border-black outline-none transition-colors text-sm"
                     />
                 </div>
 
                 <div className="pt-4 flex justify-end gap-2">
-                    <button type="button" onClick={() => router.back()} className="px-4 py-2 border rounded hover:bg-gray-50">취소</button>
-                    <button type="submit" className="px-4 py-2 bg-black text-white rounded font-bold hover:bg-gray-800">
-                        {isEdit ? '상품 수정' : '상품 등록'}
+                    <button type="button" onClick={() => router.back()} className="px-6 py-2 border rounded text-xs font-mono font-bold uppercase hover:bg-gray-50 transition-colors">Cancel</button>
+                    <button type="submit" className="px-6 py-2 bg-black text-white rounded text-xs font-mono font-bold uppercase hover:bg-gray-800 transition-colors">
+                        {isEdit ? 'Update Product' : 'Register Product'}
                     </button>
                 </div>
             </div>

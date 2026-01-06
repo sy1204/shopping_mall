@@ -2,9 +2,10 @@
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
-import { addReview, getReviews, Review } from "@/utils/boardStorage";
+import { addReview, getReviews } from "@/utils/boardStorage";
+import { Review } from "@/types";
 import { useEffect, useState } from "react";
-import Image from "next/image"; // Import Image component
+import Image from "next/image";
 
 export default function ReviewSection({ productId }: { productId: string }) {
     const { user } = useAuth();
@@ -98,7 +99,7 @@ export default function ReviewSection({ productId }: { productId: string }) {
                                         alt="Preview"
                                         fill
                                         className="object-cover"
-                                        unoptimized // Using data URL
+                                        unoptimized
                                     />
                                 </div>
                             )}

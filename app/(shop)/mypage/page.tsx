@@ -1,14 +1,14 @@
 // app/(shop)/mypage/page.tsx
 'use client';
 
-import { useAuth, User } from "@/context/AuthContext";
-import { getOrders, Order, updateOrderStatus } from "@/utils/orderStorage";
-import { getMyReviews, getMyProductInquiries, Review, ProductInquiry } from "@/utils/boardStorage";
+import { useAuth } from "@/context/AuthContext";
+import { User, Order, Review, ProductInquiry } from "@/types";
+import { getOrders, updateOrderStatus } from "@/utils/orderStorage";
+import { getMyReviews, getMyProductInquiries } from "@/utils/boardStorage";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import OneToOneSection from "@/components/board/OneToOneSection";
-import ProfileForm from "@/components/mypage/ProfileForm";
 
 // Define Active status types
 const ACTIVE_STATUSES = ['Paid', 'Preparing', 'Shipped', 'Delivered'];
@@ -35,8 +35,8 @@ export default function MyPage() {
     const refreshData = () => {
         if (!user) return;
         setOrders(getOrders()); // In real app, filter by user ID
-        setMyReviews(getMyReviews(user.email));
-        setMyQna(getMyProductInquiries(user.email));
+        setMyReviews(getMyReviews((user as User).email));
+        setMyQna(getMyProductInquiries((user as User).email));
     };
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export default function MyPage() {
 
         // 2. Add Points to User
         if (user) {
-            const newPoints = (user.points || 0) + order.earnedPoints;
+            const newPoints = ((user as User).points || 0) + order.earnedPoints;
             updateUser({ points: newPoints });
             alert(`구매가 확정되었습니다. ${order.earnedPoints.toLocaleString()}P가 적립되었습니다.`);
         }
@@ -67,14 +67,7 @@ export default function MyPage() {
 
     if (isLoading || !user) return null;
 
-    // Filter Orders
-    // Filters need to handle the fact that getOrders returns ALL orders in this demo. 
-    // In real app, API would filter. Here assuming all orders belong to user for simplicity or ideally filtering by user if Order had userId.
-    // Since Order doesn't have userId in previous definition, we assume single user demo or add userId to Order.
-    // Let's assume global orders are user's for this demo as we didn't add userId to Order yet.
-    // Given the context is separate users, we should ideally filter. But `saveOrder` is generic. 
-    // Let's proceed assuming the current local storage is for the current user (client-side only demo).
-
+    const typedUser = user as User;
     const activeOrders = orders.filter(o => ACTIVE_STATUSES.includes(o.status));
     const pastOrders = orders.filter(o => !ACTIVE_STATUSES.includes(o.status));
 
@@ -88,17 +81,17 @@ export default function MyPage() {
                     <div className="bg-white border p-6 sticky top-24">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-xl font-bold text-white">
-                                {user.name[0].toUpperCase()}
+                                {typedUser.name[0].toUpperCase()}
                             </div>
                             <div>
-                                <h2 className="font-bold">{user.name}</h2>
-                                <p className="text-sm text-gray-500">{user.email}</p>
+                                <h2 className="font-bold">{typedUser.name}</h2>
+                                <p className="text-sm text-gray-500">{typedUser.email}</p>
                             </div>
                         </div>
 
                         <div className="mb-6 p-4 bg-white border text-center">
                             <p className="text-xs text-gray-500 mb-1">나의 적립금</p>
-                            <p className="text-xl font-bold text-blue-600">{(user.points || 0).toLocaleString()} P</p>
+                            <p className="text-xl font-bold text-blue-600">{(typedUser.points || 0).toLocaleString()} P</p>
                         </div>
 
                         <button
@@ -121,8 +114,8 @@ export default function MyPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full text-left py-3 px-2 border-l-2 text-sm font-medium transition-colors ${activeTab === tab.id
-                                        ? 'border-black text-black'
-                                        : 'border-transparent text-gray-500 hover:text-gray-800'
+                                            ? 'border-black text-black'
+                                            : 'border-transparent text-gray-500 hover:text-gray-800'
                                         }`}
                                 >
                                     {tab.label}
@@ -233,7 +226,7 @@ export default function MyPage() {
                                                 </div>
                                                 {/* Items summary */}
                                                 <div className="text-sm text-gray-600">
-                                                    {order.items[0].name} 외 {order.items.length - 1}건
+                                                    {order.items[0].name} {order.items.length > 1 ? `외 ${order.items.length - 1}건` : ''}
                                                 </div>
                                                 <div className="mt-2 text-right font-bold">
                                                     {order.totalPrice.toLocaleString()}원
