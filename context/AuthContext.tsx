@@ -11,6 +11,7 @@ export interface User {
     addressDetail?: string;
     zipCode?: string;
     isAdmin?: boolean;
+    points?: number;
 }
 
 interface AuthContextType {
