@@ -143,7 +143,6 @@ export default function MyOrderPage({ params }: { params: { id: string } }) {
                             <p className="font-bold text-black">{order.shippingAddress.name}</p>
                             <p>{order.shippingAddress.phone}</p>
                             <p>{order.shippingAddress.address}</p>
-                            <p className="text-xs text-gray-400 mt-2">{order.shippingAddress.memo}</p>
                         </div>
                     </div>
                     <div>
