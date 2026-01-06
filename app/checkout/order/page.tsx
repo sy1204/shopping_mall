@@ -85,7 +85,6 @@ export default function OrderPage() {
                     phone: formData.phone,
                     address: `${formData.address} ${formData.detailAddress}`.trim()
                 },
-                status: 'Paid',
                 usedPoints: pointsToUse,
                 earnedPoints: earnedPoints
             });
