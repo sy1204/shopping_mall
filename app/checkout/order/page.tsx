@@ -72,7 +72,7 @@ export default function OrderPage() {
 
             // Deduct points if used
             if (pointsToUse > 0 && user) {
-                const newPoints = Math.max(0, user.points - pointsToUse);
+                const newPoints = Math.max(0, (user.points || 0) - pointsToUse);
                 updateUser({ points: newPoints });
             }
 
