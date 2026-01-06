@@ -1,0 +1,14 @@
+{
+    "agents": [
+        {
+            "name": "Project Manager",
+            "blueprint": "blueprints/project_manager.md",
+            "description": "쇼핑몰 프로젝트를 총괄하며, 작업을 관리하고 개발을 조정합니다."
+        },
+        {
+            "name": "UI/UX Director",
+            "blueprint": "blueprints/ui_ux_director.md",
+            "description": "사용자 경험 중심의 디자인을 가이드하고 UI 품질을 관리합니다."
+        }
+    ]
+}

@@ -1,0 +1,321 @@
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+    --font-sans: var(--font-inter);
+    --font-serif: var(--font-cormorant);
+    --font-mono: var(--font-ibm-mono);
+}
+
+/* ============================================
+   [N-D] Brand CSS Variables
+   ============================================ */
+:root {
+    /* Brand Colors */
+    --neural-black: #121212;
+    --pure-white: #FFFFFF;
+    --tech-silver: #8E8E8E;
+    --logic-blue: #2F54EB;
+    --brand-accent: #E2C49C;
+    /* 히어로 코트 색 기반의 기본 세컨색 */
+    --accent-primary: var(--brand-accent);
+
+    /* Legacy variables (keeping for compatibility) */
+    --foreground-rgb: 18, 18, 18;
+    /* Neural Black */
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+
+    /* Font families */
+    --font-inter: 'Inter', sans-serif;
+    --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+    --font-ibm-mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --font-outfit: 'Outfit', sans-serif;
+
+    /* Force light theme */
+    color-scheme: light only;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+body {
+    color: var(--neural-black);
+    background: var(--pure-white);
+    font-family: var(--font-inter);
+}
+
+/* ============================================
+   [N-D] Typography Utilities
+   ============================================ */
+
+/* Classic serif - use ONLY for brand emphasis (logo, hero titles) */
+.font-serif {
+    font-family: var(--font-cormorant);
+}
+
+/* Logo with slightly rounded geometric sans */
+.font-logo {
+    font-family: var(--font-outfit);
+}
+
+/* Brand logo specific styling */
+.brand-logo {
+    font-family: var(--font-cormorant);
+    font-weight: 700;
+}
+
+.font-mono {
+    font-family: var(--font-ibm-mono);
+}
+
+/* ============================================
+   [N-D] Bracket Utilities
+   ============================================ */
+.bracket-text::before {
+    content: '[ ';
+}
+
+.bracket-text::after {
+    content: ' ]';
+}
+
+/* ============================================
+   [N-D] Dash Utilities
+   ============================================ */
+.dash-line {
+    height: 1px;
+    background: var(--tech-silver);
+    opacity: 0.2;
+}
+
+.dash-line-vertical {
+    width: 1px;
+    background: var(--tech-silver);
+    opacity: 0.2;
+}
+
+/* ============================================
+   [N-D] Node Utilities
+   ============================================ */
+.node {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neural-black);
+}
+
+.node-active {
+    background: var(--brand-accent);
+    box-shadow: 0 0 8px rgba(226, 196, 156, 0.5);
+}
+
+.node-pulse {
+    animation: node-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes node-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* ============================================
+   [N-D] Button Styles
+   ============================================ */
+.bracket-button {
+    position: relative;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bracket-button::before {
+    content: '[ ';
+    opacity: 0.7;
+}
+
+.bracket-button::after {
+    content: ' ]';
+    opacity: 0.7;
+}
+
+.bracket-button:hover::before,
+.bracket-button:hover::after {
+    opacity: 1;
+}
+
+.bracket-button:hover {
+    color: var(--brand-accent);
+}
+
+/* ============================================
+   [N-D] Neural Loading Animation
+   ============================================ */
+@keyframes neural-expand {
+    0% {
+        width: 20%;
+    }
+
+    50% {
+        width: 80%;
+    }
+
+    100% {
+        width: 20%;
+    }
+}
+
+@keyframes node-move {
+    0% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(100px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.neural-loading {
+    display: inline-block;
+    position: relative;
+    width: 200px;
+    height: 20px;
+}
+
+.neural-loading::before {
+    content: '[';
+    position: absolute;
+    left: 0;
+}
+
+.neural-loading::after {
+    content: ']';
+    position: absolute;
+    right: 0;
+}
+
+.neural-dash-expand {
+    animation: dash-expand 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.neural-node-slide {
+    animation: node-slide 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes dash-expand {
+
+    0%,
+    100% {
+        width: 20%;
+        opacity: 0.3;
+        transform: translateX(0);
+    }
+
+    50% {
+        width: 60%;
+        opacity: 1;
+        transform: translateX(20%);
+    }
+}
+
+@keyframes node-slide {
+
+    0%,
+    100% {
+        left: 30%;
+    }
+
+    50% {
+        left: 70%;
+    }
+}
+
+@keyframes dash-slide {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.dash-slide-animation {
+    animation: dash-slide 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   [N-D] Infinite Dash Background
+   ============================================ */
+.infinite-dash-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.03;
+}
+
+.infinite-dash-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 79px,
+            var(--tech-silver) 79px,
+            var(--tech-silver) 80px);
+    animation: dash-scroll 3s linear infinite;
+}
+
+@keyframes dash-scroll {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(80px);
+    }
+}
+
+/* ============================================
+   Accessibility - Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    .node-pulse,
+    .neural-loading,
+    .infinite-dash-bg::before {
+        animation: none;
+    }
+
+    * {
+        transition: none !important;
+    }
+}
+
+/* ============================================
+   Tailwind Utilities
+   ============================================ */
+@utility text-balance {
+    text-wrap: balance;
+}
