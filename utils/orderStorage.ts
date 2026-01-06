@@ -43,7 +43,7 @@ const DUMMY_ORDERS: Order[] = [
     {
         id: 'ord_sample_1',
         date: '2025-12-20T10:00:00Z',
-        items: [{ id: 'p1', name: 'Essential Oversized Wool Coat', brand: 'LOW CLASSIC', price: 348000, quantity: 1, images: ['https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000'], selectedOptions: new Map([['Size', 'M']]) }],
+        items: [{ id: 'p1', name: 'Essential Oversized Wool Coat', brand: 'LOW CLASSIC', price: 348000, quantity: 1, images: ['https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000'], selectedOptions: { size: 'M' } }],
         totalPrice: 348000,
         shippingAddress: { name: 'Kim Min-su', address: 'Seoul Gangnam-gu Teheran-ro 123', phone: '010-1234-5678' },
         status: 'Delivered',
@@ -54,7 +54,7 @@ const DUMMY_ORDERS: Order[] = [
     {
         id: 'ord_sample_2',
         date: '2025-12-25T14:30:00Z',
-        items: [{ id: 'p10', name: 'Running Shoes 990v5', brand: 'NEW BALANCE', price: 239000, quantity: 1, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000'], selectedOptions: new Map([['Size', '270']]) }],
+        items: [{ id: 'p10', name: 'Running Shoes 990v5', brand: 'NEW BALANCE', price: 239000, quantity: 1, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000'], selectedOptions: { size: '270' } }],
         totalPrice: 239000,
         shippingAddress: { name: 'Lee Ha-eun', address: 'Busan Haeundae-gu U-dong 456', phone: '010-9876-5432' },
         status: 'Return Requested',
@@ -65,7 +65,7 @@ const DUMMY_ORDERS: Order[] = [
     {
         id: 'ord_sample_3',
         date: '2026-01-02T09:15:00Z',
-        items: [{ id: 'p2', name: 'Arch Logo Hoodie', brand: 'THISISNEVERTHAT', price: 89000, quantity: 2, images: ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000'], selectedOptions: new Map([['Size', 'L']]) }],
+        items: [{ id: 'p2', name: 'Arch Logo Hoodie', brand: 'THISISNEVERTHAT', price: 89000, quantity: 2, images: ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000'], selectedOptions: { size: 'L' } }],
         totalPrice: 178000,
         shippingAddress: { name: 'Park Ji-hoon', address: 'Incheon Namdong-gu Guwol-dong 789', phone: '010-1111-2222' },
         status: 'Preparing',
