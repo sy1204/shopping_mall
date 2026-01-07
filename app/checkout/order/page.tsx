@@ -7,6 +7,25 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { saveOrder } from "@/utils/orderStorage";
 
+// Daum Postcode API types
+declare global {
+    interface Window {
+        daum: {
+            Postcode: new (options: {
+                oncomplete: (data: {
+                    zonecode: string;
+                    roadAddress: string;
+                    jibunAddress: string;
+                    userSelectedType: string;
+                    buildingName: string;
+                }) => void;
+            }) => {
+                open: () => void;
+            };
+        };
+    }
+}
+
 export default function OrderPage() {
     const { items, totalPrice, clearCart } = useCart();
     const { user, updateUser } = useAuth();
@@ -18,12 +37,48 @@ export default function OrderPage() {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
+        zonecode: '',
         address: '',
         detailAddress: ''
     });
 
+    // Validation error states
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     const [pointsToUse, setPointsToUse] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('신용카드');
+
+    // Load Daum Postcode script
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.async = true;
+        document.head.appendChild(script);
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
+
+    // Open Daum Postcode popup
+    const openPostcodeSearch = () => {
+        if (!window.daum) {
+            alert('주소 검색 서비스를 로드하는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
+        new window.daum.Postcode({
+            oncomplete: (data) => {
+                const address = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                setFormData(prev => ({
+                    ...prev,
+                    zonecode: data.zonecode,
+                    address: address
+                }));
+                setErrors(prev => ({ ...prev, address: '' }));
+            }
+        }).open();
+    };
 
     // Load user info manually
     const handleLoadUserInfo = () => {
@@ -31,9 +86,11 @@ export default function OrderPage() {
             setFormData({
                 name: user.name || '',
                 phone: user.phoneNumber || '',
+                zonecode: user.zonecode || '',
                 address: user.address || '',
                 detailAddress: user.addressDetail || ''
             });
+            setErrors({});
         } else {
             alert('로그인이 필요합니다.');
         }
@@ -62,8 +119,35 @@ export default function OrderPage() {
         }
     };
 
+    // Validate form
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.name.trim()) {
+            newErrors.name = '받는 사람을 입력해주세요.';
+        }
+
+        if (!formData.phone.trim()) {
+            newErrors.phone = '연락처를 입력해주세요.';
+        } else if (!/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(formData.phone.replace(/-/g, ''))) {
+            newErrors.phone = '올바른 연락처 형식을 입력해주세요. (예: 010-1234-5678)';
+        }
+
+        if (!formData.address.trim()) {
+            newErrors.address = '주소를 입력해주세요. 주소 검색 버튼을 클릭하세요.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -83,7 +167,7 @@ export default function OrderPage() {
                 shippingAddress: {
                     name: formData.name,
                     phone: formData.phone,
-                    address: `${formData.address} ${formData.detailAddress}`.trim()
+                    address: `[${formData.zonecode}] ${formData.address} ${formData.detailAddress}`.trim()
                 },
                 usedPoints: pointsToUse,
                 earnedPoints: earnedPoints
@@ -125,42 +209,75 @@ export default function OrderPage() {
                                 </button>
                             </div>
                             <div className="space-y-4">
+                                {/* Name */}
                                 <div>
-                                    <label className="block text-sm font-bold mb-1">받는 사람</label>
+                                    <label className="block text-sm font-bold mb-1">
+                                        받는 사람 <span className="text-red-500">*</span>
+                                    </label>
                                     <input
-                                        required
                                         type="text"
-                                        className="w-full border p-2"
+                                        className={`w-full border p-2 ${errors.name ? 'border-red-500' : ''}`}
                                         placeholder="홍길동"
                                         value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        onChange={e => {
+                                            setFormData({ ...formData, name: e.target.value });
+                                            if (errors.name) setErrors({ ...errors, name: '' });
+                                        }}
                                     />
+                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                 </div>
+
+                                {/* Phone */}
                                 <div>
-                                    <label className="block text-sm font-bold mb-1">연락처</label>
+                                    <label className="block text-sm font-bold mb-1">
+                                        연락처 <span className="text-red-500">*</span>
+                                    </label>
                                     <input
-                                        required
                                         type="tel"
-                                        className="w-full border p-2"
+                                        className={`w-full border p-2 ${errors.phone ? 'border-red-500' : ''}`}
                                         placeholder="010-0000-0000"
                                         value={formData.phone}
-                                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                        onChange={e => {
+                                            setFormData({ ...formData, phone: e.target.value });
+                                            if (errors.phone) setErrors({ ...errors, phone: '' });
+                                        }}
                                     />
+                                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                                 </div>
+
+                                {/* Address with Daum Postcode */}
                                 <div>
-                                    <label className="block text-sm font-bold mb-1">주소</label>
+                                    <label className="block text-sm font-bold mb-1">
+                                        주소 <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="flex gap-2 mb-2">
+                                        <input
+                                            type="text"
+                                            className="w-32 border p-2 bg-gray-50"
+                                            placeholder="우편번호"
+                                            value={formData.zonecode}
+                                            readOnly
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={openPostcodeSearch}
+                                            className="px-4 py-2 bg-black text-white text-sm font-bold hover:bg-gray-800"
+                                        >
+                                            주소 검색
+                                        </button>
+                                    </div>
                                     <input
-                                        required
                                         type="text"
-                                        className="w-full border p-2 mb-2"
-                                        placeholder="기본 주소"
+                                        className={`w-full border p-2 mb-2 bg-gray-50 ${errors.address ? 'border-red-500' : ''}`}
+                                        placeholder="주소 검색 버튼을 클릭하세요"
                                         value={formData.address}
-                                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                        readOnly
                                     />
+                                    {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
                                     <input
                                         type="text"
                                         className="w-full border p-2"
-                                        placeholder="상세 주소"
+                                        placeholder="상세 주소 (동/호수 등)"
                                         value={formData.detailAddress}
                                         onChange={e => setFormData({ ...formData, detailAddress: e.target.value })}
                                     />

@@ -3,10 +3,12 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getNotices, addNotice, getFAQs, addFAQ, getAllOneToOneInquiries, getAllReviews, initializeBoardData } from "@/utils/boardStorage";
+import { getNotices, addNotice, getFAQs, addFAQ, getAllOneToOneInquiries, getAllReviews, initializeBoardData, updateOneToOneInquiry } from "@/utils/boardStorage";
 import { Notice, FAQ, OneToOneInquiry, Review } from "@/types";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminBoardPage() {
+    const { showToast } = useToast();
     const searchParams = useSearchParams();
     const router = useRouter();
     const tab = searchParams?.get('tab') || 'notice';
@@ -25,6 +27,10 @@ export default function AdminBoardPage() {
 
     // FAQ Form
     const [faqForm, setFaqForm] = useState({ question: '', answer: '', category: '주문' });
+
+    // 1:1 Inquiry Answer Modal
+    const [selectedInquiry, setSelectedInquiry] = useState<OneToOneInquiry | null>(null);
+    const [answerText, setAnswerText] = useState('');
 
     useEffect(() => {
         initializeBoardData(); // Initialize dummy data if empty
@@ -57,6 +63,27 @@ export default function AdminBoardPage() {
         setShowForm(false);
         refreshData();
         setFaqForm({ question: '', answer: '', category: '주문' });
+    };
+
+    const openAnswerModal = (inquiry: OneToOneInquiry) => {
+        setSelectedInquiry(inquiry);
+        setAnswerText(inquiry.answer || '');
+    };
+
+    const handleAnswerSubmit = () => {
+        if (!selectedInquiry || !answerText.trim()) {
+            showToast('답변 내용을 입력해주세요.', 'error');
+            return;
+        }
+
+        updateOneToOneInquiry(selectedInquiry.id, {
+            answer: answerText.trim(),
+            status: 'Answered'
+        });
+        refreshData();
+        setSelectedInquiry(null);
+        setAnswerText('');
+        showToast('답변이 등록되었습니다.', 'success');
     };
 
     return (
@@ -223,10 +250,22 @@ export default function AdminBoardPage() {
                                             </span>
                                         </td>
                                         <td className="p-3 text-gray-500">{i.category}</td>
-                                        <td className="p-3 font-medium">{i.title}</td>
+                                        <td className="p-3">
+                                            <div className="font-medium">{i.title}</div>
+                                            {i.answer && (
+                                                <div className="mt-1 text-xs text-blue-600">
+                                                    답변: {i.answer.length > 40 ? `${i.answer.slice(0, 40)}...` : i.answer}
+                                                </div>
+                                            )}
+                                        </td>
                                         <td className="p-3 text-gray-400">{new Date(i.createdAt).toLocaleDateString()}</td>
                                         <td className="p-3">
-                                            <button className="text-blue-600 underline text-xs">답변하기</button>
+                                            <button
+                                                onClick={() => openAnswerModal(i)}
+                                                className="px-3 py-1.5 text-xs border rounded hover:bg-black hover:text-white transition-colors"
+                                            >
+                                                {i.answer ? '수정' : '답변'}
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -266,6 +305,64 @@ export default function AdminBoardPage() {
                     </>
                 )}
             </div>
+
+            {/* 1:1 Answer Modal */}
+            {selectedInquiry && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold">1:1 문의 답변</h3>
+                            <button
+                                onClick={() => setSelectedInquiry(null)}
+                                className="text-gray-400 hover:text-black"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="mb-6">
+                            <div className="flex gap-2 mb-2">
+                                <span className="bg-gray-100 text-xs px-2 py-1 rounded">{selectedInquiry.category}</span>
+                                <span className={`text-xs px-2 py-1 rounded ${selectedInquiry.status === 'Answered' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    {selectedInquiry.status === 'Answered' ? '답변완료' : '대기중'}
+                                </span>
+                            </div>
+                            <h4 className="font-bold mb-2">{selectedInquiry.title}</h4>
+                            <div className="p-4 bg-gray-50 rounded text-sm whitespace-pre-wrap">
+                                {selectedInquiry.content}
+                            </div>
+                            <div className="mt-2 text-xs text-gray-400">
+                                {new Date(selectedInquiry.createdAt).toLocaleString('ko-KR')}
+                            </div>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-bold mb-2">답변 내용</label>
+                            <textarea
+                                value={answerText}
+                                onChange={(e) => setAnswerText(e.target.value)}
+                                placeholder="고객에게 전달할 답변을 입력하세요..."
+                                className="w-full border p-4 text-sm h-40 resize-none focus:border-blue-500 outline-none rounded"
+                            />
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setSelectedInquiry(null)}
+                                className="flex-1 py-3 border text-sm font-bold hover:bg-gray-50 transition-colors rounded"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleAnswerSubmit}
+                                className="flex-1 py-3 bg-black text-white text-sm font-bold hover:bg-gray-900 transition-colors rounded"
+                            >
+                                답변 등록
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

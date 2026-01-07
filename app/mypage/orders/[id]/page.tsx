@@ -12,6 +12,25 @@ type Props = {
     params: Promise<{ id: string }>;
 };
 
+// Common return/exchange reasons
+const RETURN_REASONS = [
+    '단순 변심',
+    '사이즈가 맞지 않음',
+    '색상이 사진과 다름',
+    '제품 하자 (불량)',
+    '배송 중 파손',
+    '오배송',
+    '기타'
+];
+
+const EXCHANGE_REASONS = [
+    '사이즈 교환',
+    '색상 교환',
+    '제품 하자 (불량)',
+    '오배송',
+    '기타'
+];
+
 export default function MyOrderPage({ params }: Props) {
     const router = useRouter();
     const resolvedParams = use(params);
@@ -20,8 +39,13 @@ export default function MyOrderPage({ params }: Props) {
 
     // Modal States
     const [showTracker, setShowTracker] = useState(false);
-    const [showReturnForm, setShowReturnForm] = useState(false);
-    const [returnReason, setReturnReason] = useState('');
+    const [showClaimForm, setShowClaimForm] = useState(false);
+    const [claimType, setClaimType] = useState<'return' | 'exchange'>('return');
+
+    // Form States
+    const [selectedReason, setSelectedReason] = useState('');
+    const [detailReason, setDetailReason] = useState('');
+    const [exchangeRequest, setExchangeRequest] = useState(''); // 교환 시 원하는 옵션
 
     useEffect(() => {
         const orders = getOrders();
@@ -42,16 +66,46 @@ export default function MyOrderPage({ params }: Props) {
         alert('구매가 확정되었습니다.');
     };
 
-    const handleReturnRequest = (e: React.FormEvent) => {
+    const openClaimForm = (type: 'return' | 'exchange') => {
+        setClaimType(type);
+        setSelectedReason('');
+        setDetailReason('');
+        setExchangeRequest('');
+        setShowClaimForm(true);
+    };
+
+    const handleClaimSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!order) return;
-        updateOrderStatus(order.id, 'Return Requested');
-        setOrder(prev => prev ? { ...prev, status: 'Return Requested' } : null);
-        setShowReturnForm(false);
-        alert('반품 신청이 접수되었습니다.');
+
+        const fullReason = selectedReason === '기타'
+            ? `기타: ${detailReason}`
+            : `${selectedReason}${detailReason ? ` - ${detailReason}` : ''}`;
+
+        const newStatus = claimType === 'return' ? 'Return Requested' : 'Exchange Requested';
+
+        // Update order with reason
+        updateOrderStatus(order.id, newStatus, {
+            ...(claimType === 'return'
+                ? { returnReason: fullReason }
+                : { exchangeReason: fullReason, exchangeRequest })
+        });
+
+        setOrder(prev => prev ? {
+            ...prev,
+            status: newStatus,
+            ...(claimType === 'return'
+                ? { returnReason: fullReason }
+                : { exchangeReason: fullReason, exchangeRequest })
+        } : null);
+
+        setShowClaimForm(false);
+        alert(`${claimType === 'return' ? '반품' : '교환'} 신청이 접수되었습니다.`);
     };
 
     if (!order) return <div className="p-8 font-mono">LOADING_ORDER_DATA...</div>;
+
+    const reasons = claimType === 'return' ? RETURN_REASONS : EXCHANGE_REASONS;
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -93,6 +147,23 @@ export default function MyOrderPage({ params }: Props) {
                             ))}
                         </div>
                     </div>
+
+                    {/* Show Claim Reason if exists */}
+                    {(order.returnReason || order.exchangeReason) && (
+                        <div className="bg-yellow-50 border border-yellow-200 p-6 mb-6">
+                            <h2 className="font-bold mb-2 text-yellow-800">
+                                {order.returnReason ? '반품 신청 사유' : '교환 신청 사유'}
+                            </h2>
+                            <p className="text-sm text-yellow-900">
+                                {order.returnReason || order.exchangeReason}
+                            </p>
+                            {order.exchangeRequest && (
+                                <p className="text-sm text-yellow-900 mt-2">
+                                    <span className="font-bold">희망 옵션:</span> {order.exchangeRequest}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white border p-6">
@@ -147,17 +218,31 @@ export default function MyOrderPage({ params }: Props) {
                             )}
 
                             {['Paid', 'Preparing', 'Shipped', 'Delivered'].includes(order.status) && (
-                                <button
-                                    onClick={() => setShowReturnForm(true)}
-                                    className="w-full py-3 border text-sm text-gray-400 hover:text-red-500 transition-colors"
-                                >
-                                    반품/교환 신청
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => openClaimForm('exchange')}
+                                        className="flex-1 py-3 border text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                                    >
+                                        교환 신청
+                                    </button>
+                                    <button
+                                        onClick={() => openClaimForm('return')}
+                                        className="flex-1 py-3 border text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                                    >
+                                        반품 신청
+                                    </button>
+                                </div>
                             )}
 
                             {order.status === 'Confirmed' && (
                                 <p className="text-center py-4 text-sm text-blue-600 font-bold border border-blue-100 bg-blue-50">
                                     구매가 확정된 주문입니다.
+                                </p>
+                            )}
+
+                            {['Return Requested', 'Exchange Requested'].includes(order.status) && (
+                                <p className="text-center py-4 text-sm text-yellow-700 font-bold border border-yellow-200 bg-yellow-50">
+                                    {order.status === 'Return Requested' ? '반품' : '교환'} 신청이 접수되었습니다.
                                 </p>
                             )}
                         </div>
@@ -189,27 +274,79 @@ export default function MyOrderPage({ params }: Props) {
                 </div>
             )}
 
-            {/* Return Form Modal */}
-            {showReturnForm && (
+            {/* Claim Form Modal */}
+            {showClaimForm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-300">
-                    <div className="bg-white p-8 max-w-md w-full">
+                    <div className="bg-white p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold">반품/교환 신청</h3>
-                            <button onClick={() => setShowReturnForm(false)} className="text-gray-400 hover:text-black">✕</button>
+                            <h3 className="text-lg font-bold">
+                                {claimType === 'return' ? '반품' : '교환'} 신청
+                            </h3>
+                            <button onClick={() => setShowClaimForm(false)} className="text-gray-400 hover:text-black">✕</button>
                         </div>
-                        <form onSubmit={handleReturnRequest}>
+                        <form onSubmit={handleClaimSubmit}>
+                            {/* Reason Selection */}
                             <div className="mb-6">
-                                <label className="block text-sm text-gray-500 mb-2">신청 사유</label>
-                                <textarea
-                                    required
-                                    className="w-full border p-3 text-sm h-32 resize-none"
-                                    placeholder="구체적인 사유를 입력해주세요. (예: 사이즈가 너무 커요, 색상이 사진과 달라요 등)"
-                                    value={returnReason}
-                                    onChange={(e) => setReturnReason(e.target.value)}
-                                ></textarea>
+                                <label className="block text-sm font-bold mb-3">
+                                    {claimType === 'return' ? '반품' : '교환'} 사유 <span className="text-red-500">*</span>
+                                </label>
+                                <div className="space-y-2">
+                                    {reasons.map(reason => (
+                                        <label key={reason} className="flex items-center gap-3 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="reason"
+                                                value={reason}
+                                                checked={selectedReason === reason}
+                                                onChange={(e) => setSelectedReason(e.target.value)}
+                                                className="w-4 h-4"
+                                            />
+                                            <span className="text-sm">{reason}</span>
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
-                            <button className="w-full py-4 bg-black text-white font-bold hover:bg-gray-900 transition-colors">
-                                신청 완료
+
+                            {/* Detail Reason */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-bold mb-2">
+                                    상세 사유 {selectedReason === '기타' && <span className="text-red-500">*</span>}
+                                </label>
+                                <textarea
+                                    className="w-full border p-3 text-sm h-24 resize-none"
+                                    placeholder="구체적인 사유를 입력해주세요."
+                                    value={detailReason}
+                                    onChange={(e) => setDetailReason(e.target.value)}
+                                    required={selectedReason === '기타'}
+                                />
+                            </div>
+
+                            {/* Exchange Request (only for exchange) */}
+                            {claimType === 'exchange' && (
+                                <div className="mb-6">
+                                    <label className="block text-sm font-bold mb-2">
+                                        희망 교환 옵션 <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full border p-3 text-sm"
+                                        placeholder="예: L 사이즈 / 블랙 색상"
+                                        value={exchangeRequest}
+                                        onChange={(e) => setExchangeRequest(e.target.value)}
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        교환을 원하시는 사이즈, 색상 등을 입력해주세요.
+                                    </p>
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={!selectedReason || (claimType === 'exchange' && !exchangeRequest)}
+                                className="w-full py-4 bg-black text-white font-bold hover:bg-gray-900 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            >
+                                {claimType === 'return' ? '반품' : '교환'} 신청 완료
                             </button>
                         </form>
                     </div>

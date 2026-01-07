@@ -57,26 +57,6 @@ export default function AdminOrdersPage() {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold font-mono tracking-tight uppercase">Order Management</h1>
-                <div className="flex gap-2">
-                    <Link
-                        href="/admin/orders"
-                        className={`px-4 py-2 text-xs font-mono border transition-all ${!filter ? 'bg-[var(--neural-black)] text-white border-[var(--neural-black)]' : 'bg-white text-[var(--tech-silver)] border-[var(--tech-silver)] border-opacity-30 hover:border-opacity-100'}`}
-                    >
-                        ALL
-                    </Link>
-                    <Link
-                        href="/admin/orders?filter=delivery"
-                        className={`px-4 py-2 text-xs font-mono border transition-all ${filter === 'delivery' ? 'bg-[var(--neural-black)] text-white border-[var(--neural-black)]' : 'bg-white text-[var(--tech-silver)] border-[var(--tech-silver)] border-opacity-30 hover:border-opacity-100'}`}
-                    >
-                        DELIVERY
-                    </Link>
-                    <Link
-                        href="/admin/orders?filter=claims"
-                        className={`px-4 py-2 text-xs font-mono border transition-all ${filter === 'claims' ? 'bg-[var(--neural-black)] text-white border-[var(--neural-black)]' : 'bg-white text-[var(--tech-silver)] border-[var(--tech-silver)] border-opacity-30 hover:border-opacity-100'}`}
-                    >
-                        CLAIMS
-                    </Link>
-                </div>
             </div>
 
             <div className="bg-white border border-[var(--tech-silver)] border-opacity-20 shadow-sm overflow-x-auto">
@@ -105,6 +85,22 @@ export default function AdminOrdersPage() {
                                         {Object.entries(order.items[0].selectedOptions || {}).map(([k, v]) => `${k}: ${v}`).join(', ')}
                                         {order.items.length > 1 && ` 외 ${order.items.length - 1}건`}
                                     </div>
+                                    {/* Claim Reason Display */}
+                                    {(order.returnReason || order.exchangeReason) && (
+                                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                                            <span className="font-bold text-yellow-800">
+                                                {order.returnReason ? '반품 사유: ' : '교환 사유: '}
+                                            </span>
+                                            <span className="text-yellow-900">
+                                                {order.returnReason || order.exchangeReason}
+                                            </span>
+                                            {order.exchangeRequest && (
+                                                <div className="mt-1 text-yellow-900">
+                                                    <span className="font-bold">희망 옵션:</span> {order.exchangeRequest}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </td>
                                 <td className="p-4 text-right font-mono font-bold">
                                     ₩{order.totalPrice.toLocaleString()}

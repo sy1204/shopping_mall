@@ -112,6 +112,24 @@ export const addOneToOneInquiry = (inquiry: Omit<OneToOneInquiry, 'id' | 'create
     return newInquiry;
 };
 
+export const updateProductInquiry = (id: string, updates: Partial<ProductInquiry>) => {
+    const all = getItems<ProductInquiry>(STORAGE_KEYS.PRODUCT_INQUIRIES);
+    const updated = all.map(item =>
+        item.id === id ? { ...item, ...updates } : item
+    );
+    saveItems(STORAGE_KEYS.PRODUCT_INQUIRIES, updated);
+    return updated.find(item => item.id === id);
+};
+
+export const updateOneToOneInquiry = (id: string, updates: Partial<OneToOneInquiry>) => {
+    const all = getItems<OneToOneInquiry>(STORAGE_KEYS.ONE_TO_ONE);
+    const updated = all.map(item =>
+        item.id === id ? { ...item, ...updates } : item
+    );
+    saveItems(STORAGE_KEYS.ONE_TO_ONE, updated);
+    return updated.find(item => item.id === id);
+};
+
 // --- Notices ---
 export const getNotices = (): Notice[] => {
     return getItems<Notice>(STORAGE_KEYS.NOTICES, DUMMY_NOTICES).sort((a, b) =>

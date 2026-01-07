@@ -29,6 +29,7 @@ export interface User {
     email: string;
     name: string;
     phoneNumber?: string;
+    zonecode?: string;
     address?: string;
     addressDetail?: string;
     zipCode?: string;
@@ -60,6 +61,10 @@ export interface Order {
     usedPoints: number;
     earnedPoints: number;
     adminMemo?: string;
+    // Claim reason fields
+    returnReason?: string;
+    exchangeReason?: string;
+    exchangeRequest?: string; // Desired exchange option
 }
 
 export interface Review {

@@ -114,8 +114,8 @@ export default function MyPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full text-left py-3 px-2 border-l-2 text-sm font-medium transition-colors ${activeTab === tab.id
-                                            ? 'border-black text-black'
-                                            : 'border-transparent text-gray-500 hover:text-gray-800'
+                                        ? 'border-black text-black'
+                                        : 'border-transparent text-gray-500 hover:text-gray-800'
                                         }`}
                                 >
                                     {tab.label}
@@ -161,7 +161,7 @@ export default function MyPage() {
                                                     {order.items.map((item, idx) => (
                                                         <div key={idx} className="flex gap-4">
                                                             <div className="relative w-16 h-20 bg-gray-100 flex-shrink-0">
-                                                                <Image src={item.images[0]} alt={item.name} fill className="object-cover" />
+                                                                <Image src={item.images[0]} alt={item.name} fill className="object-cover" unoptimized />
                                                             </div>
                                                             <div>
                                                                 <p className="font-bold text-sm">{item.brand}</p>

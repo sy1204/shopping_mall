@@ -5,6 +5,25 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Daum Postcode API types
+declare global {
+    interface Window {
+        daum: {
+            Postcode: new (options: {
+                oncomplete: (data: {
+                    zonecode: string;
+                    roadAddress: string;
+                    jibunAddress: string;
+                    userSelectedType: string;
+                    buildingName: string;
+                }) => void;
+            }) => {
+                open: () => void;
+            };
+        };
+    }
+}
+
 export default function ProfileEditPage() {
     const { user, updateUser } = useAuth();
     const router = useRouter();
@@ -12,11 +31,45 @@ export default function ProfileEditPage() {
     const [formData, setFormData] = useState({
         name: '',
         phoneNumber: '',
+        zonecode: '',
         address: '',
         addressDetail: '',
         newPassword: '',
         confirmPassword: ''
     });
+
+    // Load Daum Postcode script
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.async = true;
+        document.head.appendChild(script);
+
+        return () => {
+            if (document.head.contains(script)) {
+                document.head.removeChild(script);
+            }
+        };
+    }, []);
+
+    // Open Daum Postcode popup
+    const openPostcodeSearch = () => {
+        if (!window.daum) {
+            alert('주소 검색 서비스를 로드하는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
+        new window.daum.Postcode({
+            oncomplete: (data) => {
+                const address = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                setFormData(prev => ({
+                    ...prev,
+                    zonecode: data.zonecode,
+                    address: address
+                }));
+            }
+        }).open();
+    };
 
     useEffect(() => {
         if (user) {
@@ -24,6 +77,7 @@ export default function ProfileEditPage() {
                 ...prev,
                 name: user.name || '',
                 phoneNumber: user.phoneNumber || '',
+                zonecode: user.zonecode || '',
                 address: user.address || '',
                 addressDetail: user.addressDetail || ''
             }));
@@ -48,12 +102,11 @@ export default function ProfileEditPage() {
             }
         }
 
-        // Mock Update
-        // In real app, we would send API request including password if changed.
-        // Here we just update context.
+        // Update user including zonecode
         updateUser({
             name: formData.name,
             phoneNumber: formData.phoneNumber,
+            zonecode: formData.zonecode,
             address: formData.address,
             addressDetail: formData.addressDetail
         });
@@ -76,7 +129,7 @@ export default function ProfileEditPage() {
                             type="email"
                             value={user?.email || ''}
                             disabled
-                            className="w-full border p-3 bg-gray-100 text-gray-500"
+                            className="w-full border p-3 bg-gray-100 text-gray-500 rounded"
                         />
                     </div>
                     <div>
@@ -86,7 +139,7 @@ export default function ProfileEditPage() {
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full border p-3"
+                            className="w-full border p-3 rounded"
                         />
                     </div>
                     <div>
@@ -96,31 +149,47 @@ export default function ProfileEditPage() {
                             name="phoneNumber"
                             value={formData.phoneNumber}
                             onChange={handleChange}
-                            className="w-full border p-3"
+                            className="w-full border p-3 rounded"
                             placeholder="010-0000-0000"
                         />
                     </div>
                 </section>
 
-                {/* Address */}
+                {/* Address with Daum Postcode */}
                 <section className="space-y-4">
                     <h2 className="font-bold text-lg">주소 정보</h2>
                     <div>
+                        <label className="block text-sm font-bold mb-1">주소</label>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                type="text"
+                                className="w-32 border p-3 bg-gray-50 rounded"
+                                placeholder="우편번호"
+                                value={formData.zonecode}
+                                readOnly
+                            />
+                            <button
+                                type="button"
+                                onClick={openPostcodeSearch}
+                                className="px-4 py-2 bg-black text-white text-sm font-bold hover:bg-gray-800 rounded"
+                            >
+                                주소 검색
+                            </button>
+                        </div>
                         <input
                             type="text"
-                            name="address"
+                            className="w-full border p-3 mb-2 bg-gray-50 rounded"
+                            placeholder="주소 검색 버튼을 클릭하세요"
                             value={formData.address}
-                            onChange={handleChange}
-                            className="w-full border p-3 mb-2"
-                            placeholder="기본 주소"
+                            readOnly
                         />
                         <input
                             type="text"
                             name="addressDetail"
                             value={formData.addressDetail}
                             onChange={handleChange}
-                            className="w-full border p-3"
-                            placeholder="상세 주소"
+                            className="w-full border p-3 rounded"
+                            placeholder="상세 주소 (동/호수 등)"
                         />
                     </div>
                 </section>
@@ -136,7 +205,7 @@ export default function ProfileEditPage() {
                             name="newPassword"
                             value={formData.newPassword}
                             onChange={handleChange}
-                            className="w-full border p-3"
+                            className="w-full border p-3 rounded"
                             placeholder="변경할 비밀번호"
                         />
                     </div>
@@ -147,7 +216,7 @@ export default function ProfileEditPage() {
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            className="w-full border p-3"
+                            className="w-full border p-3 rounded"
                             placeholder="비밀번호 확인"
                         />
                     </div>
@@ -157,13 +226,13 @@ export default function ProfileEditPage() {
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="flex-1 py-4 border font-bold hover:bg-gray-50"
+                        className="flex-1 py-4 border font-bold hover:bg-gray-50 rounded"
                     >
                         취소
                     </button>
                     <button
                         type="submit"
-                        className="w-full py-4 bg-black text-white font-bold hover:bg-gray-900"
+                        className="flex-1 py-4 bg-black text-white font-bold hover:bg-gray-900 rounded"
                     >
                         수정하기
                     </button>
