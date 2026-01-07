@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const userWithAdmin = { ...users[email].user, isAdmin: isAdminEmail };
                 setUser(userWithAdmin);
                 localStorage.setItem('auth_user', JSON.stringify(userWithAdmin));
+                syncToAdminList(userWithAdmin); // Ensure in admin list
                 return true;
             }
             return false; // Wrong password
@@ -120,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (existingAdminIndex === -1) {
             const newAdminUser = {
                 ...newUser,
-                id: Date.now().toString(), // Simple ID generation
+                id: Date.now().toString(),
                 joinDate: new Date().toISOString().split('T')[0],
                 status: 'Active',
                 totalOrders: 0,
@@ -133,46 +134,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
     };
 
-    const adminLogin = (email: string): boolean => {
-        // Simple mock admin check
-        if (email.includes('admin') || email.includes('manager')) {
-            const name = email.split('@')[0];
-            const adminUser: User = {
-                email,
-                name,
-                points: 0,
-                isAdmin: true
-            };
-            setUser(adminUser);
-            localStorage.setItem('auth_user', JSON.stringify(adminUser));
-            return true;
+    // Helper to sync user to admin list if missing (Self-healing)
+    const syncToAdminList = (user: User) => {
+        try {
+            const adminUsersStr = localStorage.getItem('admin_users_mock');
+            const adminUsers = adminUsersStr ? JSON.parse(adminUsersStr) : [];
+            const exists = adminUsers.find((u: any) => u.email === user.email);
+
+            if (!exists) {
+                const newAdminUser = {
+                    ...user,
+                    id: Date.now().toString(),
+                    joinDate: new Date().toISOString().split('T')[0],
+                    status: 'Active',
+                    totalOrders: 0,
+                    totalSpent: 0
+                };
+                const updatedAdminUsers = [newAdminUser, ...adminUsers];
+                localStorage.setItem('admin_users_mock', JSON.stringify(updatedAdminUsers));
+            }
+        } catch (e) {
+            console.error("Failed to sync to admin list", e);
         }
-        return false;
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('auth_user');
-    };
+    return { success: true };
+};
 
-    const updateUser = (updatedData: Partial<User>) => {
-        if (!user) return;
-        const newUser = { ...user, ...updatedData };
-        setUser(newUser);
-        localStorage.setItem('auth_user', JSON.stringify(newUser));
-    };
+const adminLogin = (email: string): boolean => {
+    // Simple mock admin check
+    if (email.includes('admin') || email.includes('manager')) {
+        const name = email.split('@')[0];
+        const adminUser: User = {
+            email,
+            name,
+            points: 0,
+            isAdmin: true
+        };
+        setUser(adminUser);
+        localStorage.setItem('auth_user', JSON.stringify(adminUser));
+        return true;
+    }
+    return false;
+};
 
-    const deleteUser = () => {
-        setUser(null);
-        localStorage.removeItem('auth_user');
-        // Theoretically should also clear orders/reviews/etc. associated with user in a real backend
-    };
+const logout = () => {
+    setUser(null);
+    localStorage.removeItem('auth_user');
+};
 
-    return (
-        <AuthContext.Provider value={{ user, login, register, adminLogin, logout, updateUser, deleteUser, isLoading }}>
-            {children}
-        </AuthContext.Provider>
-    );
+const updateUser = (updatedData: Partial<User>) => {
+    if (!user) return;
+    const newUser = { ...user, ...updatedData };
+    setUser(newUser);
+    localStorage.setItem('auth_user', JSON.stringify(newUser));
+};
+
+const deleteUser = () => {
+    setUser(null);
+    localStorage.removeItem('auth_user');
+    // Theoretically should also clear orders/reviews/etc. associated with user in a real backend
+};
+
+return (
+    <AuthContext.Provider value={{ user, login, register, adminLogin, logout, updateUser, deleteUser, isLoading }}>
+        {children}
+    </AuthContext.Provider>
+);
 }
 
 export function useAuth() {

@@ -123,8 +123,12 @@ export default function SignupPage() {
         );
 
         if (result.success) {
-            alert('🎉 회원가입이 완료되었습니다! 1,000P 웰컴 포인트가 지급되었습니다.');
-            router.push('/');
+            // Use window.confirm to give user feedback but ensure flow continues
+            if (window.confirm('🎉 회원가입이 완료되었습니다! 메인 페이지로 이동합니다.')) {
+                router.push('/');
+            } else {
+                router.push('/');
+            }
         } else {
             setError(result.error || '회원가입에 실패했습니다.');
         }
