@@ -2,6 +2,7 @@
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,8 +11,9 @@ export default function CheckPasswordPage() {
     const router = useRouter();
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -20,15 +22,24 @@ export default function CheckPasswordPage() {
             return;
         }
 
-        // Get registered users from localStorage to check password
-        const usersStr = localStorage.getItem('registered_users');
-        const users: Record<string, { password: string; user: { email: string } }> = usersStr ? JSON.parse(usersStr) : {};
+        setIsLoading(true);
 
-        // Check if user exists and password matches
-        if (users[user.email] && users[user.email].password === password) {
-            router.push('/mypage/profile/edit');
-        } else {
-            setError('비밀번호가 일치하지 않습니다.');
+        try {
+            // Verify password using Supabase Auth
+            const { error: authError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: password
+            });
+
+            if (authError) {
+                setError('비밀번호가 일치하지 않습니다.');
+            } else {
+                router.push('/mypage/profile/edit');
+            }
+        } catch (e) {
+            setError('오류가 발생했습니다. 다시 시도해주세요.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -48,6 +59,7 @@ export default function CheckPasswordPage() {
                         placeholder="비밀번호 입력"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoading}
                     />
                     {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
                 </div>
@@ -57,14 +69,16 @@ export default function CheckPasswordPage() {
                         type="button"
                         onClick={() => router.back()}
                         className="flex-1 py-4 border font-bold hover:bg-gray-50"
+                        disabled={isLoading}
                     >
                         취소
                     </button>
                     <button
                         type="submit"
-                        className="flex-1 py-4 bg-black text-white font-bold hover:bg-gray-900"
+                        className="flex-1 py-4 bg-black text-white font-bold hover:bg-gray-900 disabled:opacity-50"
+                        disabled={isLoading}
                     >
-                        확인
+                        {isLoading ? '확인중...' : '확인'}
                     </button>
                 </div>
             </form>
