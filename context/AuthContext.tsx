@@ -145,8 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     const insertResult = await supabase
                         .from('profiles')
-                        .insert(profilePayload)
-                        .select();
+                        .insert(profilePayload);
 
                     console.log("Profile insert completed, result:", insertResult);
 
