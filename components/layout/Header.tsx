@@ -91,12 +91,20 @@ export default function Header() {
                                 </button>
                             </>
                         ) : (
-                            <Link
-                                href="/auth/login"
-                                className="hover:text-[var(--brand-accent)] transition-colors"
-                            >
-                                LOGIN
-                            </Link>
+                            <>
+                                <Link
+                                    href="/auth/login"
+                                    className="hover:text-[var(--brand-accent)] transition-colors"
+                                >
+                                    LOGIN
+                                </Link>
+                                <Link
+                                    href="/signup"
+                                    className="hover:text-[var(--brand-accent)] transition-colors"
+                                >
+                                    SIGNUP
+                                </Link>
+                            </>
                         )}
 
                         <Link
