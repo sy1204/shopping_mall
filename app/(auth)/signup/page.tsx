@@ -41,6 +41,12 @@ export default function SignupPage() {
     });
     const [error, setError] = useState('');
     const [agreed, setAgreed] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Fix hydration issues
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     // Load Daum Postcode script
     useEffect(() => {
@@ -123,6 +129,15 @@ export default function SignupPage() {
             setError(result.error || '회원가입에 실패했습니다.');
         }
     };
+
+    // Show loading until client-side hydration is complete
+    if (!isMounted) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-gray-500">로딩 중...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
