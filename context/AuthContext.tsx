@@ -172,6 +172,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         console.error('Profile creation error:', errorText);
                     } else {
                         console.log("Profile created successfully!");
+                        // Set user state immediately after signup
+                        const newUser: User = {
+                            email: trimmedEmail,
+                            name,
+                            phoneNumber: phone,
+                            points: 1000,
+                            isAdmin: false
+                        };
+                        setUser(newUser);
                     }
                 } catch (insertError: any) {
                     console.error("Profile insert exception:", insertError);
