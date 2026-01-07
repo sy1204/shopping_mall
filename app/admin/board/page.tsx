@@ -442,7 +442,10 @@ export default function AdminBoardPage() {
 
                             {/* User Details */}
                             <div className="mb-8">
-                                <h4 className="font-bold mb-2 text-sm">{customerInfo?.name || selectedInquiry.item.userName || 'Unknown'}</h4>
+                                <h4 className="font-bold mb-2 text-sm">
+                                    {customerInfo?.name ||
+                                        (selectedInquiry.type === 'product' ? (selectedInquiry.item as ProductInquiry).userName : selectedInquiry.item.userId)}
+                                </h4>
                                 <div className="text-sm text-gray-600 space-y-1">
                                     <div className="flex justify-between">
                                         <span className="text-gray-400 text-xs">ID/Email</span>
