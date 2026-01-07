@@ -4,17 +4,19 @@ import Image from "next/image";
 
 export default function HeroBanner() {
     return (
-        <div className="relative w-full h-[500px] md:h-[600px] flex flex-col justify-end items-center bg-[var(--neural-black)] text-white overflow-hidden pb-16 md:pb-24">
+        <div className="relative w-full h-[500px] md:h-[800px] flex flex-col justify-end items-center bg-[var(--neural-black)] text-white overflow-hidden pb-16 md:pb-32">
             {/* Background Image */}
-            <div className="absolute inset-0 opacity-80">
+            <div className="absolute inset-0 opacity-90">
                 <Image
                     src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
                     alt="Hero Banner"
                     fill
-                    className="object-cover object-[center_30%]"
+                    className="object-cover object-top"
                     priority
                 />
             </div>
+            {/* Gradient Overlay for Text Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
 
             {/* Dash Grid Overlay */}
             <div

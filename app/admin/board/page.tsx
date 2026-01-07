@@ -4,17 +4,15 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
     getNotices, addNotice, getFAQs, addFAQ,
-    getAllOneToOneInquiries, getAllReviews, getAllProductInquiries,
-    initializeBoardData, updateOneToOneInquiry, updateProductInquiry
+    getAllOneToOneInquiries, getAllReviews,
+    getAllProductInquiries, updateOneToOneInquiry, updateProductInquiry,
+    initializeBoardData
 } from "@/utils/boardStorage";
-import { Notice, FAQ, OneToOneInquiry, Review, ProductInquiry, Order, User, Product } from "@/types";
-import { useToast } from "@/context/ToastContext";
-import { getUserByEmail } from "@/utils/userStorage";
 import { getOrders } from "@/utils/orderStorage";
+import { getUsers } from "@/utils/userStorage";
 import { getProductById } from "@/utils/productStorage";
-import Image from "next/image";
-
-type InquiryType = 'oto' | 'product';
+import { Notice, FAQ, OneToOneInquiry, Review, ProductInquiry, Order, AdminUser, Product } from "@/types";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminBoardPage() {
     const { showToast } = useToast();
@@ -32,19 +30,21 @@ export default function AdminBoardPage() {
     // Form States
     const [showForm, setShowForm] = useState(false);
 
-    // Notice Form
+    // Notice & FAQ Forms
     const [noticeForm, setNoticeForm] = useState({ title: '', content: '', category: 'StyleShop', author: 'Admin' });
-
-    // FAQ Form
     const [faqForm, setFaqForm] = useState({ question: '', answer: '', category: '주문' });
 
     // Answer Modal State
-    const [selectedInquiry, setSelectedInquiry] = useState<OneToOneInquiry | ProductInquiry | null>(null);
-    const [selectedInquiryType, setSelectedInquiryType] = useState<InquiryType>('oto');
+    const [selectedInquiry, setSelectedInquiry] = useState<{
+        item: OneToOneInquiry | ProductInquiry,
+        type: 'oto' | 'product'
+    } | null>(null);
     const [answerText, setAnswerText] = useState('');
 
-    // Customer Info State for Modal
-    const [customerInfo, setCustomerInfo] = useState<{ user?: User, orders: Order[], product?: Product } | null>(null);
+    // Customer Support Info (for Modal)
+    const [customerInfo, setCustomerInfo] = useState<AdminUser | undefined>(undefined);
+    const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
+    const [inquiredProduct, setInquiredProduct] = useState<Product | undefined>(undefined);
 
     useEffect(() => {
         initializeBoardData();
@@ -57,6 +57,11 @@ export default function AdminBoardPage() {
         if (tab === 'inquiry') setInquiries(getAllOneToOneInquiries());
         if (tab === 'product_inquiry') setProductInquiries(getAllProductInquiries());
         if (tab === 'review') setReviews(getAllReviews());
+    };
+
+    const handleTabChange = (newTab: string) => {
+        router.push(`/admin/board?tab=${newTab}`);
+        setShowForm(false);
     };
 
     const handleNoticeSubmit = (e: React.FormEvent) => {
@@ -75,23 +80,36 @@ export default function AdminBoardPage() {
         setFaqForm({ question: '', answer: '', category: '주문' });
     };
 
-    const openAnswerModal = (inquiry: OneToOneInquiry | ProductInquiry, type: InquiryType) => {
-        setSelectedInquiry(inquiry);
-        setSelectedInquiryType(type);
-        setAnswerText(inquiry.answer || '');
+    const openAnswerModal = (item: OneToOneInquiry | ProductInquiry, type: 'oto' | 'product') => {
+        // Reset Info
+        setCustomerInfo(undefined);
+        setCustomerOrders([]);
+        setInquiredProduct(undefined);
 
         // Fetch Customer Info
-        const userId = inquiry.userId;
-        const user = getUserByEmail(userId);
-        const orders = getOrders(userId); // Fetches orders for this user
+        const allUsers = getUsers();
+        // Assuming userId matches email or id. In this app, userId is often email.
+        // check if item.userId matches user.email or user.id
+        const user = allUsers.find(u => u.email === item.userId || u.id === item.userId);
+        setCustomerInfo(user);
 
-        // Fetch Product Info if applicable
-        let product: Product | undefined;
-        if (type === 'product' && 'productId' in inquiry) {
-            product = getProductById((inquiry as ProductInquiry).productId);
+        // Fetch Orders
+        if (item.userId) {
+            const orders = getOrders(item.userId); // This function filters by userEmail
+            setCustomerOrders(orders.slice(0, 5)); // Recent 5 orders
         }
 
-        setCustomerInfo({ user, orders, product });
+        // Fetch Product (if product inquiry)
+        if (type === 'product') {
+            const pId = (item as ProductInquiry).productId;
+            if (pId) {
+                const product = getProductById(pId);
+                setInquiredProduct(product);
+            }
+        }
+
+        setSelectedInquiry({ item, type });
+        setAnswerText(item.answer || '');
     };
 
     const handleAnswerSubmit = () => {
@@ -100,22 +118,26 @@ export default function AdminBoardPage() {
             return;
         }
 
-        if (selectedInquiryType === 'oto') {
-            updateOneToOneInquiry(selectedInquiry.id, {
+        const { item, type } = selectedInquiry;
+
+        if (type === 'oto') {
+            updateOneToOneInquiry(item.id, {
                 answer: answerText.trim(),
                 status: 'Answered'
             });
         } else {
-            updateProductInquiry(selectedInquiry.id, {
-                answer: answerText.trim()
-                // ProductInquiry doesn't strictly have 'status' in interface but we can assume answer presence = done
+            updateProductInquiry(item.id, {
+                answer: answerText.trim(),
+                // ProductInquiry might not have 'status' field in type definition, 
+                // but checking types/index.ts usually it does or implies it. 
+                // Wait, types: ProductInquiry { isSecret, content, answer, ... } - No Status?
+                // If no status, we just set answer.
             });
         }
 
         refreshData();
         setSelectedInquiry(null);
         setAnswerText('');
-        setCustomerInfo(null);
         showToast('답변이 등록되었습니다.', 'success');
     };
 
@@ -123,24 +145,33 @@ export default function AdminBoardPage() {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">게시판 관리</h1>
-                <div className="flex gap-2 text-sm">
-                    {/* Simple Tabs for easier navigation inside page if needed */}
-                    {[
-                        { id: 'notice', label: '공지사항' },
-                        { id: 'faq', label: 'FAQ' },
-                        { id: 'inquiry', label: '1:1문의' },
-                        { id: 'product_inquiry', label: '상품문의' },
-                        { id: 'review', label: '상품후기' }
-                    ].map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => router.push(`/admin/board?tab=${t.id}`)}
-                            className={`px-3 py-1 rounded border ${tab === t.id ? 'bg-black text-white' : 'bg-white hover:bg-gray-50'}`}
-                        >
-                            {t.label}
-                        </button>
-                    ))}
+                <div className="flex gap-2">
+                    {/* Tab Navigation (Simple version, could be improved) */}
+                    {/* Actually layout handles menu, but here we can have sub-tabs or just rely on layout params. 
+                        Users/Orders/etc are separate pages. But Board has internal tabs. */}
+                    {/* The Layout sidebar links to ?tab=notice etc. so we use that. */}
                 </div>
+            </div>
+
+            {/* Internal Tabs if needed for quick switch, though Sidebar has them. 
+                Let's add a quick tab bar here for convenience if sidebar is complex. */}
+            <div className="flex gap-1 mb-6 border-b">
+                {[
+                    { id: 'notice', label: '공지사항' },
+                    { id: 'faq', label: 'FAQ' },
+                    { id: 'inquiry', label: '1:1 문의' },
+                    { id: 'product_inquiry', label: '상품 문의' },
+                    { id: 'review', label: '상품 후기' },
+                ].map(t => (
+                    <button
+                        key={t.id}
+                        onClick={() => handleTabChange(t.id)}
+                        className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${tab === t.id ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                    >
+                        {t.label}
+                    </button>
+                ))}
             </div>
 
             <div className="bg-white border rounded p-6 min-h-[500px]">
@@ -149,45 +180,24 @@ export default function AdminBoardPage() {
                     <>
                         <div className="flex justify-between mb-4">
                             <h2 className="text-lg font-bold">공지사항 목록</h2>
-                            <button
-                                onClick={() => setShowForm(!showForm)}
-                                className="bg-blue-600 text-white px-4 py-2 text-sm rounded font-bold"
-                            >
+                            <button onClick={() => setShowForm(!showForm)} className="bg-blue-600 text-white px-4 py-2 text-sm rounded font-bold">
                                 {showForm ? '닫기' : '+ 공지 등록'}
                             </button>
                         </div>
-
                         {showForm && (
                             <form onSubmit={handleNoticeSubmit} className="mb-8 p-4 bg-gray-50 border rounded">
+                                {/* ... Notice Form ... */}
                                 <div className="grid gap-4">
-                                    <input
-                                        type="text"
-                                        placeholder="제목"
-                                        className="border p-2 w-full"
-                                        value={noticeForm.title}
-                                        onChange={e => setNoticeForm({ ...noticeForm, title: e.target.value })}
-                                        required
-                                    />
-                                    <select
-                                        className="border p-2 w-full"
-                                        value={noticeForm.category}
-                                        onChange={e => setNoticeForm({ ...noticeForm, category: e.target.value as 'StyleShop' | 'Customer' })}
-                                    >
+                                    <input type="text" placeholder="제목" className="border p-2 w-full" value={noticeForm.title} onChange={e => setNoticeForm({ ...noticeForm, title: e.target.value })} required />
+                                    <select className="border p-2 w-full" value={noticeForm.category} onChange={e => setNoticeForm({ ...noticeForm, category: e.target.value as any })}>
                                         <option value="StyleShop">스타일 숍</option>
                                         <option value="Customer">고객센터</option>
                                     </select>
-                                    <textarea
-                                        placeholder="내용"
-                                        className="border p-2 w-full h-32"
-                                        value={noticeForm.content}
-                                        onChange={e => setNoticeForm({ ...noticeForm, content: e.target.value })}
-                                        required
-                                    />
+                                    <textarea placeholder="내용" className="border p-2 w-full h-32" value={noticeForm.content} onChange={e => setNoticeForm({ ...noticeForm, content: e.target.value })} required />
                                     <button className="bg-black text-white py-2 font-bold rounded">등록하기</button>
                                 </div>
                             </form>
                         )}
-
                         <table className="w-full text-sm text-left">
                             <thead className="bg-gray-50 border-b">
                                 <tr>
@@ -200,9 +210,7 @@ export default function AdminBoardPage() {
                             <tbody className="divide-y">
                                 {notices.map(n => (
                                     <tr key={n.id} className="hover:bg-gray-50">
-                                        <td className="p-3">
-                                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{n.category}</span>
-                                        </td>
+                                        <td className="p-3"><span className="bg-gray-100 px-2 py-1 rounded-full text-xs">{n.category}</span></td>
                                         <td className="p-3 font-medium">{n.title}</td>
                                         <td className="p-3 text-gray-400">{new Date(n.createdAt).toLocaleDateString()}</td>
                                         <td className="p-3">{n.author}</td>
@@ -217,52 +225,28 @@ export default function AdminBoardPage() {
                 {/* FAQ TAB */}
                 {tab === 'faq' && (
                     <>
+                        {/* Similar FAQ Setup */}
                         <div className="flex justify-between mb-4">
                             <h2 className="text-lg font-bold">FAQ 관리</h2>
-                            <button
-                                onClick={() => setShowForm(!showForm)}
-                                className="bg-blue-600 text-white px-4 py-2 text-sm rounded font-bold"
-                            >
+                            <button onClick={() => setShowForm(!showForm)} className="bg-blue-600 text-white px-4 py-2 text-sm rounded font-bold">
                                 {showForm ? '닫기' : '+ FAQ 등록'}
                             </button>
                         </div>
-
                         {showForm && (
                             <form onSubmit={handleFAQSubmit} className="mb-8 p-4 bg-gray-50 border rounded">
                                 <div className="grid gap-4">
-                                    <input
-                                        type="text"
-                                        placeholder="질문 (Q)"
-                                        className="border p-2 w-full"
-                                        value={faqForm.question}
-                                        onChange={e => setFaqForm({ ...faqForm, question: e.target.value })}
-                                        required
-                                    />
-                                    <select
-                                        className="border p-2 w-full"
-                                        value={faqForm.category}
-                                        onChange={e => setFaqForm({ ...faqForm, category: e.target.value })}
-                                        required
-                                    >
-                                        <option value="사이즈">사이즈</option>
+                                    <input type="text" placeholder="질문 (Q)" className="border p-2 w-full" value={faqForm.question} onChange={e => setFaqForm({ ...faqForm, question: e.target.value })} required />
+                                    <select className="border p-2 w-full" value={faqForm.category} onChange={e => setFaqForm({ ...faqForm, category: e.target.value })} required>
                                         <option value="주문">주문</option>
-                                        <option value="교환/환불">교환/환불</option>
                                         <option value="배송">배송</option>
-                                        <option value="웹페이지 문제">웹페이지 문제</option>
+                                        <option value="교환/환불">교환/환불</option>
                                         <option value="기타">기타</option>
                                     </select>
-                                    <textarea
-                                        placeholder="답변 (A)"
-                                        className="border p-2 w-full h-32"
-                                        value={faqForm.answer}
-                                        onChange={e => setFaqForm({ ...faqForm, answer: e.target.value })}
-                                        required
-                                    />
+                                    <textarea placeholder="답변 (A)" className="border p-2 w-full h-32" value={faqForm.answer} onChange={e => setFaqForm({ ...faqForm, answer: e.target.value })} required />
                                     <button className="bg-black text-white py-2 font-bold rounded">등록하기</button>
                                 </div>
                             </form>
                         )}
-
                         <div className="space-y-4">
                             {faqs.map(f => (
                                 <div key={f.id} className="border p-4 rounded bg-gray-50">
@@ -288,6 +272,7 @@ export default function AdminBoardPage() {
                                     <th className="p-3">상태</th>
                                     <th className="p-3">유형</th>
                                     <th className="p-3">제목</th>
+                                    <th className="p-3">고객</th>
                                     <th className="p-3">작성일</th>
                                     <th className="p-3">관리</th>
                                 </tr>
@@ -302,40 +287,34 @@ export default function AdminBoardPage() {
                                         </td>
                                         <td className="p-3 text-gray-500">{i.category}</td>
                                         <td className="p-3">
-                                            <div className="font-medium">{i.title}</div>
-                                            {i.answer && (
-                                                <div className="mt-1 text-xs text-blue-600">
-                                                    답변: {i.answer.length > 40 ? `${i.answer.slice(0, 40)}...` : i.answer}
-                                                </div>
-                                            )}
+                                            <div className="font-medium cursor-pointer hover:underline" onClick={() => openAnswerModal(i, 'oto')}>{i.title}</div>
                                         </td>
+                                        <td className="p-3 text-gray-600">{i.userId}</td>
                                         <td className="p-3 text-gray-400">{new Date(i.createdAt).toLocaleDateString()}</td>
                                         <td className="p-3">
-                                            <button
-                                                onClick={() => openAnswerModal(i, 'oto')}
-                                                className="px-3 py-1.5 text-xs border rounded hover:bg-black hover:text-white transition-colors"
-                                            >
+                                            <button onClick={() => openAnswerModal(i, 'oto')} className="px-3 py-1.5 text-xs border rounded hover:bg-black hover:text-white transition-colors">
                                                 {i.answer ? '수정' : '답변'}
                                             </button>
                                         </td>
                                     </tr>
                                 ))}
-                                {inquiries.length === 0 && <tr><td colSpan={5} className="p-10 text-center text-gray-400">문의 내역이 없습니다.</td></tr>}
+                                {inquiries.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-gray-400">데이터가 없습니다.</td></tr>}
                             </tbody>
                         </table>
                     </>
                 )}
 
-                {/* PRODUCT INQUIRY TAB */}
+                {/* PRODUCT INQUIRY TAB (NEW) */}
                 {tab === 'product_inquiry' && (
                     <>
-                        <h2 className="text-lg font-bold mb-4">상품 문의 관리</h2>
+                        <h2 className="text-lg font-bold mb-4">상품 문의 내역</h2>
                         <table className="w-full text-sm text-left">
                             <thead className="bg-gray-50 border-b">
                                 <tr>
                                     <th className="p-3">상태</th>
-                                    <th className="p-3">작성자</th>
-                                    <th className="p-3">내용</th>
+                                    <th className="p-3">상품ID</th>
+                                    <th className="p-3">문의내용</th>
+                                    <th className="p-3">고객</th>
                                     <th className="p-3">작성일</th>
                                     <th className="p-3">관리</th>
                                 </tr>
@@ -348,23 +327,20 @@ export default function AdminBoardPage() {
                                                 {i.answer ? '답변완료' : '대기중'}
                                             </span>
                                         </td>
-                                        <td className="p-3">{i.userName}</td>
-                                        <td className="p-3">
-                                            <div className="font-medium max-w-md truncate">{i.content}</div>
-                                            {i.isSecret && <span className="text-xs text-gray-400">🔒 비밀글</span>}
+                                        <td className="p-3 text-gray-500 font-mono text-xs">{i.productId?.substring(0, 8)}...</td>
+                                        <td className="p-3 max-w-md truncate">
+                                            <div className="font-medium cursor-pointer hover:underline" onClick={() => openAnswerModal(i, 'product')}>{i.content}</div>
                                         </td>
+                                        <td className="p-3 text-gray-600">{i.userName} ({i.userId})</td>
                                         <td className="p-3 text-gray-400">{new Date(i.createdAt).toLocaleDateString()}</td>
                                         <td className="p-3">
-                                            <button
-                                                onClick={() => openAnswerModal(i, 'product')}
-                                                className="px-3 py-1.5 text-xs border rounded hover:bg-black hover:text-white transition-colors"
-                                            >
+                                            <button onClick={() => openAnswerModal(i, 'product')} className="px-3 py-1.5 text-xs border rounded hover:bg-black hover:text-white transition-colors">
                                                 {i.answer ? '수정' : '답변'}
                                             </button>
                                         </td>
                                     </tr>
                                 ))}
-                                {productInquiries.length === 0 && <tr><td colSpan={5} className="p-10 text-center text-gray-400">문의 내역이 없습니다.</td></tr>}
+                                {productInquiries.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-gray-400">데이터가 없습니다.</td></tr>}
                             </tbody>
                         </table>
                     </>
@@ -401,93 +377,36 @@ export default function AdminBoardPage() {
                 )}
             </div>
 
-            {/* Answer Modal */}
+            {/* INTEGRATED ANSWER/DETAIL MODAL */}
             {selectedInquiry && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded flex flex-col md:flex-row gap-6">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded shadow-2xl flex flex-col md:flex-row">
 
-                        {/* Left: Customer Info */}
-                        <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r pb-6 md:pb-0 md:pr-6 space-y-6">
-                            <h3 className="text-lg font-bold border-b pb-2">고객 정보</h3>
-                            {customerInfo && customerInfo.user ? (
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between"><span className="text-gray-500">이름</span> <span className="font-bold">{customerInfo.user.name}</span></div>
-                                    <div className="flex justify-between"><span className="text-gray-500">이메일</span> <span>{customerInfo.user.email}</span></div>
-                                    <div className="flex justify-between"><span className="text-gray-500">연락처</span> <span>{customerInfo.user.phoneNumber || '정보없음'}</span></div>
-                                </div>
-                            ) : (
-                                <div className="text-gray-400 text-sm">회원 정보를 찾을 수 없습니다.</div>
-                            )}
-
-                            {customerInfo && customerInfo.product && (
-                                <div>
-                                    <h4 className="font-bold text-sm mb-2 mt-4 text-gray-500">문의 상품</h4>
-                                    <div className="flex gap-3 border p-2 rounded bg-gray-50">
-                                        <div className="w-12 h-12 relative flex-shrink-0 bg-gray-200">
-                                            {customerInfo.product.images[0] && <Image src={customerInfo.product.images[0]} alt={customerInfo.product.name} fill className="object-cover" />}
-                                        </div>
-                                        <div className="text-xs overflow-hidden">
-                                            <div className="font-bold truncate">{customerInfo.product.brand}</div>
-                                            <div className="truncate text-gray-600">{customerInfo.product.name}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div>
-                                <h4 className="font-bold text-sm mb-2 mt-4 text-gray-500 border-b pb-1">최근 주문 내역</h4>
-                                {customerInfo && customerInfo.orders.length > 0 ? (
-                                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                                        {customerInfo.orders.slice(0, 3).map(order => (
-                                            <div key={order.id} className="text-xs bg-gray-50 p-2 rounded">
-                                                <div className="flex justify-between font-bold mb-1">
-                                                    <span>{new Date(order.date).toLocaleDateString()}</span>
-                                                    <span>{order.status}</span>
-                                                </div>
-                                                <div className="text-gray-500 truncate">{order.items[0]?.name} 외 {order.items.length - 1}건</div>
-                                                <div className="text-right mt-1">₩{order.totalPrice.toLocaleString()}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-gray-400 text-xs text-center py-4">주문 내역이 없습니다.</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Right: Inquiry Content & Answer */}
-                        <div className="flex-1 flex flex-col">
+                        {/* LEFT: Inquiry & Answer */}
+                        <div className="flex-1 p-8 border-r">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-lg font-bold">
-                                    {selectedInquiryType === 'oto' ? '1:1 문의 답변' : '상품 문의 답변'}
+                                    {selectedInquiry.type === 'oto' ? '1:1 문의 답변' : '상품 문의 답변'}
                                 </h3>
-                                <button
-                                    onClick={() => setSelectedInquiry(null)}
-                                    className="text-gray-400 hover:text-black"
-                                >
-                                    ✕
-                                </button>
                             </div>
 
-                            <div className="mb-6 flex-1">
+                            <div className="mb-6">
                                 <div className="flex gap-2 mb-2">
-                                    {selectedInquiryType === 'oto' ? (
-                                        <span className="bg-gray-100 text-xs px-2 py-1 rounded">{(selectedInquiry as OneToOneInquiry).category}</span>
-                                    ) : (
-                                        <span className="bg-gray-100 text-xs px-2 py-1 rounded">상품문의</span>
+                                    {selectedInquiry.type === 'oto' && (
+                                        <span className="bg-gray-100 text-xs px-2 py-1 rounded">{(selectedInquiry.item as OneToOneInquiry).category}</span>
                                     )}
-                                    <span className={`text-xs px-2 py-1 rounded ${selectedInquiry.answer ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                        {selectedInquiry.answer ? '답변완료' : '대기중'}
+                                    <span className={`text-xs px-2 py-1 rounded ${selectedInquiry.item.answer ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                        {selectedInquiry.item.answer ? '답변완료' : '대기중'}
                                     </span>
                                 </div>
-
-                                {'title' in selectedInquiry && <h4 className="font-bold mb-2">{(selectedInquiry as OneToOneInquiry).title}</h4>}
-
+                                {selectedInquiry.type === 'oto' && (
+                                    <h4 className="font-bold mb-2">{(selectedInquiry.item as OneToOneInquiry).title}</h4>
+                                )}
                                 <div className="p-4 bg-gray-50 rounded text-sm whitespace-pre-wrap min-h-[100px]">
-                                    {selectedInquiry.content}
+                                    {selectedInquiry.item.content}
                                 </div>
                                 <div className="mt-2 text-xs text-gray-400">
-                                    {new Date(selectedInquiry.createdAt).toLocaleString('ko-KR')}
+                                    작성일: {new Date(selectedInquiry.item.createdAt).toLocaleString('ko-KR')}
                                 </div>
                             </div>
 
@@ -501,12 +420,12 @@ export default function AdminBoardPage() {
                                 />
                             </div>
 
-                            <div className="flex gap-3 mt-auto">
+                            <div className="flex gap-3">
                                 <button
                                     onClick={() => setSelectedInquiry(null)}
                                     className="flex-1 py-3 border text-sm font-bold hover:bg-gray-50 transition-colors rounded"
                                 >
-                                    취소
+                                    닫기
                                 </button>
                                 <button
                                     onClick={handleAnswerSubmit}
@@ -516,6 +435,76 @@ export default function AdminBoardPage() {
                                 </button>
                             </div>
                         </div>
+
+                        {/* RIGHT: Customer & Order Info */}
+                        <div className="w-full md:w-80 p-8 bg-gray-50">
+                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6 border-b pb-2">Customer Info</h3>
+
+                            {/* User Details */}
+                            <div className="mb-8">
+                                <h4 className="font-bold mb-2 text-sm">{customerInfo?.name || selectedInquiry.item.userName || 'Unknown'}</h4>
+                                <div className="text-sm text-gray-600 space-y-1">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400 text-xs">ID/Email</span>
+                                        <span>{customerInfo?.email || selectedInquiry.item.userId}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400 text-xs">Phone</span>
+                                        <span>{customerInfo?.phoneNumber || '-'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400 text-xs">Join Date</span>
+                                        <span>{customerInfo?.joinDate || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Inquired Product (if applicable) */}
+                            {inquiredProduct && (
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 border-b pb-2">Inquired Product</h3>
+                                    <div className="flex gap-3 items-start">
+                                        {inquiredProduct.images && inquiredProduct.images[0] && (
+                                            <img src={inquiredProduct.images[0]} alt="Product" className="w-12 h-16 object-cover rounded bg-gray-200" />
+                                        )}
+                                        <div>
+                                            <div className="text-xs font-bold line-clamp-2">{inquiredProduct.name}</div>
+                                            <div className="text-xs text-gray-500 mt-1">{inquiredProduct.brand}</div>
+                                            <div className="text-xs font-mono mt-1">₩ {inquiredProduct.price.toLocaleString()}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Recent Orders */}
+                            <div>
+                                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 border-b pb-2">Recent Orders</h3>
+                                {customerOrders.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {customerOrders.map(order => (
+                                            <div key={order.id} className="bg-white p-3 rounded border text-xs shadow-sm">
+                                                <div className="flex justify-between text-gray-400 mb-1">
+                                                    <span>{new Date(order.date).toLocaleDateString()}</span>
+                                                    <span className="font-mono">{order.status}</span>
+                                                </div>
+                                                <div className="font-medium truncate">
+                                                    {order.items[0]?.name}
+                                                </div>
+                                                {order.items.length > 1 && (
+                                                    <div className="text-gray-400">
+                                                        + {order.items.length - 1} more items
+                                                    </div>
+                                                )}
+                                                <div className="text-right font-bold mt-1">₩ {order.totalPrice.toLocaleString()}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-gray-400 text-center py-4">No recent orders</div>
+                                )}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             )}
