@@ -86,7 +86,7 @@ export default function SignupPage() {
         setError('');
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validation
@@ -110,7 +110,7 @@ export default function SignupPage() {
             return;
         }
 
-        const result = register(
+        const result = await register(
             formData.email,
             formData.password,
             formData.name,
