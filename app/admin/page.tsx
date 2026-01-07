@@ -4,7 +4,6 @@
 import { getOrders } from "@/utils/orderStorage";
 import { DUMMY_PRODUCTS } from "@/utils/dummyData";
 import { useState, useEffect } from "react";
-import StockWidget from "@/components/admin/StockWidget";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
@@ -56,48 +55,42 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                <div className="lg:col-span-2">
-                    <div className="bg-white p-6 rounded-lg border shadow-sm h-full">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold">최근 주문</h3>
-                            <a href="/admin/orders" className="text-xs text-blue-600 hover:underline">더보기</a>
-                        </div>
-                        <div className="space-y-4">
-                            {recentOrders.slice(0, 5).map(order => (
-                                <div key={order.id} className="flex justify-between items-center py-2 border-b last:border-0">
-                                    <div>
-                                        <p className="font-bold text-sm">주문번호 {order.id}</p>
-                                        <p className="text-xs text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-medium">₩ {order.totalPrice.toLocaleString()}</p>
-                                        <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{order.status}</span>
-                                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white p-6 rounded-lg border shadow-sm">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold">최근 주문</h3>
+                        <a href="/admin/orders" className="text-xs text-blue-600 hover:underline">더보기</a>
+                    </div>
+                    <div className="space-y-4">
+                        {recentOrders.slice(0, 5).map(order => (
+                            <div key={order.id} className="flex justify-between items-center py-2 border-b last:border-0">
+                                <div>
+                                    <p className="font-bold text-sm">주문번호 {order.id}</p>
+                                    <p className="text-xs text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="text-right">
+                                    <p className="text-sm font-medium">₩ {order.totalPrice.toLocaleString()}</p>
+                                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{order.status}</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <div className="space-y-8">
-                    <StockWidget />
-
-                    <div className="bg-white p-6 rounded-lg border shadow-sm">
-                        <h3 className="font-bold mb-4">시스템 상태</h3>
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">데이터베이스 연결</span>
-                                <span className="text-xs text-green-600 font-bold bg-green-50 px-2 py-1 rounded">정상 (Healthy)</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">마지막 백업</span>
-                                <span className="text-xs text-gray-500">2026-01-04 03:00 AM</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">서버 상태</span>
-                                <span className="text-xs text-green-600 font-bold bg-green-50 px-2 py-1 rounded">가동 중 (Online)</span>
-                            </div>
+                <div className="bg-white p-6 rounded-lg border shadow-sm">
+                    <h3 className="font-bold mb-4">시스템 상태</h3>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">데이터베이스 연결</span>
+                            <span className="text-xs text-green-600 font-bold bg-green-50 px-2 py-1 rounded">정상 (Healthy)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">마지막 백업</span>
+                            <span className="text-xs text-gray-500">2026-01-04 03:00 AM</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">서버 상태</span>
+                            <span className="text-xs text-green-600 font-bold bg-green-50 px-2 py-1 rounded">가동 중 (Online)</span>
                         </div>
                     </div>
                 </div>
