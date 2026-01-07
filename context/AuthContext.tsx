@@ -138,21 +138,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 };
                 console.log("Inserting profile with data:", profilePayload);
 
-                // 2. Create Profile in 'profiles' table
+                // 2. Create Profile in 'profiles' table using direct fetch
                 try {
-                    console.log("Starting profile insert...");
-                    console.log("Current session:", authData.session ? "exists" : "none");
+                    console.log("Starting profile insert via fetch...");
 
-                    const insertResult = await supabase
-                        .from('profiles')
-                        .insert(profilePayload);
+                    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+                    const accessToken = authData.session?.access_token;
 
-                    console.log("Profile insert completed, result:", insertResult);
+                    const response = await fetch(`${supabaseUrl}/rest/v1/profiles`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': supabaseKey || '',
+                            'Authorization': `Bearer ${accessToken || supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify(profilePayload)
+                    });
 
-                    if (insertResult.error) {
-                        console.error('Profile creation error:', insertResult.error);
+                    console.log("Fetch response status:", response.status);
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Profile creation error:', errorText);
                     } else {
-                        console.log("Profile created successfully:", insertResult.data);
+                        console.log("Profile created successfully!");
                     }
                 } catch (insertError: any) {
                     console.error("Profile insert exception:", insertError);
