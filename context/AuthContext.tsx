@@ -127,25 +127,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (authData.user) {
-                console.log("User created, inserting profile...");
+                console.log("User created with ID:", authData.user.id);
+                console.log("Inserting profile with data:", {
+                    id: authData.user.id,
+                    email: trimmedEmail,
+                    name,
+                    phone_number: phone,
+                    role: 'customer',
+                    points: 1000
+                });
+
                 // 2. Create Profile in 'profiles' table
-                const { error: profileError } = await supabase
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .insert({
                         id: authData.user.id,
-                        email,
+                        email: trimmedEmail,
                         name,
                         phone_number: phone,
                         role: 'customer',
                         points: 1000 // Welcome points
-                    });
+                    })
+                    .select();
 
                 if (profileError) {
                     console.error('Profile creation error:', profileError);
-                    // If profile creation fails, we return success but log it.
-                    // Ideally we should handle this better.
+                    console.error('Profile error details:', JSON.stringify(profileError, null, 2));
                 } else {
-                    console.log("Profile created successfully.");
+                    console.log("Profile created successfully:", profileData);
                 }
 
                 return { success: true };
