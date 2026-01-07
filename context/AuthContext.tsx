@@ -198,22 +198,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const adminLogin = async (email: string, password?: string): Promise<boolean> => {
-        // Dev backdoor for admin login without DB data
-        if (email === 'admin@example.com' && password === 'admin1234') {
-            const adminUser: User = {
-                email: 'admin@example.com',
-                name: 'Administrator',
-                isAdmin: true,
-                points: 999999,
-                phoneNumber: '010-0000-0000'
-            };
-            setUser(adminUser);
-            // Note: This dev login is not persisted across reloads because it bypasses Supabase session.
-            // For full persistence, we'd need to mock the session or use localStorage.
-            return true;
+        if (!password) {
+            alert("비밀번호가 필요합니다.");
+            return false;
         }
 
-        alert("관리자 로그인은 비밀번호가 필요합니다. 또는 아이디/비밀번호가 일치하지 않습니다.");
+        try {
+            // Login using Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (authError) {
+                console.error('Admin login error:', authError);
+                alert(`로그인 실패: ${authError.message}`);
+                return false;
+            }
+
+            if (authData.user && authData.session) {
+                // Fetch profile to check admin role
+                const profile = await fetchProfile(authData.user.id, email, authData.session.access_token);
+
+                if (profile && profile.isAdmin) {
+                    setUser(profile);
+                    return true;
+                } else {
+                    // Not an admin - sign out and reject
+                    await supabase.auth.signOut();
+                    alert("관리자 권한이 없는 계정입니다.");
+                    return false;
+                }
+            }
+        } catch (e) {
+            console.error('Admin login exception:', e);
+        }
+
+        alert("로그인에 실패했습니다.");
         return false;
     };
 
