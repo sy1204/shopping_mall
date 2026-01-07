@@ -107,8 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const register = async (email: string, password: string, name: string, phone?: string, addressData?: { zonecode?: string; address?: string; addressDetail?: string }): Promise<{ success: boolean; error?: string }> => {
+        console.log("Attempting registration for:", email);
         try {
             // 1. Supabase Auth SignUp
+            console.log("Calling supabase.auth.signUp...");
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
@@ -116,12 +118,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     data: { name, phone } // Metadata
                 }
             });
+            console.log("SignUp response:", { authData, authError });
 
             if (authError) {
+                console.error("Supabase Auth Error:", authError);
                 return { success: false, error: authError.message };
             }
 
             if (authData.user) {
+                console.log("User created, inserting profile...");
                 // 2. Create Profile in 'profiles' table
                 const { error: profileError } = await supabase
                     .from('profiles')
@@ -136,17 +141,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 if (profileError) {
                     console.error('Profile creation error:', profileError);
-                    // If profile creation fails, we might leave a ghost user in Auth. 
-                    // But strictly speaking Auth is successful. 
-                    return { success: true }; // Proceed, maybe profile can be autocreated by trigger later or lazy loaded
+                    // If profile creation fails, we return success but log it.
+                    // Ideally we should handle this better.
+                } else {
+                    console.log("Profile created successfully.");
                 }
 
                 return { success: true };
             }
 
-            return { success: false, error: "회원가입에 실패했습니다." };
+            return { success: false, error: "회원가입에 실패했습니다. (User data missing)" };
 
         } catch (e: any) {
+            console.error("Unexpected error during registration:", e);
             return { success: false, error: e.message };
         }
     };
