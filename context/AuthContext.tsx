@@ -9,7 +9,7 @@ interface AuthContextType {
     user: User | null;
     login: (email: string, password?: string) => Promise<boolean>;
     register: (email: string, password: string, name: string, phone?: string, addressData?: { zonecode?: string; address?: string; addressDetail?: string }) => Promise<{ success: boolean; error?: string }>;
-    adminLogin: (email: string) => Promise<boolean>;
+    adminLogin: (email: string, password?: string) => Promise<boolean>;
     logout: () => Promise<void>;
     updateUser: (updatedData: Partial<User>) => Promise<void>;
     deleteUser: () => Promise<void>;
@@ -158,13 +158,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const adminLogin = async (email: string): Promise<boolean> => {
-        // In real Supabase, there is no "email only" login for admin without password. 
-        // We will assume this is triggering a normal login flow or dev backdoor.
-        // For now, let's treat it as normal login? 
-        // Or if this was "bypass", we can't easily bypass Supabase Auth.
-        // We'll return false to force real login.
-        alert("관리자 로그인은 비밀번호가 필요합니다. 일반 로그인 페이지를 이용해주세요.");
+    const adminLogin = async (email: string, password?: string): Promise<boolean> => {
+        // Dev backdoor for admin login without DB data
+        if (email === 'admin@example.com' && password === 'admin1234') {
+            const adminUser: User = {
+                email: 'admin@example.com',
+                name: 'Administrator',
+                isAdmin: true,
+                points: 999999,
+                phoneNumber: '010-0000-0000'
+            };
+            setUser(adminUser);
+            // Note: This dev login is not persisted across reloads because it bypasses Supabase session.
+            // For full persistence, we'd need to mock the session or use localStorage.
+            return true;
+        }
+
+        alert("관리자 로그인은 비밀번호가 필요합니다. 또는 아이디/비밀번호가 일치하지 않습니다.");
         return false;
     };
 
