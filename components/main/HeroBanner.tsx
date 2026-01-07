@@ -1,11 +1,10 @@
 // components/main/HeroBanner.tsx
 import Link from "next/link";
 import Image from "next/image";
-import { BracketButton } from "@/components/ui/Bracket";
 
 export default function HeroBanner() {
     return (
-        <div className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center bg-[var(--neural-black)] text-white overflow-hidden">
+        <div className="relative w-full h-[500px] md:h-[600px] flex items-end justify-center bg-[var(--neural-black)] text-white overflow-hidden pb-12 md:pb-16">
             {/* Background Image */}
             <div className="absolute inset-0 opacity-50">
                 <Image
@@ -34,7 +33,7 @@ export default function HeroBanner() {
                 aria-hidden="true"
             />
 
-            {/* Content */}
+            {/* Content - positioned at bottom */}
             <div className="relative z-10 text-center px-4 max-w-4xl">
                 {/* Season Label */}
                 <span
@@ -70,17 +69,24 @@ export default function HeroBanner() {
                     특별한 할인과 함께 새로운 스타일을 경험하실 수 있습니다.
                 </p>
 
-                {/* CTA Button */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Link href="/shop">
-                        <BracketButton variant="primary" showNode className="border-white text-white hover:bg-[var(--brand-accent)] hover:text-white">
-                            SHOP NOW
-                        </BracketButton>
+                {/* CTA Links - Simple text style without box */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 font-mono text-sm md:text-base tracking-wide">
+                    <Link
+                        href="/shop"
+                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
+                    >
+                        <span className="opacity-70">[</span>
+                        <span className="w-2 h-2 rounded-full bg-[var(--brand-accent)] animate-pulse"></span>
+                        <span className="font-medium">SHOP NOW</span>
+                        <span className="opacity-70">]</span>
                     </Link>
-                    <Link href="/events">
-                        <BracketButton variant="outline" className="border-white text-white hover:bg-[var(--brand-accent)] hover:text-white">
-                            VIEW SALE
-                        </BracketButton>
+                    <Link
+                        href="/events"
+                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
+                    >
+                        <span className="opacity-70">[</span>
+                        <span className="font-medium">VIEW SALE</span>
+                        <span className="opacity-70">]</span>
                     </Link>
                 </div>
             </div>
