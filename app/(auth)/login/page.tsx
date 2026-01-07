@@ -14,7 +14,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!email) {
@@ -22,37 +22,20 @@ export default function LoginPage() {
             return;
         }
 
-        const success = login(email, password);
+        const success = await login(email, password);
 
         if (success) {
             router.push('/');
         } else {
+            // Error is handled in context or we can show generic
+            // context login alerts errors usually, but here checking return
             setError('이메일 또는 비밀번호가 올바르지 않습니다.');
         }
     };
 
     // Quick login for demo
     const handleDemoLogin = () => {
-        // Create a demo user and login
-        const usersStr = localStorage.getItem('registered_users');
-        const users = usersStr ? JSON.parse(usersStr) : {};
-
-        const demoEmail = 'demo@example.com';
-        if (!users[demoEmail]) {
-            users[demoEmail] = {
-                password: 'demo123',
-                user: {
-                    email: demoEmail,
-                    name: '데모 사용자',
-                    points: 5000,
-                    isAdmin: false
-                }
-            };
-            localStorage.setItem('registered_users', JSON.stringify(users));
-        }
-
-        login(demoEmail, 'demo123');
-        router.push('/');
+        alert("현재 데이터베이스 연동 중으로 데모 로그인을 사용할 수 없습니다. 직접 회원가입 후 로그인해주세요.");
     };
 
     return (
