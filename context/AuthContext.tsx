@@ -23,34 +23,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    // Fetch user profile from 'profiles' table
-    const fetchProfile = async (userId: string, email?: string) => {
+    // Fetch user profile from 'profiles' table using direct fetch
+    const fetchProfile = async (userId: string, email?: string, accessToken?: string) => {
         try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+            const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-            if (error) {
-                console.error('Error fetching profile:', error);
+            const response = await fetch(
+                `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=*`,
+                {
+                    headers: {
+                        'apikey': supabaseKey || '',
+                        'Authorization': `Bearer ${accessToken || supabaseKey}`,
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                console.error('Error fetching profile:', response.status);
                 return null;
             }
 
-            if (data) {
-                // Map DB profile to App User type
+            const data = await response.json();
+
+            if (data && data[0]) {
+                const profileData = data[0];
                 const appUser: User = {
-                    email: data.email || email || '',
-                    name: data.name || '',
-                    phoneNumber: data.phone_number,
-                    points: data.points || 0,
-                    isAdmin: data.role === 'admin',
-                    // Address fields missing in DB currently, omitting or using defaults
+                    email: profileData.email || email || '',
+                    name: profileData.name || '',
+                    phoneNumber: profileData.phone_number,
+                    points: profileData.points || 0,
+                    isAdmin: profileData.role === 'admin',
                 };
                 return appUser;
             }
         } catch (e) {
-            console.error(e);
+            console.error('fetchProfile error:', e);
         }
         return null;
     };
@@ -63,14 +71,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const { data: { session } } = await supabase.auth.getSession();
 
             if (session?.user) {
-                const profile = await fetchProfile(session.user.id, session.user.email);
+                const profile = await fetchProfile(session.user.id, session.user.email, session.access_token);
                 if (profile) setUser(profile);
             }
 
             // Listen for changes
             const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' && session?.user) {
-                    const profile = await fetchProfile(session.user.id, session.user.email);
+                    const profile = await fetchProfile(session.user.id, session.user.email, session.access_token);
                     setUser(profile);
                 } else if (event === 'SIGNED_OUT') {
                     setUser(null);
