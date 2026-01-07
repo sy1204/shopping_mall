@@ -125,19 +125,75 @@ export default function Header() {
                         </Link>
                     </div>
 
-                    {/* Mobile: Cart + Hamburger */}
-                    <div className="flex md:hidden items-center gap-3">
-                        <Link href="/checkout" className="relative text-sm font-mono">
-                            CART
+                    {/* Mobile: Icon-based utilities */}
+                    <div className="flex md:hidden items-center gap-1">
+                        {/* Search */}
+                        <button
+                            onClick={() => setIsSearchOpen(!isSearchOpen)}
+                            className="p-2 text-lg hover:text-[var(--brand-accent)] transition-colors"
+                            aria-label="검색"
+                        >
+                            🔍
+                        </button>
+
+                        {/* Login/Logout */}
+                        {user ? (
+                            <button
+                                onClick={logout}
+                                className="p-2 text-lg hover:text-[var(--brand-accent)] transition-colors"
+                                aria-label="로그아웃"
+                                title="로그아웃"
+                            >
+                                🚪
+                            </button>
+                        ) : (
+                            <Link
+                                href="/auth/login"
+                                className="p-2 text-lg hover:text-[var(--brand-accent)] transition-colors"
+                                aria-label="로그인"
+                            >
+                                👤
+                            </Link>
+                        )}
+
+                        {/* Signup - only show when not logged in */}
+                        {!user && (
+                            <Link
+                                href="/signup"
+                                className="p-2 text-lg hover:text-[var(--brand-accent)] transition-colors"
+                                aria-label="회원가입"
+                            >
+                                ✚
+                            </Link>
+                        )}
+
+                        {/* My Page */}
+                        <Link
+                            href="/mypage"
+                            className="p-2 text-lg hover:text-[var(--brand-accent)] transition-colors"
+                            aria-label="마이페이지"
+                        >
+                            📋
+                        </Link>
+
+                        {/* Cart */}
+                        <Link
+                            href="/checkout"
+                            className="relative p-2 text-lg hover:text-[var(--brand-accent)] transition-colors"
+                            aria-label="장바구니"
+                        >
+                            🛒
                             {cartCount > 0 && (
-                                <span className="absolute -top-2 -right-3 flex items-center justify-center">
+                                <span className="absolute top-0 right-0 flex items-center justify-center">
                                     <Node state="active" size="sm" pulsing />
-                                    <span className="ml-1 text-[10px] font-bold text-[var(--brand-accent)]">
+                                    <span className="ml-0.5 text-[10px] font-bold text-[var(--brand-accent)]">
                                         {cartCount}
                                     </span>
                                 </span>
                             )}
                         </Link>
+
+                        {/* Hamburger Menu */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="p-2 text-xl"
