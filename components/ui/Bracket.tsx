@@ -42,12 +42,14 @@ export default function Bracket({
 interface BracketButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
     variant?: 'primary' | 'secondary' | 'outline';
+    showNode?: boolean;
 }
 
 export function BracketButton({
     children,
     variant = 'primary',
     className = '',
+    showNode = false,
     ...props
 }: BracketButtonProps) {
     const [isHovered, setIsHovered] = React.useState(false);
@@ -72,7 +74,7 @@ export function BracketButton({
             {...props}
         >
             <span className="opacity-70">[</span>
-            {isHovered && <span className="node-active inline-block w-2 h-2 rounded-full animate-pulse"></span>}
+            {(showNode || isHovered) && <span className="node-active inline-block w-2 h-2 rounded-full animate-pulse"></span>}
             <span>{children}</span>
             <span className="opacity-70">]</span>
         </button>
