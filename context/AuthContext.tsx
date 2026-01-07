@@ -141,18 +141,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // 2. Create Profile in 'profiles' table
                 try {
                     console.log("Starting profile insert...");
-                    const { data: profileData, error: profileError } = await supabase
+                    console.log("Current session:", authData.session ? "exists" : "none");
+
+                    const insertResult = await supabase
                         .from('profiles')
                         .insert(profilePayload)
                         .select();
 
-                    console.log("Profile insert completed");
+                    console.log("Profile insert completed, result:", insertResult);
 
-                    if (profileError) {
-                        console.error('Profile creation error:', profileError);
-                        console.error('Profile error details:', JSON.stringify(profileError, null, 2));
+                    if (insertResult.error) {
+                        console.error('Profile creation error:', insertResult.error);
                     } else {
-                        console.log("Profile created successfully:", profileData);
+                        console.log("Profile created successfully:", insertResult.data);
                     }
                 } catch (insertError: any) {
                     console.error("Profile insert exception:", insertError);
