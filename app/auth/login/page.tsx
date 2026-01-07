@@ -14,9 +14,13 @@ export default function LoginPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Just mock login with email
-        login(email);
-        router.push('/');
+        const success = login(email, password);
+
+        if (success) {
+            router.push('/');
+        } else {
+            alert('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+        }
     };
 
     return (
