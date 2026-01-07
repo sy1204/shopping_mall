@@ -4,11 +4,11 @@ import Image from "next/image";
 
 export default function HeroBanner() {
     return (
-        <div className="relative w-full h-[500px] md:h-[600px] flex items-end justify-center bg-[var(--neural-black)] text-white overflow-hidden pb-12 md:pb-16">
+        <div className="relative w-full h-[500px] md:h-[600px] flex flex-col justify-center items-center bg-[var(--neural-black)] text-white overflow-hidden">
             {/* Background Image */}
-            <div className="absolute inset-0 opacity-50">
+            <div className="absolute inset-0 opacity-80">
                 <Image
-                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2070&auto=format&fit=crop"
                     alt="Hero Banner"
                     fill
                     className="object-cover object-top"
@@ -33,47 +33,43 @@ export default function HeroBanner() {
                 aria-hidden="true"
             />
 
-            {/* Content - positioned at bottom */}
-            <div className="relative z-10 text-center px-4 max-w-4xl">
+            {/* Content - Positioned to be below the subject's face/neck */}
+            <div className="relative z-10 text-center px-4 max-w-4xl mt-[30vh] md:mt-[25vh]">
                 {/* Season Label */}
                 <span
-                    className="block text-sm md:text-base mb-4 font-mono tracking-widest uppercase"
-                    style={{ color: '#d1d5db' }}
+                    className="block text-sm md:text-base mb-4 font-mono tracking-widest uppercase text-white drop-shadow-md"
                 >
                     2026 Spring Collection
                 </span>
 
                 {/* Main Title */}
                 <h1
-                    className="text-4xl md:text-7xl font-black mb-6 tracking-tight"
-                    style={{ color: '#ffffff' }}
+                    className="text-4xl md:text-7xl font-black mb-6 tracking-tight text-white drop-shadow-lg"
                 >
                     New Arrivals
                 </h1>
 
                 {/* Subtitle */}
                 <h2
-                    className="text-2xl md:text-4xl mb-8 tracking-tight font-light"
-                    style={{ color: '#e5e7eb' }}
+                    className="text-2xl md:text-4xl mb-8 tracking-tight font-light text-gray-100 drop-shadow-md"
                 >
                     Fresh Styles for the Season
                 </h2>
 
                 {/* Description */}
                 <p
-                    className="max-w-2xl mx-auto text-base md:text-lg mb-10 leading-relaxed"
-                    style={{ color: '#d1d5db' }}
+                    className="max-w-2xl mx-auto text-base md:text-lg mb-10 leading-relaxed text-gray-200 drop-shadow"
                 >
                     최신 트렌드를 반영한 신상품을 만나보세요.
                     <br className="hidden md:block" />
                     특별한 할인과 함께 새로운 스타일을 경험하실 수 있습니다.
                 </p>
 
-                {/* CTA Links - Simple text style without box */}
+                {/* CTA Links */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6 font-mono text-sm md:text-base tracking-wide">
                     <Link
                         href="/shop"
-                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
+                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors text-white drop-shadow-md"
                     >
                         <span className="opacity-70">[</span>
                         <span className="w-2 h-2 rounded-full bg-[var(--brand-accent)] animate-pulse"></span>
@@ -82,7 +78,7 @@ export default function HeroBanner() {
                     </Link>
                     <Link
                         href="/events"
-                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
+                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors text-white drop-shadow-md"
                     >
                         <span className="opacity-70">[</span>
                         <span className="font-medium">VIEW SALE</span>

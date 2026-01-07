@@ -123,6 +123,17 @@ export default function Header() {
                                 </span>
                             )}
                         </Link>
+
+                        {/* Tablet Hamburger (Visible on MD, Hidden on LG) */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="lg:hidden p-2 -mr-2 hover:text-[var(--brand-accent)] transition-colors"
+                            aria-label="메뉴"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        </button>
                     </div>
 
                     {/* Mobile: Icon-based utilities - Minimal monochrome icons */}
