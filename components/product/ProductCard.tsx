@@ -24,14 +24,20 @@ export default function ProductCard({ product }: ProductCardProps) {
         >
             <div className="relative overflow-hidden bg-white border border-[var(--tech-silver)] border-opacity-10 transition-all duration-300 hover:border-[var(--brand-accent)] hover:border-opacity-30">
                 {/* Product Image */}
-                <div className="relative aspect-[3/4] overflow-hidden">
-                    <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        unoptimized
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                    {product.images && product.images.length > 0 ? (
+                        <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            unoptimized
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-300">
+                            <span className="text-xs font-mono">NO IMAGE</span>
+                        </div>
+                    )}
 
                     {/* Dash Overlay on Hover */}
                     {isHovered && (

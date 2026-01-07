@@ -109,6 +109,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(newUser);
         localStorage.setItem('auth_user', JSON.stringify(newUser));
 
+        // Sync with Admin Panel (admin_users_mock)
+        const adminUsersStr = localStorage.getItem('admin_users_mock');
+        const adminUsers = adminUsersStr ? JSON.parse(adminUsersStr) : [];
+
+        // Check if already in admin list (by email) to avoid duplicates
+        // Note: The main check above prevents email duplicates, but good to be safe
+        const existingAdminIndex = adminUsers.findIndex((u: any) => u.email === email);
+
+        if (existingAdminIndex === -1) {
+            const newAdminUser = {
+                ...newUser,
+                id: Date.now().toString(), // Simple ID generation
+                joinDate: new Date().toISOString().split('T')[0],
+                status: 'Active',
+                totalOrders: 0,
+                totalSpent: 0
+            };
+            const updatedAdminUsers = [newAdminUser, ...adminUsers];
+            localStorage.setItem('admin_users_mock', JSON.stringify(updatedAdminUsers));
+        }
+
         return { success: true };
     };
 

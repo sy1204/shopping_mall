@@ -11,7 +11,7 @@ export default function HeroBanner() {
                     src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
                     alt="Hero Banner"
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                     priority
                 />
             </div>
