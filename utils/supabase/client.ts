@@ -4,15 +4,23 @@ import { createClient } from '@supabase/supabase-js';
 const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-console.log('[Supabase Debug] Raw Env URL:', envUrl);
-console.log('[Supabase Debug] Raw Env Key exists:', !!envKey);
+// Robust URL processing to handle common typos (like missing 'h' in https)
+let supabaseUrl = envUrl || 'https://placeholder.supabase.co';
 
-// Validate URL format to prevent build errors
-const supabaseUrl = (envUrl && (envUrl.startsWith('https://') || envUrl.startsWith('http://')))
-    ? envUrl
-    : 'https://placeholder.supabase.co';
+if (supabaseUrl !== 'https://placeholder.supabase.co') {
+    // Trim whitespace
+    supabaseUrl = supabaseUrl.trim();
 
-console.log('[Supabase Debug] Final URL used:', supabaseUrl);
+    // Fix common typo: ttps:// -> https://
+    if (supabaseUrl.startsWith('ttps://')) {
+        supabaseUrl = 'h' + supabaseUrl;
+    }
+
+    // Ensure protocol exists
+    if (!supabaseUrl.startsWith('http')) {
+        supabaseUrl = `https://${supabaseUrl}`;
+    }
+}
 
 const supabaseKey = envKey || 'placeholder';
 
