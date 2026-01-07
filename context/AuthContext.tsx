@@ -158,49 +158,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    return { success: true };
-};
 
-const adminLogin = (email: string): boolean => {
-    // Simple mock admin check
-    if (email.includes('admin') || email.includes('manager')) {
-        const name = email.split('@')[0];
-        const adminUser: User = {
-            email,
-            name,
-            points: 0,
-            isAdmin: true
-        };
-        setUser(adminUser);
-        localStorage.setItem('auth_user', JSON.stringify(adminUser));
-        return true;
-    }
-    return false;
-};
 
-const logout = () => {
-    setUser(null);
-    localStorage.removeItem('auth_user');
-};
+    const adminLogin = (email: string): boolean => {
+        // Simple mock admin check
+        if (email.includes('admin') || email.includes('manager')) {
+            const name = email.split('@')[0];
+            const adminUser: User = {
+                email,
+                name,
+                points: 0,
+                isAdmin: true
+            };
+            setUser(adminUser);
+            localStorage.setItem('auth_user', JSON.stringify(adminUser));
+            return true;
+        }
+        return false;
+    };
 
-const updateUser = (updatedData: Partial<User>) => {
-    if (!user) return;
-    const newUser = { ...user, ...updatedData };
-    setUser(newUser);
-    localStorage.setItem('auth_user', JSON.stringify(newUser));
-};
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('auth_user');
+    };
 
-const deleteUser = () => {
-    setUser(null);
-    localStorage.removeItem('auth_user');
-    // Theoretically should also clear orders/reviews/etc. associated with user in a real backend
-};
+    const updateUser = (updatedData: Partial<User>) => {
+        if (!user) return;
+        const newUser = { ...user, ...updatedData };
+        setUser(newUser);
+        localStorage.setItem('auth_user', JSON.stringify(newUser));
+    };
 
-return (
-    <AuthContext.Provider value={{ user, login, register, adminLogin, logout, updateUser, deleteUser, isLoading }}>
-        {children}
-    </AuthContext.Provider>
-);
+    const deleteUser = () => {
+        setUser(null);
+        localStorage.removeItem('auth_user');
+        // Theoretically should also clear orders/reviews/etc. associated with user in a real backend
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, login, register, adminLogin, logout, updateUser, deleteUser, isLoading }}>
+            {children}
+        </AuthContext.Provider>
+    );
 }
 
 export function useAuth() {
