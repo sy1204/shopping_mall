@@ -34,6 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const login = (email: string, password?: string): boolean => {
+        // Check if this is an admin email
+        const isAdminEmail = email.includes('admin') || email.includes('manager');
+
         // Check if user exists in registered users
         const usersStr = localStorage.getItem('registered_users');
         const users: Record<string, { password: string; user: User }> = usersStr ? JSON.parse(usersStr) : {};
@@ -41,11 +44,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (users[email]) {
             // User exists, check password
             if (password && users[email].password === password) {
-                setUser(users[email].user);
-                localStorage.setItem('auth_user', JSON.stringify(users[email].user));
+                // Update isAdmin based on email pattern
+                const userWithAdmin = { ...users[email].user, isAdmin: isAdminEmail };
+                setUser(userWithAdmin);
+                localStorage.setItem('auth_user', JSON.stringify(userWithAdmin));
                 return true;
             }
             return false; // Wrong password
+        }
+
+        // For admin emails without registration, allow login (like adminLogin behavior)
+        if (isAdminEmail) {
+            const name = email.split('@')[0];
+            const adminUser: User = {
+                email,
+                name,
+                points: 0,
+                isAdmin: true
+            };
+            setUser(adminUser);
+            localStorage.setItem('auth_user', JSON.stringify(adminUser));
+            return true;
         }
 
         // Fallback: for demo, allow email-only login
