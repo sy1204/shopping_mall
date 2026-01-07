@@ -107,12 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const register = async (email: string, password: string, name: string, phone?: string, addressData?: { zonecode?: string; address?: string; addressDetail?: string }): Promise<{ success: boolean; error?: string }> => {
-        console.log("Attempting registration for:", email);
+        const trimmedEmail = email.trim();
+        console.log("Attempting registration for:", trimmedEmail);
         try {
             // 1. Supabase Auth SignUp
             console.log("Calling supabase.auth.signUp...");
             const { data: authData, error: authError } = await supabase.auth.signUp({
-                email,
+                email: trimmedEmail,
                 password,
                 options: {
                     data: { name, phone } // Metadata
