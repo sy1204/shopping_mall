@@ -2,7 +2,7 @@ import { AdminUser } from "@/types";
 import { DUMMY_USERS } from "./dummyData";
 
 const STORAGE_KEYS = {
-    USERS: 'SHOP_USERS',
+    USERS: 'admin_users_mock',
 };
 
 export const getUsers = (): AdminUser[] => {
