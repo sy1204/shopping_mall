@@ -1,4 +1,3 @@
-// components/admin/ProductForm.tsx
 'use client';
 
 import { saveProduct, updateProduct } from "@/utils/productStorage";
@@ -22,7 +21,9 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
         price: '', // This will be calculated
         category: '',
         images: '',
-        story_content: ''
+        story_content: '',
+        is_new: false,
+        is_best: false
     });
 
     // Image preview state
@@ -40,7 +41,9 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 price: initialData.price.toString(),
                 category: initialData.category,
                 images: images.join('\n'),
-                story_content: initialData.story_content || ''
+                story_content: initialData.story_content || '',
+                is_new: initialData.is_new || false,
+                is_best: initialData.is_best || false
             });
             setImageUrls(images);
         }
@@ -65,8 +68,9 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type } = e.target;
+        const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+        setFormData(prev => ({ ...prev, [name]: val }));
     };
 
     const addImageUrl = () => {
@@ -113,7 +117,9 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
             discount_rate: Number(formData.discount_rate),
             category: formData.category,
             images: imageUrls,
-            story_content: formData.story_content
+            story_content: formData.story_content,
+            is_new: formData.is_new,
+            is_best: formData.is_best
         };
 
         // If no discount, ensure consistent data
@@ -166,18 +172,45 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                     </div>
                 </div>
 
-                {/* Category */}
-                <div>
-                    <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Category</label>
-                    <select name="category" value={formData.category} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" required>
-                        <option value="">Select Category</option>
-                        <option value="Top">상의 (Top)</option>
-                        <option value="Bottom">하의 (Bottom)</option>
-                        <option value="Outerwear">아우터 (Outerwear)</option>
-                        <option value="Shoes">신발 (Shoes)</option>
-                        <option value="Bag">가방 (Bag)</option>
-                        <option value="Accessories">액세서리 (Accessories)</option>
-                    </select>
+                {/* Category & Display Options */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Category</label>
+                        <select name="category" value={formData.category} onChange={handleChange} className="w-full border p-2 rounded text-sm focus:border-black outline-none transition-colors" required>
+                            <option value="">Select Category</option>
+                            <option value="Top">상의 (Top)</option>
+                            <option value="Bottom">하의 (Bottom)</option>
+                            <option value="Outerwear">아우터 (Outerwear)</option>
+                            <option value="Shoes">신발 (Shoes)</option>
+                            <option value="Bag">가방 (Bag)</option>
+                            <option value="Accessories">액세서리 (Accessories)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-[10px] font-mono font-bold text-gray-400 mb-1 uppercase tracking-widest">Display Options</label>
+                        <div className="flex gap-4 mt-2">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="is_new"
+                                    checked={formData.is_new}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 accent-black"
+                                />
+                                <span className="text-sm">NEW Arrival</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="is_best"
+                                    checked={formData.is_best}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 accent-black"
+                                />
+                                <span className="text-sm">BEST Seller</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Image Management */}
