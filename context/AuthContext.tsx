@@ -128,33 +128,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (authData.user) {
                 console.log("User created with ID:", authData.user.id);
-                console.log("Inserting profile with data:", {
+                const profilePayload = {
                     id: authData.user.id,
                     email: trimmedEmail,
                     name,
                     phone_number: phone,
                     role: 'customer',
                     points: 1000
-                });
+                };
+                console.log("Inserting profile with data:", profilePayload);
 
                 // 2. Create Profile in 'profiles' table
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: authData.user.id,
-                        email: trimmedEmail,
-                        name,
-                        phone_number: phone,
-                        role: 'customer',
-                        points: 1000 // Welcome points
-                    })
-                    .select();
+                try {
+                    console.log("Starting profile insert...");
+                    const { data: profileData, error: profileError } = await supabase
+                        .from('profiles')
+                        .insert(profilePayload)
+                        .select();
 
-                if (profileError) {
-                    console.error('Profile creation error:', profileError);
-                    console.error('Profile error details:', JSON.stringify(profileError, null, 2));
-                } else {
-                    console.log("Profile created successfully:", profileData);
+                    console.log("Profile insert completed");
+
+                    if (profileError) {
+                        console.error('Profile creation error:', profileError);
+                        console.error('Profile error details:', JSON.stringify(profileError, null, 2));
+                    } else {
+                        console.log("Profile created successfully:", profileData);
+                    }
+                } catch (insertError: any) {
+                    console.error("Profile insert exception:", insertError);
                 }
 
                 return { success: true };
