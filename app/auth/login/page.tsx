@@ -4,6 +4,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -53,7 +54,10 @@ export default function LoginPage() {
                     </button>
                 </form>
                 <div className="mt-6 text-center text-sm text-gray-500">
-                    Don't have an account? <span className="underline cursor-pointer">Sign up</span>
+                    Don't have an account?{' '}
+                    <Link href="/signup" className="underline cursor-pointer hover:text-black">
+                        Sign up
+                    </Link>
                 </div>
             </div>
         </div>
