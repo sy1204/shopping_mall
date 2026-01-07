@@ -67,7 +67,8 @@ export const DUMMY_ORDERS: Order[] = [
         status: 'Delivered',
         trackingNumber: '1234567890',
         usedPoints: 0,
-        earnedPoints: 3480
+        earnedPoints: 3480,
+        userId: 'user1@example.com'
     },
     {
         id: 'ord_sample_2',
@@ -77,7 +78,8 @@ export const DUMMY_ORDERS: Order[] = [
         shippingAddress: { name: 'Park Ji-hoon', address: 'Incheon Namdong-gu Guwol-dong 789', phone: '010-1111-2222' },
         status: 'Preparing',
         usedPoints: 0,
-        earnedPoints: 1780
+        earnedPoints: 1780,
+        userId: 'user1@example.com'
     }
 ];
 

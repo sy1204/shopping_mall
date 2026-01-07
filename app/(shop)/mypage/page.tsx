@@ -34,7 +34,7 @@ export default function MyPage() {
 
     const refreshData = () => {
         if (!user) return;
-        setOrders(getOrders()); // In real app, filter by user ID
+        setOrders(getOrders((user as User).email));
         setMyReviews(getMyReviews((user as User).email));
         setMyQna(getMyProductInquiries((user as User).email));
     };

@@ -65,6 +65,7 @@ export interface Order {
     returnReason?: string;
     exchangeReason?: string;
     exchangeRequest?: string; // Desired exchange option
+    userId: string;
 }
 
 export interface Review {

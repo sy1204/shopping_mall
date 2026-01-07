@@ -161,6 +161,7 @@ export default function OrderPage() {
             }
 
             // Save Order Mock
+            // Save Order Mock
             saveOrder({
                 items,
                 totalPrice,
@@ -170,7 +171,8 @@ export default function OrderPage() {
                     address: `[${formData.zonecode}] ${formData.address} ${formData.detailAddress}`.trim()
                 },
                 usedPoints: pointsToUse,
-                earnedPoints: earnedPoints
+                earnedPoints: earnedPoints,
+                userId: user?.email || 'guest'
             });
 
             alert('주문이 완료되었습니다!');
