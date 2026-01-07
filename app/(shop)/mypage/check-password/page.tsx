@@ -15,17 +15,20 @@ export default function CheckPasswordPage() {
         e.preventDefault();
         setError('');
 
-        // Mock password check
-        // In real app, this would call an API.
-        // For mock, let's assume any non-empty password that isn't 'fail' is correct, 
-        // or just accept everything for now since we don't have real password storage.
-        // But to simulate "re-check", let's require '1234' or match what we theoretically stored.
-        // Since AuthContext doesn't expose password, we'll just accept '1234' as the text.
+        if (!user) {
+            setError('로그인이 필요합니다.');
+            return;
+        }
 
-        if (password === '1234') {
+        // Get registered users from localStorage to check password
+        const usersStr = localStorage.getItem('registered_users');
+        const users: Record<string, { password: string; user: { email: string } }> = usersStr ? JSON.parse(usersStr) : {};
+
+        // Check if user exists and password matches
+        if (users[user.email] && users[user.email].password === password) {
             router.push('/mypage/profile/edit');
         } else {
-            setError('비밀번호가 일치하지 않습니다. (Test with: 1234)');
+            setError('비밀번호가 일치하지 않습니다.');
         }
     };
 
