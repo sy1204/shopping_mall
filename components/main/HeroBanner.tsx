@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function HeroBanner() {
     return (
-        <div className="relative w-full h-[500px] md:h-[600px] flex flex-col justify-center items-center bg-[var(--neural-black)] text-white overflow-hidden">
+        <div className="relative w-full h-[500px] md:h-[600px] flex flex-col justify-end items-center bg-[var(--neural-black)] text-white overflow-hidden pb-16 md:pb-24">
             {/* Background Image */}
             <div className="absolute inset-0 opacity-80">
                 <Image
@@ -33,8 +33,8 @@ export default function HeroBanner() {
                 aria-hidden="true"
             />
 
-            {/* Content - Positioned to be below the subject's face/neck */}
-            <div className="relative z-10 text-center px-4 max-w-4xl mt-[30vh] md:mt-[25vh]">
+            {/* Content - Positioned at bottom (below subject's face) */}
+            <div className="relative z-10 text-center px-4 max-w-4xl">
                 {/* Season Label */}
                 <span
                     className="block text-sm md:text-base mb-4 font-mono tracking-widest uppercase text-white drop-shadow-md"

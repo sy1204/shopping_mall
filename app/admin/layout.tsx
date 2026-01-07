@@ -66,6 +66,7 @@ export default function AdminLayout({
                     { label: '공지사항 관리', href: '/admin/board?tab=notice' },
                     { label: 'FAQ 관리', href: '/admin/board?tab=faq' },
                     { label: '1:1 문의 관리', href: '/admin/board?tab=inquiry' },
+                    { label: '상품 문의 관리', href: '/admin/board?tab=product_inquiry' },
                     { label: '상품 후기 관리', href: '/admin/board?tab=review' },
                 ];
             case 'design':
@@ -155,6 +156,7 @@ export default function AdminLayout({
                                     case 'board':
                                         return [
                                             { label: '공지사항 관리', href: '/admin/board?tab=notice' },
+                                            { label: '상품 문의 관리', href: '/admin/board?tab=product_inquiry' },
                                             { label: 'FAQ 관리', href: '/admin/board?tab=faq' },
                                             { label: '1:1 문의 관리', href: '/admin/board?tab=inquiry' },
                                             { label: '상품 후기 관리', href: '/admin/board?tab=review' },
@@ -249,6 +251,31 @@ export default function AdminLayout({
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                 `}>
                     <div className="p-6">
+                        {/* Mobile Main Menu (Section Switcher) */}
+                        <div className="md:hidden space-y-1 mb-6 pb-6 border-b">
+                            <h2 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">SECTIONS</h2>
+                            {[
+                                { id: 'dashboard', label: '대시보드 홈', href: '/admin' },
+                                { id: 'products', label: '상품 관리', href: '/admin/products' },
+                                { id: 'orders', label: '주문 관리', href: '/admin/orders' },
+                                { id: 'users', label: '회원 관리', href: '/admin/users' },
+                                { id: 'board', label: '게시판 관리', href: '/admin/board' },
+                                { id: 'design', label: '전시 관리', href: '/admin/design' },
+                                { id: 'stats', label: '통계 관리', href: '/admin/stats' },
+                                { id: 'settings', label: '시스템 관리', href: '/admin/settings' },
+                            ].map(item => (
+                                <Link
+                                    key={item.id}
+                                    href={item.href}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={`block px-3 py-2 rounded text-sm font-bold ${activeSection === item.id ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </div>
+
                         <h2 className="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider">
                             {activeSection === 'dashboard' && 'DASHBOARD'}
                             {activeSection === 'products' && 'PRODUCT'}

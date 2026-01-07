@@ -33,18 +33,7 @@ export const DUMMY_PRODUCTS: Product[] = [
         like_count: 532,
         review_count: 12
     },
-    {
-        id: 'p3',
-        name: '클래식 레더 첼시 부츠',
-        brand: 'DR. MARTENS',
-        price: 240000,
-        images: [
-            'https://images.unsplash.com/photo-1542838686-37da4a9fd176?q=80&w=1000&auto=format&fit=crop'
-        ],
-        category: '신발',
-        like_count: 890,
-        review_count: 120
-    }
+    // Product removed
 ];
 
 // --- Helpers ---
