@@ -5,9 +5,10 @@ const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (typeof window !== 'undefined') {
-    console.log('--- Supabase Auth Debug ---');
-    console.log('Env URL:', envUrl);
-    console.log('Env Key exists:', !!envKey);
+    console.error('--- CRITICAL SUPABASE DEBUG ---');
+    console.log('NEXT_PUBLIC_SUPABASE_URL:', envUrl ? `EXISTS (${envUrl.substring(0, 15)}...)` : 'MISSING');
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', envKey ? 'EXISTS' : 'MISSING');
+    console.log('PROCESS.ENV KEYS:', Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC')));
 }
 
 // Robust URL processing
