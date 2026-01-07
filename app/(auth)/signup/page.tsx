@@ -42,6 +42,7 @@ export default function SignupPage() {
     const [error, setError] = useState('');
     const [agreed, setAgreed] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Fix hydration issues
     useEffect(() => {
@@ -110,6 +111,9 @@ export default function SignupPage() {
             return;
         }
 
+        if (isLoading) return; // Prevent double submit
+        setIsLoading(true);
+
         const result = await register(
             formData.email,
             formData.password,
@@ -132,6 +136,7 @@ export default function SignupPage() {
         } else {
             setError(result.error || '회원가입에 실패했습니다.');
         }
+        setIsLoading(false);
     };
 
     // Show loading until client-side hydration is complete
@@ -287,9 +292,10 @@ export default function SignupPage() {
 
                     <button
                         type="submit"
-                        className="w-full bg-black text-white py-4 font-bold hover:bg-gray-800 transition-colors rounded"
+                        disabled={isLoading}
+                        className="w-full bg-black text-white py-4 font-bold hover:bg-gray-800 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        가입하기
+                        {isLoading ? '처리중...' : '가입하기'}
                     </button>
                 </form>
 
