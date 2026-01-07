@@ -5,7 +5,7 @@ import { Product, CartItem, Order, AdminUser, Review, ProductInquiry, Notice, FA
 export const DUMMY_PRODUCTS: Product[] = [
     {
         id: 'p1',
-        name: 'Essential Oversized Wool Coat - Camel',
+        name: '에센셜 오버핏 울 코트 - 카멜',
         brand: 'LOW CLASSIC',
         price: 348000,
         original_price: 498000,
@@ -14,38 +14,37 @@ export const DUMMY_PRODUCTS: Product[] = [
             'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?q=80&w=1000&auto=format&fit=crop'
         ],
-        category: 'Outerwear',
+        category: '아우터',
         is_best: true,
         like_count: 1240,
         review_count: 45,
-        story_content: '# Timeless Elegance\nCrafted from a high-density wool blend...'
+        story_content: '# 타임리스 우아함\n고밀도 울 블렌드 소재로 제작되어...'
     },
     {
         id: 'p2',
-        name: 'Arch Logo Hoodie - Melange Grey',
+        name: '아치 로고 후디 - 멜란지 그레이',
         brand: 'THISISNEVERTHAT',
         price: 89000,
         images: [
             'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop'
         ],
-        category: 'Top',
+        category: '상의',
         is_new: true,
         like_count: 532,
         review_count: 12
     },
     {
         id: 'p3',
-        name: 'Classic Leather Chelsea Boots',
+        name: '클래식 레더 첼시 부츠',
         brand: 'DR. MARTENS',
         price: 240000,
         images: [
             'https://images.unsplash.com/photo-1542838686-37da4a9fd176?q=80&w=1000&auto=format&fit=crop'
         ],
-        category: 'Shoes',
+        category: '신발',
         like_count: 890,
         review_count: 120
     }
-    // ... more products can be added here
 ];
 
 // --- Helpers ---
@@ -63,7 +62,7 @@ export const DUMMY_ORDERS: Order[] = [
         date: '2025-12-20T10:00:00Z',
         items: [createDummyCartItem(DUMMY_PRODUCTS[0], 1, 'M')],
         totalPrice: 348000,
-        shippingAddress: { name: 'Kim Min-su', address: 'Seoul Gangnam-gu Teheran-ro 123', phone: '010-1234-5678' },
+        shippingAddress: { name: '김민수', address: '서울시 강남구 테헤란로 123', phone: '010-1234-5678' },
         status: 'Delivered',
         trackingNumber: '1234567890',
         usedPoints: 0,
@@ -75,7 +74,7 @@ export const DUMMY_ORDERS: Order[] = [
         date: '2026-01-02T09:15:00Z',
         items: [createDummyCartItem(DUMMY_PRODUCTS[1], 2, 'L')],
         totalPrice: 178000,
-        shippingAddress: { name: 'Park Ji-hoon', address: 'Incheon Namdong-gu Guwol-dong 789', phone: '010-1111-2222' },
+        shippingAddress: { name: '박지훈', address: '인천시 남동구 구월동 789', phone: '010-1111-2222' },
         status: 'Preparing',
         usedPoints: 0,
         earnedPoints: 1780,
@@ -88,15 +87,15 @@ export const DUMMY_USERS: AdminUser[] = [
     {
         id: 'u1',
         email: 'user1@example.com',
-        name: 'Kim Min-su',
+        name: '김민수',
         joinDate: '2025-12-01',
         status: 'Active',
         points: 5000,
         totalOrders: 15,
         totalSpent: 1250000,
         phoneNumber: '010-1234-5678',
-        address: 'Seoul Gangnam-gu Teheran-ro 123',
-        addressDetail: 'Apt 101'
+        address: '서울시 강남구 테헤란로 123',
+        addressDetail: '101동'
     }
 ];
 

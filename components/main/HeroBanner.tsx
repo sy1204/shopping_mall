@@ -8,7 +8,7 @@ export default function HeroBanner() {
             {/* Background Image */}
             <div className="absolute inset-0 opacity-80">
                 <Image
-                    src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2070&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
                     alt="Hero Banner"
                     fill
                     className="object-cover object-top"
