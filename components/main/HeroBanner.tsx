@@ -73,12 +73,12 @@ export default function HeroBanner() {
                 {/* CTA Button */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <Link href="/shop">
-                        <BracketButton variant="primary" className="bg-white text-[var(--neural-black)] hover:bg-[var(--brand-accent)] hover:text-white">
+                        <BracketButton variant="primary" className="border-white text-white hover:bg-[var(--brand-accent)] hover:text-white">
                             SHOP NOW
                         </BracketButton>
                     </Link>
                     <Link href="/events">
-                        <BracketButton variant="outline" className="border-white text-white hover:bg-white hover:text-[var(--neural-black)]">
+                        <BracketButton variant="outline" className="border-white text-white hover:bg-[var(--brand-accent)] hover:text-white">
                             VIEW SALE
                         </BracketButton>
                     </Link>
