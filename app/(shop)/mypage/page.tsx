@@ -8,6 +8,7 @@ import { getMyReviews, getMyProductInquiries } from "@/utils/boardStorage";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import OneToOneSection from "@/components/board/OneToOneSection";
 
 // Define Active status types
