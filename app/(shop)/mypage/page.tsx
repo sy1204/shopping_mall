@@ -33,11 +33,12 @@ export default function MyPage() {
     }, [user, isLoading, router]);
 
     const refreshData = async () => {
-        if (!user) return;
+        if (!user || !(user as User).id) return;
+        const userId = (user as User).id!;
         const [ordersData, reviewsData, qnaData] = await Promise.all([
-            getOrders((user as User).email),
-            getMyReviews((user as User).email),
-            getMyProductInquiries((user as User).email)
+            getOrders(userId),
+            getMyReviews(userId),
+            getMyProductInquiries(userId)
         ]);
         setOrders(ordersData);
         setMyReviews(reviewsData);

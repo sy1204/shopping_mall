@@ -8,12 +8,13 @@ import { OneToOneInquiry, Order, CartItem } from "@/types";
 import { useEffect, useState } from "react";
 
 // Inquiry categories
+// needsProduct: true = 상품 선택 필수, false = 선택사항
 const INQUIRY_CATEGORIES = [
-    { value: '상품문의', label: '상품문의', needsProduct: true },
-    { value: '주문/결제', label: '주문/결제', needsProduct: false },
-    { value: '배송문의', label: '배송문의', needsProduct: false },
-    { value: '교환/반품', label: '교환/반품', needsProduct: true },
-    { value: '기타', label: '기타', needsProduct: false },
+    { value: '상품문의', label: '상품문의', needsProduct: false },  // 선택사항
+    { value: '주문/결제', label: '주문/결제', needsProduct: true },  // 필수
+    { value: '배송문의', label: '배송문의', needsProduct: true },    // 필수
+    { value: '교환/반품', label: '교환/반품', needsProduct: true },   // 필수
+    { value: '기타', label: '기타', needsProduct: false },          // 선택사항
 ];
 
 export default function OneToOneSection() {
@@ -34,9 +35,9 @@ export default function OneToOneSection() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (user) {
+            if (user && user.id) {
                 const [inqs, ords] = await Promise.all([
-                    getMyInquiries(user.email),
+                    getMyInquiries(user.id),
                     getOrders()
                 ]);
                 setInquiries(inqs);
@@ -70,7 +71,7 @@ export default function OneToOneSection() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        if (!user || !user.id) return;
 
         // Validate product selection if needed
         if (currentCategoryConfig?.needsProduct && !selectedProductName) {
@@ -84,7 +85,7 @@ export default function OneToOneSection() {
             : `[${category}] ${title}`;
 
         await addOneToOneInquiry({
-            userId: user.email,
+            userId: user.id,
             category,
             title: finalTitle,
             content: selectedProductName
@@ -93,7 +94,7 @@ export default function OneToOneSection() {
         });
 
         alert('문의가 등록되었습니다.');
-        const updated = await getMyInquiries(user.email);
+        const updated = await getMyInquiries(user.id);
         setInquiries(updated);
 
         // Reset

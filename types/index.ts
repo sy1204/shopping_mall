@@ -26,6 +26,7 @@ export interface CartItem extends Product {
 }
 
 export interface User {
+    id?: string;  // Supabase UUID
     email: string;
     name: string;
     phoneNumber?: string;

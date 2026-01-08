@@ -23,11 +23,11 @@ export default function InquirySection({ productId }: { productId: string }) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return alert('로그인이 필요합니다.');
+        if (!user || !user.id) return alert('로그인이 필요합니다.');
 
         await addProductInquiry({
             productId,
-            userId: user.email,
+            userId: user.id,
             userName: user.name,
             content,
             isSecret

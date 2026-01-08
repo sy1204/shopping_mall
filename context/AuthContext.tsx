@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (data && data[0]) {
                 const profileData = data[0];
                 const appUser: User = {
+                    id: userId,  // Add UUID
                     email: profileData.email || email || '',
                     name: profileData.name || '',
                     phoneNumber: profileData.phone_number,
@@ -174,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         console.log("Profile created successfully!");
                         // Set user state immediately after signup
                         const newUser: User = {
+                            id: authData.user.id,  // Add UUID
                             email: trimmedEmail,
                             name,
                             phoneNumber: phone,

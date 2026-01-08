@@ -160,9 +160,14 @@ export default function OrderPage() {
                 updateUser({ points: newPoints });
             }
 
-            // Save Order Mock
-            // Save Order Mock
-            saveOrder({
+            // Save Order
+            if (!user?.id) {
+                alert('로그인이 필요합니다.');
+                setIsSubmitting(false);
+                return;
+            }
+
+            await saveOrder({
                 items,
                 totalPrice,
                 shippingAddress: {
@@ -172,7 +177,7 @@ export default function OrderPage() {
                 },
                 usedPoints: pointsToUse,
                 earnedPoints: earnedPoints,
-                userId: user?.email || 'guest'
+                userId: user.id
             });
 
             alert('주문이 완료되었습니다!');
