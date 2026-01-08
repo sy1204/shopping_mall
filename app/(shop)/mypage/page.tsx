@@ -166,12 +166,14 @@ export default function MyPage() {
                                                 <div className="space-y-4 mb-4">
                                                     {order.items.map((item, idx) => (
                                                         <div key={idx} className="flex gap-4">
-                                                            <div className="relative w-16 h-20 bg-gray-100 flex-shrink-0">
+                                                            <Link href={`/shop/${item.id}`} className="relative w-16 h-20 bg-gray-100 flex-shrink-0 hover:opacity-80 transition-opacity">
                                                                 <Image src={item.images[0]} alt={item.name} fill className="object-cover" unoptimized />
-                                                            </div>
+                                                            </Link>
                                                             <div>
                                                                 <p className="font-bold text-sm">{item.brand}</p>
-                                                                <p className="text-sm">{item.name}</p>
+                                                                <Link href={`/shop/${item.id}`} className="text-sm hover:underline hover:text-blue-600">
+                                                                    {item.name}
+                                                                </Link>
                                                                 <p className="text-xs text-gray-500">{item.selectedOptions.size} / 수량: {item.quantity}</p>
                                                             </div>
                                                         </div>
@@ -232,7 +234,10 @@ export default function MyPage() {
                                                 </div>
                                                 {/* Items summary */}
                                                 <div className="text-sm text-gray-600">
-                                                    {order.items[0].name} {order.items.length > 1 ? `외 ${order.items.length - 1}건` : ''}
+                                                    <Link href={`/shop/${order.items[0].id}`} className="hover:underline hover:text-blue-600">
+                                                        {order.items[0].name}
+                                                    </Link>
+                                                    {order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ''}
                                                 </div>
                                                 <div className="mt-2 text-right font-bold">
                                                     {order.totalPrice.toLocaleString()}원

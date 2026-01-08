@@ -11,6 +11,7 @@ export default function ReviewSection({ productId }: { productId: string }) {
     const { user } = useAuth();
     const [reviews, setReviews] = useState<Review[]>([]);
     const [showForm, setShowForm] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Form Inputs
     const [rating, setRating] = useState(5);
@@ -39,25 +40,34 @@ export default function ReviewSection({ productId }: { productId: string }) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user || !user.id) return alert('로그인이 필요합니다.');
+        if (isSubmitting) return;
 
-        await addReview({
-            productId,
-            userId: user.id,
-            userName: user.name,
-            rating,
-            content,
-            images: imagePreview ? [imagePreview] : []
-        });
+        setIsSubmitting(true);
+        try {
+            await addReview({
+                productId,
+                userId: user.id,
+                userName: user.name,
+                rating,
+                content,
+                images: imagePreview ? [imagePreview] : []
+            });
 
-        alert('리뷰가 등록되었습니다!');
-        const updated = await getReviews(productId);
-        setReviews(updated);
+            alert('리뷰가 등록되었습니다!');
+            const updated = await getReviews(productId);
+            setReviews(updated);
 
-        // Reset form
-        setContent('');
-        setRating(5);
-        setImagePreview(null);
-        setShowForm(false);
+            // Reset form
+            setContent('');
+            setRating(5);
+            setImagePreview(null);
+            setShowForm(false);
+        } catch (error) {
+            console.error('Failed to submit review:', error);
+            alert('리뷰 등록에 실패했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -119,8 +129,12 @@ export default function ReviewSection({ productId }: { productId: string }) {
                                 placeholder="상품에 대한 솔직한 리뷰를 남겨주세요."
                             />
                         </div>
-                        <button type="submit" className="w-full bg-black text-white py-3 font-bold">
-                            리뷰 등록하기
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full bg-black text-white py-3 font-bold disabled:bg-gray-400"
+                        >
+                            {isSubmitting ? '등록 중...' : '리뷰 등록하기'}
                         </button>
                     </form>
                 </div>

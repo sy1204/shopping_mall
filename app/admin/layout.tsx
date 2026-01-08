@@ -54,8 +54,8 @@ export default function AdminLayout({
             case 'orders':
                 return [
                     { label: '전체 주문 통합', href: '/admin/orders' },
-                    { label: '배송 관리', href: '/admin/orders?status=Preparing' }, // Placeholder query
-                    { label: '취소/교환/반품', href: '/admin/orders?status=Claim' }, // Placeholder query
+                    { label: '배송 관리', href: '/admin/orders?filter=delivery' },
+                    { label: '취소/교환/반품', href: '/admin/orders?filter=claims' },
                 ];
             case 'users':
                 return [

@@ -153,26 +153,7 @@ export default function AdminBoardPage() {
                 </div>
             </div>
 
-            {/* Internal Tabs if needed for quick switch, though Sidebar has them. 
-                Let's add a quick tab bar here for convenience if sidebar is complex. */}
-            <div className="flex gap-1 mb-6 border-b">
-                {[
-                    { id: 'notice', label: '공지사항' },
-                    { id: 'faq', label: 'FAQ' },
-                    { id: 'inquiry', label: '1:1 문의' },
-                    { id: 'product_inquiry', label: '상품 문의' },
-                    { id: 'review', label: '상품 후기' },
-                ].map(t => (
-                    <button
-                        key={t.id}
-                        onClick={() => handleTabChange(t.id)}
-                        className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${tab === t.id ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-600'
-                            }`}
-                    >
-                        {t.label}
-                    </button>
-                ))}
-            </div>
+            {/* Internal Tabs removed - use sidebar (LNB) navigation instead */}
 
             <div className="bg-white border rounded p-6 min-h-[500px]">
                 {/* NOTICE TAB */}

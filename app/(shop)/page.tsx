@@ -1,6 +1,7 @@
 'use client';
 
 import HeroBanner from "@/components/main/HeroBanner";
+import PopupModal from "@/components/main/PopupModal";
 import ProductCard from "@/components/product/ProductCard";
 import { getProducts } from "@/utils/productStorage";
 import { Product } from "@/types";
@@ -41,6 +42,7 @@ export default function Home() {
 
     return (
         <main className="min-h-screen">
+            <PopupModal />
             <HeroBanner />
 
             <section className="container mx-auto px-4 py-16">

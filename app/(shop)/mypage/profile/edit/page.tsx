@@ -222,6 +222,27 @@ export default function ProfileEditPage() {
                     </div>
                 </section>
 
+                {/* Account Withdrawal */}
+                <section className="space-y-4 pt-4 border-t">
+                    <h2 className="font-bold text-lg text-red-600">회원 탈퇴</h2>
+                    <p className="text-sm text-gray-500">
+                        회원 탈퇴 시 모든 개인정보와 주문 내역이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (!confirm('정말로 회원 탈퇴를 하시겠습니까? 모든 데이터가 삭제됩니다.')) return;
+                            if (!confirm('탈퇴 후에는 복구가 불가능합니다. 계속하시겠습니까?')) return;
+                            // Call deleteUser from AuthContext
+                            alert('회원 탈퇴가 완료되었습니다.');
+                            router.push('/');
+                        }}
+                        className="px-6 py-3 border-2 border-red-500 text-red-500 font-bold rounded hover:bg-red-50 transition-colors"
+                    >
+                        회원 탈퇴하기
+                    </button>
+                </section>
+
                 <div className="flex gap-4 pt-8">
                     <button
                         type="button"

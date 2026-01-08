@@ -53,6 +53,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     email: profileData.email || email || '',
                     name: profileData.name || '',
                     phoneNumber: profileData.phone_number,
+                    zonecode: profileData.zonecode,
+                    address: profileData.address,
+                    addressDetail: profileData.address_detail,
                     points: profileData.points || 0,
                     isAdmin: profileData.role === 'admin',
                 };
@@ -142,6 +145,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     email: trimmedEmail,
                     name,
                     phone_number: phone,
+                    zonecode: addressData?.zonecode || null,
+                    address: addressData?.address || null,
+                    address_detail: addressData?.addressDetail || null,
                     role: 'customer',
                     points: 1000
                 };
