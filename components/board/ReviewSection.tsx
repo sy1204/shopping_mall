@@ -18,7 +18,11 @@ export default function ReviewSection({ productId }: { productId: string }) {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     useEffect(() => {
-        setReviews(getReviews(productId));
+        const fetchReviews = async () => {
+            const data = await getReviews(productId);
+            setReviews(data);
+        };
+        fetchReviews();
     }, [productId]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,11 +36,11 @@ export default function ReviewSection({ productId }: { productId: string }) {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return alert('로그인이 필요합니다.');
 
-        addReview({
+        await addReview({
             productId,
             userId: user.email,
             userName: user.name,
@@ -46,7 +50,8 @@ export default function ReviewSection({ productId }: { productId: string }) {
         });
 
         alert('리뷰가 등록되었습니다!');
-        setReviews(getReviews(productId)); // Refresh list
+        const updated = await getReviews(productId);
+        setReviews(updated);
 
         // Reset form
         setContent('');

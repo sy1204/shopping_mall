@@ -14,14 +14,18 @@ export default function InquirySection({ productId }: { productId: string }) {
     const [isSecret, setIsSecret] = useState(false);
 
     useEffect(() => {
-        setInquiries(getProductInquiries(productId));
+        const fetchInquiries = async () => {
+            const data = await getProductInquiries(productId);
+            setInquiries(data);
+        };
+        fetchInquiries();
     }, [productId]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return alert('로그인이 필요합니다.');
 
-        addProductInquiry({
+        await addProductInquiry({
             productId,
             userId: user.email,
             userName: user.name,
@@ -30,7 +34,8 @@ export default function InquirySection({ productId }: { productId: string }) {
         });
 
         alert('문의가 등록되었습니다!');
-        setInquiries(getProductInquiries(productId));
+        const updated = await getProductInquiries(productId);
+        setInquiries(updated);
         setContent('');
         setIsSecret(false);
         setShowForm(false);
