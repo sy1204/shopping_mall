@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>N-D Heritage Editorial</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#c3a383",
+                        "background-light": "#ffffff",
+                        "background-dark": "#1a1a1a",
+                        "text-main": "#1a1a1a",
+                        "text-muted": "#595959",
+                    },
+                    fontFamily: {
+                        "serif": ["'Noto Serif KR'", "serif"],
+                        "sans": ["'Noto Sans KR'", "sans-serif"],
+                    },
+                    spacing: {
+                        '128': '32rem',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for Webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c3a383;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0856a;
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light text-text-main font-sans overflow-x-hidden selection:bg-primary/30">
+    <!-- The Infinite Dash (Visual Guide) -->
+    <!-- Positioned absolutely in the background to serve as the unifying vertical element -->
+    <div class="fixed inset-y-0 left-1/2 w-px bg-primary/20 -translate-x-1/2 z-0 hidden md:block pointer-events-none">
+    </div>
+    <div class="relative flex flex-col min-h-screen w-full z-10">
+        <!-- Navigation -->
+        <header
+            class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
+            <div class="max-w-[1400px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
+                <!-- Mobile Menu Icon -->
+                <button class="md:hidden p-2 text-text-main">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <!-- Logo -->
+                <a class="text-2xl md:text-3xl font-serif font-black tracking-tighter text-text-main group hover:text-primary transition-colors"
+                    href="#">
+                    [N-D]
+                </a>
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center gap-12">
+                    <a class="text-xs font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors"
+                        href="#">Collections</a>
+                    <a class="text-xs font-bold tracking-[0.15em] uppercase text-primary border-b border-primary pb-0.5"
+                        href="#">Heritage</a>
+                    <a class="text-xs font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors"
+                        href="#">Editorial</a>
+                </nav>
+                <!-- Icons -->
+                <div class="flex items-center gap-4 md:gap-6">
+                    <button class="text-text-main hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px] md:text-[24px]">search</span>
+                    </button>
+                    <button class="text-text-main hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px] md:text-[24px]">shopping_bag</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <!-- Main Content Wrapper -->
+        <main class="flex-grow flex flex-col items-center w-full">
+            <!-- Hero Section -->
+            <section
+                class="w-full max-w-[1400px] px-6 md:px-12 py-12 md:py-24 grid grid-cols-1 md:grid-cols-12 gap-12 items-end min-h-[85vh]">
+                <!-- Typography Column -->
+                <div class="md:col-span-5 flex flex-col gap-8 md:gap-16 z-10 relative md:pr-12">
+                    <div class="space-y-6">
+                        <span class="inline-block text-primary font-bold tracking-[0.2em] text-xs uppercase pl-1">—
+                            N-in-D Heritage Collection</span>
+                        <h1
+                            class="font-serif text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight text-text-main break-keep">
+                            전통<br />속에<br />새겨진<br />가치
+                        </h1>
+                    </div>
+                    <div class="flex flex-col gap-6 items-start">
+                        <p class="text-text-muted font-sans font-light text-sm md:text-base leading-relaxed max-w-sm">
+                            변하지 않는 본질을 탐구합니다. 시간의 흐름 속에서도 퇴색되지 않는 우아함, <span class="font-serif italic">[N-D]</span>가
+                            정의하는 새로운 헤리티지입니다.
+                        </p>
+                        <a class="group flex items-center gap-2 text-sm font-bold tracking-widest uppercase mt-4"
+                            href="#collection">
+                            <span class="text-primary group-hover:text-text-main transition-colors">[</span>
+                            <span class="border-b border-transparent group-hover:border-primary transition-all">컬렉션
+                                탐색</span>
+                            <span class="text-primary group-hover:text-text-main transition-colors">]</span>
+                        </a>
+                    </div>
+                </div>
+                <!-- Hero Image -->
+                <div class="md:col-span-7 h-[60vh] md:h-full w-full relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-gray-100 animate-pulse"></div>
+                    <div class="w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-1000 ease-out group-hover:scale-105"
+                        data-alt="Abstract minimalist fashion photography, close up of high quality beige fabric texture and a model looking away in soft light"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwOYLhOqezkTAjbvuAWRJpcW_FJa3loHIs2xntr4EVNvzp_G5E4TrAe2W-IiKBJQkdT22N1_Xuyh8xGdON8KCXETdO7C5taqunkaeY7oDPvV7zhJDXbum0VyqXggpOejvI7KaTWeR_n7iyt1dlOIpqB0PYcWcWLbM4vnG4sMMoNBLTWHPbD_Vt_zxjBjtcqmG6B-nfAurB0vkLQk2hcBDdcxWxdRvdA8LA5Pix4tAeduszfFRUVpja-lRVEy6lPqz0InCs2SpQ0Xlt');">
+                    </div>
+                    <!-- Decorative corner bracket -->
+                    <div
+                        class="absolute bottom-6 right-6 text-white mix-blend-difference font-serif text-6xl opacity-50">
+                        ]</div>
+                </div>
+            </section>
+            <!-- Chapter 1: Logic of Legacy -->
+            <section class="w-full max-w-[1400px] px-6 md:px-12 py-24 md:py-32 relative">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+                    <!-- Offset Title -->
+                    <div
+                        class="md:col-span-4 md:col-start-2 text-right md:text-right flex flex-col justify-center items-end gap-4">
+                        <h2 class="font-serif text-3xl md:text-4xl font-bold text-text-main">Logic of Legacy</h2>
+                        <div class="h-px w-12 bg-primary"></div>
+                        <span class="font-serif text-lg text-primary italic">Est. 2024</span>
+                    </div>
+                    <!-- Narrative Text -->
+                    <div
+                        class="md:col-span-5 md:col-start-7 bg-white z-10 pl-0 md:pl-12 border-l border-primary/20 md:border-none">
+                        <div
+                            class="space-y-6 text-text-muted leading-loose font-light text-sm md:text-base text-justify">
+                            <p>
+                                패션은 순간이지만 스타일은 영원하다는 말처럼, 우리가 추구하는 것은 일시적인 유행이 아닙니다.
+                                <span class="font-serif text-text-main font-medium">‘Logic of Legacy’</span>는 과거의 장인정신을
+                                현대적인 미니멀리즘으로 재해석하는 과정입니다.
+                            </p>
+                            <p>
+                                불필요한 장식을 덜어내고, 소재 본연의 질감과 실루엣에 집중합니다.
+                                거친 린넨과 부드러운 실크의 조화, 구조적인 재단과 유려한 드레이핑의 공존.
+                                이것이 [N-D]가 제안하는 클래식의 논리입니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Asymmetrical Image Grid (Masonry feel) -->
+            <section class="w-full max-w-[1400px] px-6 md:px-12 py-12 md:py-24">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-24 relative">
+                    <!-- Left Column (Staggered Down) -->
+                    <div class="flex flex-col gap-16 md:mt-24">
+                        <div class="flex flex-col gap-4 group">
+                            <div class="relative overflow-hidden aspect-[4/5] w-full bg-gray-100">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                                    data-alt="Detail shot of a beige trench coat collar and buttons showing texture"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDGd_6VlQAMi_UPe3XlwA2bFaBgLta89iRBtz5z2X12Z-3rYl0Q2wArLEonLu5EVKnEuOIM73BS2gfWdhfJzoKkcCErgI6kLuDg1zjR5fFCtlr6sP_uS3vlriLZRE-qQPTOHpSkZxDiuD3nx02iUuIvYBaoxv_-pbI_sexSiqqYx3LORvyCq5eSTIHTx0eoqMasgDEQ665HX1Hw84mCm7KgBoSmz3jHj-MEQCZPSZzsb1mifeXIDxVbdBVGshsMyFZL0CwO3ESjxtwv');">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-baseline border-b border-gray-200 pb-2">
+                                <span class="font-serif text-lg italic">Textural Depth</span>
+                                <span class="text-xs tracking-widest uppercase text-primary">No. 01</span>
+                            </div>
+                            <p class="text-xs text-text-muted">섬세한 직조의 미학, 피부에 닿는 순간 느껴지는 진정성.</p>
+                        </div>
+                        <!-- Pull Quote (Mobile only here, Desktop centered later) -->
+                        <div class="md:hidden py-12 text-center">
+                            <span class="material-symbols-outlined text-primary text-4xl mb-4">format_quote</span>
+                            <p class="font-serif text-2xl font-bold leading-relaxed text-text-main">
+                                시간이 흘러도<br />변치 않는 가치.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Right Column (Staggered Up) -->
+                    <div class="flex flex-col gap-16">
+                        <div class="flex flex-col gap-4 group">
+                            <div class="relative overflow-hidden aspect-[3/4] w-3/4 self-end bg-gray-100">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                                    data-alt="Fashion model walking in a minimal architectural setting wearing wide leg trousers"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOI3bMiKT-Ysv6lKDJ4yMQFpdWxGf5ZStaaI_y4WWA_zekaJSXkA6Ae--CdLwl6ji95vrz7Ghy3qE98L9-zsmdLAqNVChOIwtoAEfWActg8MM7zeONQYH4KSPvsubEmTwIJ_b5eQQMOx5l2HYUWu9KvPFWzsD4JKMZw7VLuSkK3t0md1guvuRSqqL4J3kKJSdDgjd6D41QuRWvUdFqVN2Zo0NJmlBAQZmPrtNx9XqyPYF0MbTctQ6PBXuwYfzsu7HP4s95Rln-ZJt1');">
+                                </div>
+                                <div
+                                    class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 text-xs font-bold tracking-widest">
+                                    [ SILHOUETTE ]</div>
+                            </div>
+                            <div
+                                class="self-end w-3/4 flex justify-between items-baseline border-b border-gray-200 pb-2">
+                                <span class="font-serif text-lg italic">Timeless Silhouette</span>
+                                <span class="text-xs tracking-widest uppercase text-primary">No. 02</span>
+                            </div>
+                            <p class="self-end w-3/4 text-right text-xs text-text-muted">유행을 타지 않는 클래식함, 그 속에 담긴 자유로움.
+                            </p>
+                        </div>
+                        <!-- Decorative Element -->
+                        <div class="hidden md:flex justify-start pl-12">
+                            <div class="w-px h-32 bg-primary"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Full Width Quote Section -->
+            <section class="w-full py-24 md:py-40 bg-background-light relative overflow-hidden">
+                <!-- Large background typographic decoration -->
+                <div
+                    class="absolute left-0 top-1/2 -translate-y-1/2 w-full text-center pointer-events-none opacity-[0.03] select-none">
+                    <span
+                        class="text-[10vw] md:text-[12vw] font-serif font-black tracking-widest whitespace-nowrap">HERITAGE</span>
+                </div>
+                <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+                    <span class="inline-block mb-6 text-primary">
+                        <span class="material-symbols-outlined">minimize</span>
+                    </span>
+                    <h2
+                        class="font-serif text-3xl md:text-5xl font-medium leading-relaxed md:leading-snug text-text-main mb-8">
+                        "Time fades, but value remains.<br />
+                        <span class="text-2xl md:text-4xl text-text-muted mt-2 block">시간이 흘러도 변치 않는 가치</span>"
+                    </h2>
+                    <p class="font-sans text-sm tracking-[0.2em] text-primary uppercase">
+                        — The Philosophy of [N-D]
+                    </p>
+                </div>
+            </section>
+            <!-- Featured Product Showcase -->
+            <section class="w-full max-w-[1400px] px-6 md:px-12 py-24 mb-24" id="collection">
+                <div
+                    class="bg-[#fbfaf9] rounded-sm p-8 md:p-16 relative overflow-hidden group hover:shadow-lg transition-shadow duration-500">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        <!-- Image Side -->
+                        <div class="relative order-2 md:order-1">
+                            <div
+                                class="aspect-[4/3] bg-white p-4 shadow-sm rotate-1 group-hover:rotate-0 transition-transform duration-500 ease-out">
+                                <div class="w-full h-full bg-cover bg-center"
+                                    data-alt="Flat lay of a high-end beige wool blazer folded neatly on a white surface"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBXbZT5sQX-FIy6MWL20WCNgNhGcsmSZUP4JqrHz1fuv3IWbhfpXRsWRfuiCE7dOScPueYbFabfQNFRm1Xy6NWkq0P-FZAY8dzZ9hVv7r6YkP3e-t9d77IuWKnNor3sZlRSVS7yEjvUjzlaawWDeAMxgktbfeElYS3QOjFpnC6OXyXItslGcWZbFF-o_nlll6tK1fpXobvlilLigNfR7s_nFgxpdL5eaDdzR0Y9lQto3O4OSdSAAMLvj4u0jQGH9R2pQVAEXNusV4ss');">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Content Side -->
+                        <div class="flex flex-col gap-6 order-1 md:order-2 md:pl-12">
+                            <div
+                                class="flex items-center gap-4 text-primary font-bold text-xs tracking-widest uppercase">
+                                <span>Signature Line</span>
+                                <div class="h-px w-8 bg-primary"></div>
+                                <span>F/W 2024</span>
+                            </div>
+                            <h3 class="font-serif text-3xl md:text-4xl font-bold text-text-main">
+                                The Heritage Blazer
+                            </h3>
+                            <p class="text-text-muted leading-relaxed font-light">
+                                최상급 울 소재와 핸드메이드 스티치 디테일.
+                                클래식한 테일러링을 현대적인 감각으로 재해석하여, 어떤 룩에도 자연스럽게 녹아드는 시그니처 아이템입니다.
+                            </p>
+                            <div class="pt-6">
+                                <button
+                                    class="bg-primary hover:bg-[#a0856a] text-white px-8 py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 shadow-md hover:shadow-xl flex items-center justify-center gap-3 w-full md:w-auto group/btn">
+                                    <span>[ 제품 보기 ]</span>
+                                    <span
+                                        class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-100 py-12 z-20">
+            <div
+                class="max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex flex-col items-center md:items-start gap-4">
+                    <a class="text-2xl font-serif font-black tracking-tighter text-text-main" href="#">[N-D]</a>
+                    <p class="text-xs text-text-muted font-light text-center md:text-left">
+                        © 2024 N-D Corp. All rights reserved.<br />
+                        Legacy is not what's left tomorrow when you're gone. It's what you give, create, impact and
+                        leave today.
+                    </p>
+                </div>
+                <div class="flex gap-8">
+                    <a class="text-text-muted hover:text-primary transition-colors text-sm font-medium"
+                        href="#">Instagram</a>
+                    <a class="text-text-muted hover:text-primary transition-colors text-sm font-medium"
+                        href="#">Newsletter</a>
+                    <a class="text-text-muted hover:text-primary transition-colors text-sm font-medium"
+                        href="#">Contact</a>
+                </div>
+            </div>
+            <!-- Infinite Dash End Marker -->
+            <div class="flex justify-center mt-12 md:hidden">
+                <div class="w-1 h-1 bg-primary rounded-full"></div>
+            </div>
+        </footer>
+    </div>
+    <script>
+        // Simple parallax effect for images if needed, keeping it purely CSS based mostly but standard JS for robustness
+        // No animations requested in JS, so purely relying on CSS transitions.
+    </script>
+</body>
+
+</html>

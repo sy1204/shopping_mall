@@ -7,10 +7,18 @@
 -- create extension if not exists vector;
 
 -- match_contents 함수: 벡터 유사도 검색
+-- 파라미터 순서: query_embedding, match_threshold, match_count
+
+-- 기존 함수 삭제 (리턴 타입 변경 시 필요)
+DROP FUNCTION IF EXISTS match_contents(vector, double precision, integer);
+DROP FUNCTION IF EXISTS match_contents(vector, integer, double precision);
+DROP FUNCTION IF EXISTS match_contents(vector, float, integer);
+DROP FUNCTION IF EXISTS match_contents(vector, integer, float);
+
 CREATE OR REPLACE FUNCTION match_contents(
   query_embedding vector(768),
-  match_count int DEFAULT 5,
-  match_threshold float DEFAULT 0.5
+  match_threshold float DEFAULT 0.5,
+  match_count int DEFAULT 5
 )
 RETURNS TABLE (
   id uuid,
@@ -29,7 +37,7 @@ BEGIN
     1 - (pc.embedding <=> query_embedding) AS similarity
   FROM product_contents pc
   WHERE 1 - (pc.embedding <=> query_embedding) > match_threshold
-  ORDER BY pc.embedding <=> query_embedding
+  ORDER BY similarity DESC
   LIMIT match_count;
 END;
 $$;

@@ -99,11 +99,11 @@ async function searchSimilarContent(
     matchCount: number = 5,
     threshold: number = 0.5
 ): Promise<ProductContent[]> {
-    // First try RPC
+    // RPC 호출 - 파라미터 순서: query_embedding, match_threshold, match_count
     const { data, error } = await supabase.rpc('match_contents', {
         query_embedding: queryEmbedding,
-        match_count: matchCount,
-        match_threshold: threshold
+        match_threshold: threshold,   // 유사도 임계값
+        match_count: matchCount        // 상위 N개 추출
     });
 
     if (error) {

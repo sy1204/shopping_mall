@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>N-D Main Page (Korean)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Nanum+Myeongjo:wght@400;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "logic-blue": "#2b52ee",
+                        "neural-black": "#121212",
+                        "tech-silver": "#e5e7eb",
+                        "background-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "serif": ["Nanum Myeongjo", "serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                        'dash-y': 'dashY 20s linear infinite',
+                    },
+                    keyframes: {
+                        dashY: {
+                            '0%': { backgroundPosition: '0 0' },
+                            '100%': { backgroundPosition: '0 100%' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .infinite-dash-vertical {
+            background-image: linear-gradient(to bottom, #e5e7eb 50%, transparent 50%);
+            background-size: 1px 24px;
+            background-repeat: repeat-y;
+        }
+
+        .nd-link {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nd-link::before {
+            content: '[';
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            color: #2b52ee;
+        }
+
+        .nd-link::after {
+            content: ']';
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+            color: #2b52ee;
+        }
+
+        .nd-link:hover::before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .nd-link:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .logo-bracket {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+        }
+
+        .logo-container:hover .logo-bracket-left {
+            transform: translateX(-4px);
+            color: #2b52ee;
+        }
+
+        .logo-container:hover .logo-bracket-right {
+            transform: translateX(4px);
+            color: #2b52ee;
+        }
+
+        .logo-dash {
+            opacity: 0;
+            width: 0;
+            display: inline-block;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            vertical-align: middle;
+        }
+
+        .logo-container:hover .logo-dash {
+            opacity: 1;
+            width: 1em;
+            margin: 0 4px;
+        }
+
+        .hover-reveal-img {
+            clip-path: inset(0 100% 0 0);
+            transition: clip-path 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .group:hover .hover-reveal-img {
+            clip-path: inset(0 0 0 0);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light text-neural-black font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-logic-blue selection:text-white">
+    <div class="fixed inset-0 pointer-events-none z-0 flex justify-between px-6 lg:px-24 w-full h-full opacity-40">
+        <div class="w-px h-full infinite-dash-vertical animate-dash-y"></div>
+        <div class="w-px h-full infinite-dash-vertical animate-dash-y" style="animation-delay: -5s;"></div>
+        <div class="w-px h-full infinite-dash-vertical animate-dash-y" style="animation-delay: -10s;"></div>
+        <div class="w-px h-full infinite-dash-vertical animate-dash-y" style="animation-delay: -15s;"></div>
+    </div>
+    <header
+        class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-tech-silver transition-all duration-500">
+        <div class="max-w-[1920px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
+            <nav class="hidden lg:flex items-center gap-12 text-xs uppercase tracking-[0.2em] font-medium">
+                <a class="nd-link hover:text-logic-blue transition-colors" href="#">쇼핑</a>
+                <a class="nd-link hover:text-logic-blue transition-colors" href="#">에디토리얼</a>
+            </nav>
+            <a class="logo-container text-2xl lg:text-3xl font-serif font-light tracking-widest absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                href="#">
+                <span class="logo-bracket logo-bracket-left font-sans font-light">[</span>
+                <span class="font-bold">N</span>
+                <span class="logo-dash text-logic-blue">-</span>
+                <span class="font-bold">D</span>
+                <span class="logo-bracket logo-bracket-right font-sans font-light">]</span>
+            </a>
+            <div class="flex items-center gap-8">
+                <nav class="hidden lg:flex items-center gap-8 text-xs uppercase tracking-[0.2em] font-medium">
+                    <a class="group flex items-center gap-1 hover:text-logic-blue transition-colors" href="#">
+                        <span class="text-logic-blue opacity-0 group-hover:opacity-100 transition-opacity">●</span>
+                        [ N-to-D ]
+                    </a>
+                    <a class="group flex items-center gap-1 hover:text-logic-blue transition-colors" href="#">
+                        <span class="text-logic-blue opacity-0 group-hover:opacity-100 transition-opacity">●</span>
+                        [ N-in-D ]
+                    </a>
+                </nav>
+                <div class="flex items-center gap-4 text-neural-black">
+                    <button class="hover:text-logic-blue transition-colors">
+                        <span class="material-symbols-outlined text-xl">search</span>
+                    </button>
+                    <button class="hover:text-logic-blue transition-colors">
+                        <span class="material-symbols-outlined text-xl">local_mall</span>
+                    </button>
+                    <button class="hover:text-logic-blue transition-colors">
+                        <span class="material-symbols-outlined text-xl">person</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="relative z-10 pt-20">
+        <section class="min-h-[90vh] flex flex-col lg:flex-row relative">
+            <div
+                class="w-full lg:w-5/12 p-8 lg:p-24 flex flex-col justify-center border-r border-dashed border-tech-silver relative bg-white">
+                <div class="absolute top-24 left-8 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-logic-blue animate-pulse rounded-full"></span>
+                    <span class="text-[10px] uppercase tracking-[0.3em] text-gray-400">시스템 온라인</span>
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-serif leading-tight mb-8">
+                    <span class="italic text-logic-blue">뉴럴</span><br />
+                    스탠다드.
+                </h1>
+                <p class="font-sans text-sm text-gray-500 tracking-wider mb-12 max-w-xs leading-relaxed break-keep">
+                    알고리즘의 정밀함과 시대를 초월한 에디토리얼 큐레이션의 만남. 트렌드가 클래식으로 진화하는 곳.
+                </p>
+                <div class="flex gap-6">
+                    <a class="group relative px-8 py-4 border border-neural-black overflow-hidden flex items-center gap-3"
+                        href="#">
+                        <div
+                            class="absolute inset-0 w-0 bg-neural-black transition-all duration-[250ms] ease-out group-hover:w-full">
+                        </div>
+                        <span
+                            class="relative z-10 text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors">
+                            [ 컬렉션 둘러보기 ]
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="w-full lg:w-7/12 relative h-[50vh] lg:h-auto overflow-hidden group">
+                <img alt="Woman in high fashion structured white coat posing artistically"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105 grayscale hover:grayscale-0"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYa0sSIZokoZh2DhG9WIyQHJosDPi6ton8qUU3iqJy2eHi_y4PehvLkWUrR1JJqiVeNtHwfUB-vj7VeB5t9BNooqHL4-zhNxEYeZ_EPCnTn59ZU-RQvKvwfDlP9JNc1QQyuVMCJRxP5v2yTa8vZf4nXOJC_6uMLgFvHcEdqJeF34hHC-IvARTR9ccp-J2ZH-Eo24zzngCc55HmR8jJ6gM9JgPGtOZiyox3q-U5KzNGD1RVJU3796nkSy2BlO5HStCDmJD2PGD_Z37l" />
+                <div
+                    class="absolute bottom-12 right-12 bg-white/90 backdrop-blur p-6 border border-tech-silver max-w-xs">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold uppercase tracking-widest">[ 추천 ]</span>
+                        <span class="text-xs text-logic-blue font-mono">ID: N-09X</span>
+                    </div>
+                    <p class="font-serif italic text-lg leading-snug break-keep">
+                        "구조는 패션의 논리이며, 유동성은 그 감정입니다."
+                    </p>
+                </div>
+            </div>
+        </section>
+        <div class="border-y border-neural-black py-3 overflow-hidden bg-neural-black text-white">
+            <div
+                class="whitespace-nowrap flex gap-12 animate-[marquee_20s_linear_infinite] font-mono text-xs uppercase tracking-widest">
+                <span>[ N-D ] 뉴럴 링크 활성화</span>
+                <span>●</span>
+                <span>새로운 시즌 도착</span>
+                <span>●</span>
+                <span>에디토리얼 로직 V.2.0</span>
+                <span>●</span>
+                <span>타임리스 알고리즘</span>
+                <span>●</span>
+                <span>[ N-D ] 뉴럴 링크 활성화</span>
+                <span>●</span>
+                <span>새로운 시즌 도착</span>
+                <span>●</span>
+                <span>에디토리얼 로직 V.2.0</span>
+                <span>●</span>
+                <span>타임리스 알고리즘</span>
+            </div>
+        </div>
+        <section class="max-w-[1920px] mx-auto px-6 lg:px-12 py-24">
+            <div class="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
+                <div>
+                    <h2 class="text-3xl font-serif mb-2">디 에디트</h2>
+                    <p class="text-xs uppercase tracking-widest text-gray-500">[ 뉴럴 인텔리전스 큐레이션 ]</p>
+                </div>
+                <div class="flex items-center gap-8 text-sm font-medium">
+                    <button class="text-logic-blue underline underline-offset-4 decoration-1">전체</button>
+                    <button class="hover:text-logic-blue transition-colors">의류</button>
+                    <button class="hover:text-logic-blue transition-colors">액세서리</button>
+                    <button class="hover:text-logic-blue transition-colors">신발</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-12">
+                <div class="group cursor-pointer">
+                    <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-100">
+                        <img alt="Woman wearing beige trench coat"
+                            class="absolute inset-0 w-full h-full object-cover z-0"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdiW2poXG8TeJS9xA_tuVc8YtP20NqS93p9xQvqJjq8T8_5NgFvVzWOUAfxQvynhvJRl2qBcPCmUOyxSBTYxLIPN4Ugr-nuQFr9SeVq4PQUbbkIgauXJZi3wXNtQ5bjOoWFSYXDOqmUB3MVBHU70mJCBpXXwHQTtwFZUg3aY7GkH5KsKnbLkJd-OEKN0M_sqt93nCzU5gSWtPIevg085N7nbFsfekCGQNuLRDPGglkS2qoLHzcdVp1s_wrSrhRcBZCWLn-kT7X6tfR" />
+                        <img alt="Detail of beige trench coat fabric"
+                            class="absolute inset-0 w-full h-full object-cover z-10 hover-reveal-img"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuANsD_lEuKpoGKOysIAHCs6tWMeHZXYuUqy-4BhmCe0HoOoJo-5gLXmdzZY05uymvtvaTt57pdDbB_k0kcWibKLu9Qihoxyq9x8XjbwGSTqSswDeuHT3CRJaJN7sfZMckwqsQD2lbi4ejuaiqLeQRpml5GTe7Joo5jeqYTD11kHmg1Ti3f-sScAGAZX2dbG4Pj1HzZVZdtsWHGsylqoEYd_y4CB16K6TQoBajkdA4YtJj8rkvtUZvlUYq_E5_1cDjNuq1bMTZBwMO4x" />
+                        <div
+                            class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                                class="bg-white text-neural-black w-8 h-8 flex items-center justify-center hover:bg-logic-blue hover:text-white transition-colors">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-serif text-lg italic group-hover:text-logic-blue transition-colors">뉴럴 트렌치
+                            </h3>
+                            <p class="text-[10px] uppercase tracking-widest text-gray-400 mt-1">클래식 실루엣</p>
+                        </div>
+                        <span class="font-mono text-sm">$890</span>
+                    </div>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-100">
+                        <img alt="Black leather handbag on white background"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqrXBqzxNhxrCthZl55LwaeLhimBQf4WSySBQGtzU_6DqPGZfEcqVoipuRc23XQh7ABCsmyaoYYLp5f6gqMCL7JWGRIvctErdb8cfd48bm9gC-3ZelBhCyMmLClid4Jm2wWkPCd86FIAZq0gzFGIpZcFpXMIh2pl-UnRbYLhRTF0veyziHoumsN4yipZCwMwPnQ5cfV-CURgVxli3pNMcvrjnt4QxIaRh3miFZ2tZuOx-Wq2xtCenU-lBaRrSAj36450T8bc759FQt" />
+                        <div
+                            class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                                class="bg-white text-neural-black w-8 h-8 flex items-center justify-center hover:bg-logic-blue hover:text-white transition-colors">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-serif text-lg italic group-hover:text-logic-blue transition-colors">로직 토트
+                                [미니]</h3>
+                            <p class="text-[10px] uppercase tracking-widest text-gray-400 mt-1">테크 실버 하드웨어</p>
+                        </div>
+                        <span class="font-mono text-sm">$450</span>
+                    </div>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-100">
+                        <img alt="Woman in black dress with architectural cut"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYiZwS5cilwQq9VmqKR8nX0h6kNVC3qFeutCvVUB7d8_DFHSfeLDHgk31-VsTPeBeqcmU9Ks_VOyUwPXtYCOZJ3y4h1NxyEmiuuvlPGkNg8hHObQQ1gET4NrywsTsrls3Mww84A2VR-WUbWu74pq4L0VVsx0CcPXBOKw5damsoCBc8ZTMUJduzTw2ngQ_52ebXAVz0oGSnNtWwEklOay3e39RuL4Pp2FreuCZVw6H7r9KDXwKego18SafwpmFW_uvGxaZSvG6Eietq" />
+                        <div
+                            class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                                class="bg-white text-neural-black w-8 h-8 flex items-center justify-center hover:bg-logic-blue hover:text-white transition-colors">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-serif text-lg italic group-hover:text-logic-blue transition-colors">알고리즘 드레스
+                            </h3>
+                            <p class="text-[10px] uppercase tracking-widest text-gray-400 mt-1">누아르 컬렉션</p>
+                        </div>
+                        <span class="font-mono text-sm">$1,200</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-16 text-center">
+                <button
+                    class="text-xs font-bold uppercase tracking-[0.2em] border-b border-transparent hover:border-logic-blue hover:text-logic-blue transition-all pb-1">
+                    [ 전체 보기 ]
+                </button>
+            </div>
+        </section>
+        <section class="bg-neural-black text-white py-24 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"></path>
+                        </pattern>
+                    </defs>
+                    <rect fill="url(#grid)" height="100%" width="100%"></rect>
+                </svg>
+            </div>
+            <div class="max-w-6xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center gap-16">
+                <div class="w-full md:w-1/2">
+                    <div class="inline-flex items-center gap-2 mb-6 border border-white/20 px-3 py-1 rounded-full">
+                        <span class="material-symbols-outlined text-logic-blue text-sm">auto_awesome</span>
+                        <span class="text-[10px] uppercase tracking-widest">뉴럴 링크 v2.0</span>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-serif leading-tight mb-6">
+                        <span class="text-logic-blue italic">인공 직관</span>으로<br />
+                        당신의 스타일을 재정의하세요.
+                    </h2>
+                    <p class="text-gray-400 font-light mb-8 max-w-md leading-relaxed break-keep">
+                        단순한 의류 추천을 넘어, 당신만의 고유한 스타일 지문을 분석하여 다음 세대의 타임리스 아이템을 예측합니다.
+                    </p>
+                    <div class="flex flex-col gap-4">
+                        <a class="group flex items-center gap-4 text-sm tracking-widest uppercase hover:text-logic-blue transition-colors"
+                            href="#">
+                            <span class="w-8 h-px bg-white group-hover:bg-logic-blue transition-colors"></span>
+                            [ N-to-D ] : 서사에서 디자인으로
+                        </a>
+                        <a class="group flex items-center gap-4 text-sm tracking-widest uppercase hover:text-logic-blue transition-colors"
+                            href="#">
+                            <span class="w-8 h-px bg-white group-hover:bg-logic-blue transition-colors"></span>
+                            [ N-in-D ] : 디자인 속의 뉴럴 인텔리전스
+                        </a>
+                        <a class="group flex items-center gap-4 text-sm tracking-widest uppercase hover:text-logic-blue transition-colors"
+                            href="#">
+                            <span class="w-8 h-px bg-white group-hover:bg-logic-blue transition-colors"></span>
+                            [ N-beyond-D ] : 미래 예측
+                        </a>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 flex justify-center">
+                    <div
+                        class="relative w-80 h-96 border border-white/20 bg-white/5 backdrop-blur-sm p-6 flex flex-col">
+                        <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                            <div class="w-2 h-2 rounded-full bg-logic-blue animate-pulse"></div>
+                            <div class="text-[10px] font-mono text-gray-500">분석 중</div>
+                        </div>
+                        <div class="space-y-4 flex-1">
+                            <div class="h-2 bg-white/10 w-3/4 rounded animate-pulse"></div>
+                            <div class="h-2 bg-white/10 w-1/2 rounded animate-pulse" style="animation-delay: 0.2s">
+                            </div>
+                            <div class="h-2 bg-white/10 w-5/6 rounded animate-pulse" style="animation-delay: 0.4s">
+                            </div>
+                        </div>
+                        <div class="mt-auto pt-6 border-t border-white/10">
+                            <div class="flex gap-2">
+                                <div
+                                    class="h-24 w-1/2 bg-gray-800 border border-white/10 relative overflow-hidden group/card">
+                                    <img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/card:opacity-100 transition-opacity"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtIKOLJElZ48NNX_gN1xco_dyWO3G1LFGRntA9EgeTWSYL_cC32vGMXJ9p9KqSBYZFQmVu4Y5pBfmflBlKlVkTWPoGYsnIA2CeT7Q4ckkHxgq7w3PdYaHA-tfCxAij9C48Z_0-WRyW5d3gb6pFZOfkEEe7ZsWaIEuwh1Hty5Ubg6CRQrCVIt19uqcECFGgsW8TBk-i0tbmTU8tTWq3uGu-urBkFQfncj3x3MkcokbviL2q4Un9k0i5kVhXga7f8m4NFqOxR75ZnG3H" />
+                                </div>
+                                <div
+                                    class="h-24 w-1/2 bg-gray-800 border border-white/10 relative overflow-hidden group/card">
+                                    <img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/card:opacity-100 transition-opacity"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu__OCMpYhzI82kGCoW4b0tRIajBmYCBoPpPjtPAEqc9L9drwlgGHoJ6sxBx8nPAsy4pfA3xqBfCXfkbrZdM4eDz0leMTGLZJTVYuOfZFV9fWZegg1-o8MrfiruMnVRDLJN9Kp6GAPixf-qe7bcb-G-owR1xYduTMinOGlckyVFyqVueIc7VyRLDiEEDs-ngLcaeFAxP7pQfjYVZ3q-yLFiXt5ipIDo5oK21yFZmPlOfTnNQV7tWsnvRgh8Bn2kBLLkgvv4WuVqJbV" />
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-logic-blue mt-2 text-right">매치율: 98%</div>
+                        </div>
+                        <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-white"></div>
+                        <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-white"></div>
+                        <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white"></div>
+                        <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer class="bg-background-light border-t border-tech-silver pt-24 pb-12 px-6 lg:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-24">
+                <div class="md:col-span-1">
+                    <div class="text-2xl font-serif font-light tracking-widest mb-6">
+                        [ N<span class="text-logic-blue">-</span>D ]
+                    </div>
+                    <p class="text-xs text-gray-400 max-w-[200px] leading-relaxed">
+                        Neural-Design Inc.<br />
+                        404 Algorithm Ave.<br />
+                        New York, NY 10012
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6">컬렉션</h4>
+                    <ul class="space-y-3 text-sm text-gray-500 font-light">
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">신상품</a></li>
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">디 에디트</a></li>
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">에센셜</a></li>
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">아카이브</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6">뉴럴 링크</h4>
+                    <ul class="space-y-3 text-sm text-gray-500 font-light">
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">대시보드</a></li>
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">스타일 분석</a></li>
+                        <li><a class="hover:text-logic-blue transition-colors" href="#">워드로브 AI</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6">커넥트</h4>
+                    <div class="flex gap-4">
+                        <a class="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-logic-blue hover:text-logic-blue transition-colors"
+                            href="#">
+                            <span class="text-xs">IG</span>
+                        </a>
+                        <a class="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-logic-blue hover:text-logic-blue transition-colors"
+                            href="#">
+                            <span class="text-xs">TW</span>
+                        </a>
+                        <a class="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-logic-blue hover:text-logic-blue transition-colors"
+                            href="#">
+                            <span class="text-xs">PIN</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-100 text-[10px] text-gray-400 uppercase tracking-widest">
+                <p>© 2024 Neural-Design. All rights reserved.</p>
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a class="hover:text-neural-black" href="#">개인정보 처리방침</a>
+                    <a class="hover:text-neural-black" href="#">이용 약관</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+    <style type="text/tailwindcss">
+        @layer utilities {
+        .animate-marquee {
+            animation: marquee 25s linear infinite;
+        }
+    }
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+</style>
+</body>
+
+</html>

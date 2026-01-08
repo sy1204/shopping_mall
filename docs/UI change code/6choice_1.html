@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AI Fashion Dashboard: Detailed Radar Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Nanum+Myeongjo:wght@400;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b52ee",
+                        "logic-blue": "#2F54EB",
+                        "tech-silver": "#8E8E8E",
+                        "background-light": "#ffffff",
+                        "background-dark": "#121212",
+                        "surface-light": "#f8f9fc",
+                        "surface-dark": "#1e1e1e",
+                    },
+                    fontFamily: {
+                        "display": ["Nanum Myeongjo", "serif"],
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .logic-btn .icon-state {
+            display: inline-block;
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .logic-btn:hover .icon-state {
+            width: 1.2em;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .logic-btn:active .icon-state-hover {
+            display: none;
+        }
+
+        .logic-btn:active .icon-state-active {
+            display: inline-block;
+            width: 1em;
+            opacity: 1;
+        }
+
+        .bg-editorial-grid {
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .dark .bg-editorial-grid {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        }
+
+        @keyframes pulse-slow {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.01);
+                opacity: 0.95;
+            }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-slow 5s ease-in-out infinite;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes dash {
+            from {
+                stroke-dashoffset: 1000;
+            }
+
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .animate-chart-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 0;
+            animation: dash 2s ease-out forwards;
+        }
+
+        .chart-point {
+            transition: r 0.3s ease, fill-opacity 0.3s ease;
+        }
+
+        .chart-point:hover {
+            r: 6;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-[#0d101b] dark:text-[#e0e0e0] font-display min-h-screen flex flex-col transition-colors duration-300 overflow-x-hidden text-lg">
+    <header
+        class="w-full border-b border-[#f0f0f0] dark:border-[#2a2a2a] px-8 lg:px-16 py-6 flex items-center justify-between sticky top-0 bg-background-light/98 dark:bg-background-dark/98 backdrop-blur-sm z-50">
+        <div class="flex items-center gap-4 group cursor-default">
+            <h1
+                class="font-display font-light text-3xl tracking-widest text-black dark:text-white transition-opacity hover:opacity-80">
+                <span class="text-gray-300 dark:text-gray-600 font-light">[</span>N-D<span
+                    class="text-gray-300 dark:text-gray-600 font-light">]</span>
+            </h1>
+        </div>
+        <nav class="hidden md:flex items-center gap-12">
+            <a class="text-lg font-medium tracking-wide hover:text-primary transition-all hover:italic relative group"
+                href="#">
+                대시보드
+                <span class="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
+            </a>
+            <a class="text-lg font-medium tracking-wide text-gray-500 hover:text-primary transition-all hover:italic"
+                href="#">분석</a>
+            <a class="text-lg font-medium tracking-wide text-gray-500 hover:text-primary transition-all hover:italic"
+                href="#">옷장</a>
+            <a class="text-lg font-medium tracking-wide text-gray-500 hover:text-primary transition-all hover:italic"
+                href="#">에디토리얼</a>
+        </nav>
+        <div class="flex items-center gap-8">
+            <button
+                class="relative p-2 hover:bg-surface-light dark:hover:bg-surface-dark rounded-full transition-colors group">
+                <span
+                    class="material-symbols-outlined text-2xl text-gray-600 dark:text-gray-300 group-hover:text-black dark:group-hover:text-white">notifications</span>
+                <span
+                    class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary rounded-full ring-2 ring-white dark:ring-black"></span>
+            </button>
+            <div class="size-10 rounded-full bg-cover bg-center border border-gray-200 dark:border-gray-700 shadow-sm"
+                data-alt="User profile abstract silhouette"
+                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAabwFCfnr-zrgncS42pOaYMGxNOh75klUcr03VRF9UlEPh07pS_xOxYKtUenV-iKxTr6rIXlrwTpRqezlmmsDVDcumxkyLQU3AonTWNH38UQpUvQKRMqonOz6hVh1ryA2K-LWRZ3cg329HIf48Px-IyMv-ezsohkGSpt3NTI-7TETEf50qX8UvR56rH-OsjwF--Hbz2tCxRiG7r7WZ_gM4qoTmSenBRJ4e-6mkEObh3YaHiKVWW670cVoOlx7L78ruXPb0DsMKkK_g');">
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col lg:flex-row h-full relative overflow-hidden">
+        <section
+            class="flex-1 lg:max-w-[45%] xl:max-w-[40%] border-r border-[#f0f0f0] dark:border-[#2a2a2a] flex flex-col p-10 lg:p-12 relative bg-editorial-grid overflow-y-auto custom-scrollbar">
+            <div class="absolute top-8 left-10 flex items-center gap-3">
+                <span
+                    class="w-2.5 h-2.5 rounded-full bg-logic-blue animate-pulse shadow-[0_0_8px_rgba(47,84,235,0.4)]"></span>
+                <span class="text-sm font-sans uppercase tracking-[0.2em] text-logic-blue/90 font-medium">System
+                    Active</span>
+            </div>
+            <div class="mt-12 mb-8">
+                <h2
+                    class="text-5xl lg:text-6xl font-bold mb-6 italic text-black dark:text-white leading-tight font-display">
+                    나의 취향 설정</h2>
+                <p class="text-xl leading-relaxed text-gray-500 dark:text-gray-400 font-sans font-light">
+                    AI가 분석한 현재 스타일 밸런스를 확인하세요.
+                </p>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-center w-full py-8 relative min-h-[400px]">
+                <svg class="w-full h-auto max-w-[400px] drop-shadow-sm font-display" viewBox="0 0 350 340">
+                    <defs>
+                        <radialGradient cx="50%" cy="50%" fx="50%" fy="50%" id="glow" r="50%">
+                            <stop offset="0%" style="stop-color:#2F54EB; stop-opacity:0.15"></stop>
+                            <stop offset="100%" style="stop-color:#2F54EB; stop-opacity:0"></stop>
+                        </radialGradient>
+                    </defs>
+                    <g class="stroke-[#8E8E8E] stroke-[0.5] fill-none opacity-40">
+                        <path d="M175 20 L305 95 L305 245 L175 320 L45 245 L45 95 Z"></path>
+                        <path d="M175 50 L279 110 L279 230 L175 290 L71 230 L71 110 Z"></path>
+                        <path d="M175 80 L253 125 L253 215 L175 260 L97 215 L97 125 Z"></path>
+                        <path d="M175 110 L227 140 L227 200 L175 230 L123 200 L123 140 Z"></path>
+                        <path d="M175 140 L201 155 L201 185 L175 200 L149 185 L149 155 Z"></path>
+                    </g>
+                    <g class="stroke-[#8E8E8E] stroke-[0.5] opacity-30">
+                        <line x1="175" x2="175" y1="170" y2="20"></line>
+                        <line x1="175" x2="305" y1="170" y2="95"></line>
+                        <line x1="175" x2="305" y1="170" y2="245"></line>
+                        <line x1="175" x2="175" y1="170" y2="320"></line>
+                        <line x1="175" x2="45" y1="170" y2="245"></line>
+                        <line x1="175" x2="45" y1="170" y2="95"></line>
+                    </g>
+                    <path class="fill-[#2F54EB]/20 stroke-[#2F54EB] stroke-2 animate-chart-path"
+                        d="M175,95 L239.9,132.5 L291.9,237.5 L175,245 L110,207.5 L110,132.5 Z"></path>
+                    <g class="chart-points">
+                        <circle class="fill-[#2F54EB] chart-point" cx="175" cy="95" r="4"></circle>
+                        <circle class="fill-[#2F54EB] chart-point" cx="239.9" cy="132.5" r="4"></circle>
+                        <circle class="fill-white stroke-[#2F54EB] stroke-2 animate-pulse chart-point" cx="291.9"
+                            cy="237.5" r="5"></circle>
+                        <circle class="fill-[#2F54EB] chart-point" cx="175" cy="245" r="4"></circle>
+                        <circle class="fill-[#2F54EB] chart-point" cx="110" cy="207.5" r="4"></circle>
+                        <circle class="fill-[#2F54EB] chart-point" cx="110" cy="132.5" r="4"></circle>
+                    </g>
+                    <g class="font-mono text-[10px] fill-[#8E8E8E] opacity-90" style="text-anchor: start;">
+                        <text dy="-2" x="178" y="140">20</text>
+                        <text dy="-2" x="178" y="110">40</text>
+                        <text dy="-2" x="178" y="80">60</text>
+                        <text dy="-2" x="178" y="50">80</text>
+                        <text dy="-5" x="178" y="20">100</text>
+                    </g>
+                    <g class="font-display font-bold text-sm tracking-widest fill-gray-900 dark:fill-white">
+                        <text class="font-display" text-anchor="middle" x="175" y="10">도전성</text>
+                        <text class="font-display" text-anchor="start" x="315" y="90">피스</text>
+                        <text class="font-display text-[#2F54EB]" text-anchor="start" x="315" y="260">소재</text>
+                        <text class="font-display" text-anchor="middle" x="175" y="340">실용</text>
+                        <text class="font-display" text-anchor="end" x="35" y="260">신뢰</text>
+                        <text class="font-display" text-anchor="end" x="35" y="90">편안</text>
+                    </g>
+                </svg>
+                <div class="mt-6 flex gap-8 text-center">
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-widest font-sans mb-1">Top Value</p>
+                        <p class="font-display font-bold text-logic-blue">소재 92%</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-widest font-sans mb-1">Balance</p>
+                        <p class="font-display font-bold text-gray-700 dark:text-gray-300">Stable</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 grid grid-cols-3 gap-8 border-t border-[#f0f0f0] dark:border-[#2a2a2a] pt-8">
+                <div>
+                    <p class="text-sm font-sans text-gray-400 uppercase tracking-widest mb-2">에디토리얼 스코어</p>
+                    <p class="text-4xl font-light font-display">94</p>
+                </div>
+                <div>
+                    <p class="text-sm font-sans text-gray-400 uppercase tracking-widest mb-2">취향 매칭</p>
+                    <p class="text-4xl font-light font-display">Minimal</p>
+                </div>
+                <div>
+                    <p class="text-sm font-sans text-gray-400 uppercase tracking-widest mb-2">예상 선호도</p>
+                    <div class="flex items-center gap-2 text-green-700 dark:text-green-500">
+                        <span class="material-symbols-outlined text-base">trending_up</span>
+                        <p class="text-2xl font-medium">+12%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="flex-1 flex flex-col h-[900px] lg:h-auto bg-background-light dark:bg-background-dark relative">
+            <div
+                class="px-10 py-8 border-b border-[#f0f0f0] dark:border-[#2a2a2a] flex justify-between items-end bg-white/50 dark:bg-black/20 backdrop-blur-sm z-10">
+                <div>
+                    <p class="text-sm font-sans text-gray-400 uppercase tracking-widest mb-2">세션 ID: 8X-291</p>
+                    <h2 class="text-3xl font-bold font-display tracking-wide">에디토리얼 어시스턴트</h2>
+                </div>
+                <button
+                    class="logic-btn text-sm font-medium uppercase tracking-widest hover:text-primary transition-colors group text-gray-500">
+                    [ <span class="icon-state text-primary">●</span><span
+                        class="icon-state-hover hidden group-hover:hidden group-active:inline">-</span> 초기화 ]
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-10 space-y-12 custom-scrollbar bg-gray-50 dark:bg-[#121212]">
+                <div class="flex justify-center my-4">
+                    <span
+                        class="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] font-medium bg-gray-100 dark:bg-surface-dark px-3 py-1 rounded-full">오늘
+                        오전 10:42</span>
+                </div>
+                <div class="flex flex-col gap-2 max-w-2xl mr-auto group animate-fade-in-up">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div
+                            class="size-8 bg-logic-blue rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
+                            <span class="material-symbols-outlined text-white text-sm">auto_awesome</span>
+                        </div>
+                        <span
+                            class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 font-display">뉴럴
+                            링크</span>
+                    </div>
+                    <div
+                        class="ml-11 p-6 bg-white dark:bg-[#1e1e1e] rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-800">
+                        <p class="text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-light">
+                            안녕하세요. 설정하신 <span class="italic text-logic-blue font-normal">'소재(92%)'</span> 취향을 반영하여 활용도
+                            높은 아이템을 선별했습니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 max-w-2xl ml-auto items-end group animate-fade-in-up"
+                    style="animation-delay: 0.2s;">
+                    <div class="flex items-center gap-3 mb-1 flex-row-reverse">
+                        <div class="size-8 border border-gray-300 dark:border-gray-600 rounded-full bg-cover shadow-sm"
+                            data-alt="User avatar small"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAgDH9MbDuymAz5iSbT6Ki74XUWJLZOlZbXdS3oqGqR2XFy40g9EmP_curNOlXnRAz-oB6M0T3RTPMSIj5HTV3hbzv9nG8H2VJ6OI3goEA8-khuGTXqNv-BYy10JfZ6pBUCSe4bttvTpvk0n9IhaOPkHQfXuVT1T1iRnHfvEaeC0PJ-amL6tFeOLByjVGiVqxhp68ZS1qy1EMGZzcSkWmR8kXQS-404ISc3OHd6HPpaKJRVaYGUZVWXUB59j1z3Az3IThdx5vhoPD9M');">
+                        </div>
+                    </div>
+                    <div
+                        class="mr-11 p-5 bg-logic-blue text-white rounded-2xl rounded-tr-none shadow-md shadow-primary/20">
+                        <p class="text-lg leading-relaxed font-light">
+                            겨울 코트를 찾고 있어요. 깔끔하고 세련된 느낌이면 좋겠어요.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 max-w-2xl mr-auto group animate-fade-in-up"
+                    style="animation-delay: 0.4s;">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div
+                            class="size-8 bg-logic-blue rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
+                            <span class="material-symbols-outlined text-white text-sm">auto_awesome</span>
+                        </div>
+                        <span
+                            class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 font-display">뉴럴
+                            링크</span>
+                    </div>
+                    <div
+                        class="ml-11 p-6 bg-white dark:bg-[#1e1e1e] rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-800 space-y-6">
+                        <p class="text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-light">
+                            요청하신 스타일에 맞는 추천 아이템입니다. 내구성이 뛰어난 프리미엄 소재로 제작되었습니다. 자세한 정보는 상품 상세 페이지를 참고해 주세요.
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <span
+                                class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-surface-light dark:bg-surface-dark text-logic-blue border border-primary/20 hover:bg-primary/5 transition-colors cursor-pointer">
+                                코트 1
+                            </span>
+                            <span
+                                class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-surface-light dark:bg-surface-dark text-logic-blue border border-primary/20 hover:bg-primary/5 transition-colors cursor-pointer">
+                                코트 2
+                            </span>
+                            <span
+                                class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-surface-light dark:bg-surface-dark text-logic-blue border border-primary/20 hover:bg-primary/5 transition-colors cursor-pointer">
+                                재킷 2
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-2">
+                            <div
+                                class="group/card cursor-pointer border border-gray-100 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <div class="relative aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-surface-dark">
+                                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover/card:scale-105"
+                                        data-alt="Navy double breasted blazer front view"
+                                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUzctkvy1RxUMNYbDYKNGJ_cdu7_iKBkdc8vXw5wvzkOzkx57kyiPV79Jnfp93ZS_FDEm9eI6iGZ71M7ZvvBlQiq2oQ1tYD6Ugbwn7ZpvPySlQreTc3xsMKgrY_Zb7lOfQIK4cNw0Sd_B1nW8xP4bWi6iEmGUYEf3eGTrtLRapLL2eL3XXYQVfw1Pp9-8ZUVYY9lBL8ekmo7Ylwyrif_0kIvwSbodKB5eu2rmrzw0iUhWF9e2vA2-zGr6hsmJVsXAdh3ALPqdlsPYf');">
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-surface-dark/50">
+                                    <h4 class="text-sm font-bold font-display">더 아카이브 코트</h4>
+                                    <span class="text-xs text-gray-500 font-sans">$895</span>
+                                </div>
+                            </div>
+                            <div
+                                class="group/card cursor-pointer border border-gray-100 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <div class="relative aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-surface-dark">
+                                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover/card:scale-105"
+                                        data-alt="Structured wool blazer texture detail"
+                                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCxyvNOz7KdPIg4fTFU2VjA4E61dJb9ki2AQanZCWIVBFnFLhEkysrleCrsqAjIMElim3IvfkJg2FMBABRJoO7gMCM1fj3b_QAEy7Q-aLgPbA4NG5SQrxJggNmqVQvWD8jv0P2yF2n22B4olZMJsH9DIIutetONSmnhxLmht3IM-sjJP3wXIABBtMyoMCHUU-eO_mUvGep6TTGSjtBehqMiDAa_omXRfNq2SyOwyNL6QVTfY3DBHd_ABvCLqjMYReU-xezbPAA066Z8');">
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-surface-dark/50">
+                                    <h4 class="text-sm font-bold font-display">울 스트럭처</h4>
+                                    <span class="text-xs text-gray-500 font-sans">$1,250</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-10 pt-6 bg-white dark:bg-background-dark border-t border-[#f0f0f0] dark:border-[#2a2a2a]">
+                <div
+                    class="relative flex items-end gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark/50 transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 group/input">
+                    <textarea
+                        class="w-full bg-transparent border-none p-0 text-lg placeholder-gray-400 focus:ring-0 resize-none font-sans font-light leading-relaxed text-gray-800 dark:text-gray-100"
+                        placeholder="명령어를 입력하거나 조언을 구하세요..." rows="1" style="min-height: 1.5rem;"></textarea>
+                    <button
+                        class="p-2 rounded-lg bg-logic-blue text-white hover:bg-primary/90 transition-colors shadow-sm">
+                        <span class="material-symbols-outlined text-xl block">arrow_upward</span>
+                    </button>
+                </div>
+                <div class="flex justify-between mt-3 px-2">
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">Enter를 눌러 전송</p>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">AI 패션 모델 v2.4</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        // Simple script to handle textarea auto-resize
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if (this.value === '') {
+                this.style.height = '1.5rem';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>N-D Product Detail Page (Korean)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Nanum+Myeongjo:wght@400;700;800&amp;family=Noto+Serif:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b52ee",
+                        "background-light": "#ffffff",
+                        "background-dark": "#121212",
+                        "surface-light": "#f8f9fc",
+                        "surface-dark": "#1e1e1e",
+                    },
+                    fontFamily: {
+                        "display": ["Nanum Myeongjo", "Noto Serif", "serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .logic-btn .icon-state {
+            display: inline-block;
+            width: 0;
+            overflow: hidden;
+            transition: width 0.2s ease;
+            opacity: 0;
+        }
+
+        .logic-btn:hover .icon-state {
+            width: 1em;
+            opacity: 1;
+        }
+
+        .logic-btn:active .icon-state-hover {
+            display: none;
+        }
+
+        .logic-btn:active .icon-state-active {
+            display: inline-block;
+            width: 1em;
+            opacity: 1;
+        }
+
+        .bg-editorial-grid {
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .dark .bg-editorial-grid {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeEnter 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-[#0d101b] dark:text-[#e0e0e0] font-display min-h-screen flex flex-col transition-colors duration-300 overflow-x-hidden">
+    <header
+        class="w-full border-b border-[#f0f0f0] dark:border-[#2a2a2a] px-6 lg:px-12 py-5 flex items-center justify-between sticky top-0 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm z-50">
+        <div class="flex items-center gap-2">
+            <h1
+                class="font-sans font-bold text-xl tracking-widest uppercase text-black dark:text-white flex items-center gap-1">
+                <span class="text-primary">[</span>N-D<span class="text-primary">]</span>
+            </h1>
+        </div>
+        <nav class="hidden md:flex items-center gap-10">
+            <a class="text-sm font-medium hover:text-primary transition-colors hover:italic" href="#">신상품</a>
+            <a class="text-sm font-medium hover:text-primary transition-colors hover:italic" href="#">에디토리얼</a>
+            <a class="text-sm font-medium hover:text-primary transition-colors hover:italic" href="#">로직</a>
+            <a class="text-sm font-medium hover:text-primary transition-colors hover:italic" href="#">검색</a>
+        </nav>
+        <div class="flex items-center gap-6">
+            <button
+                class="relative p-2 hover:bg-surface-light dark:hover:bg-surface-dark rounded-full transition-colors group">
+                <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                <span
+                    class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full group-hover:scale-110 transition-transform"></span>
+            </button>
+            <div class="size-8 rounded-full bg-cover bg-center border border-gray-200 dark:border-gray-700"
+                data-alt="User profile abstract silhouette"
+                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAabwFCfnr-zrgncS42pOaYMGxNOh75klUcr03VRF9UlEPh07pS_xOxYKtUenV-iKxTr6rIXlrwTpRqezlmmsDVDcumxkyLQU3AonTWNH38UQpUvQKRMqonOz6hVh1ryA2K-LWRZ3cg329HIf48Px-IyMv-ezsohkGSpt3NTI-7TETEf50qX8UvR56rH-OsjwF--Hbz2tCxRiG7r7WZ_gM4qoTmSenBRJ4e-6mkEObh3YaHiKVWW670cVoOlx7L78ruXPb0DsMKkK_g');">
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col lg:flex-row h-full relative">
+        <section
+            class="flex-1 lg:max-w-[55%] border-r border-[#f0f0f0] dark:border-[#2a2a2a] flex flex-col p-8 lg:p-0 relative bg-editorial-grid">
+            <div class="lg:sticky lg:top-[85px] h-auto lg:h-[calc(100vh-85px)] overflow-y-auto custom-scrollbar">
+                <div class="relative w-full h-full flex flex-col items-center justify-start pt-12 pb-12">
+                    <div class="absolute top-6 left-8 z-10">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-1.5 h-1.5 bg-primary animate-pulse"></span>
+                            <span class="text-[10px] font-sans uppercase tracking-widest text-primary">실시간 렌더링</span>
+                        </div>
+                        <p class="text-[10px] font-sans text-gray-400">ISO 400 • f/2.8</p>
+                    </div>
+                    <div
+                        class="relative w-[80%] aspect-[3/4] shadow-2xl shadow-gray-200/50 dark:shadow-none mb-8 group cursor-zoom-in">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUzctkvy1RxUMNYbDYKNGJ_cdu7_iKBkdc8vXw5wvzkOzkx57kyiPV79Jnfp93ZS_FDEm9eI6iGZ71M7ZvvBlQiq2oQ1tYD6Ugbwn7ZpvPySlQreTc3xsMKgrY_Zb7lOfQIK4cNw0Sd_B1nW8xP4bWi6iEmGUYEf3eGTrtLRapLL2eL3XXYQVfw1Pp9-8ZUVYY9lBL8ekmo7Ylwyrif_0kIvwSbodKB5eu2rmrzw0iUhWF9e2vA2-zGr6hsmJVsXAdh3ALPqdlsPYf');">
+                        </div>
+                        <div
+                            class="absolute inset-0 border border-transparent group-hover:border-primary/30 transition-colors p-4 flex flex-col justify-between opacity-0 group-hover:opacity-100 duration-500">
+                            <div class="flex justify-between">
+                                <span class="material-symbols-outlined text-primary text-sm">crop_free</span>
+                                <span class="material-symbols-outlined text-primary text-sm">crop_free</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="material-symbols-outlined text-primary text-sm">crop_free</span>
+                                <span class="material-symbols-outlined text-primary text-sm">crop_free</span>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <span
+                                    class="material-symbols-outlined text-primary text-4xl font-thin opacity-50">add</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-[80%] grid grid-cols-2 gap-4">
+                        <div class="aspect-square bg-cover bg-center cursor-pointer hover:opacity-80 transition-opacity"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCxyvNOz7KdPIg4fTFU2VjA4E61dJb9ki2AQanZCWIVBFnFLhEkysrleCrsqAjIMElim3IvfkJg2FMBABRJoO7gMCM1fj3b_QAEy7Q-aLgPbA4NG5SQrxJggNmqVQvWD8jv0P2yF2n22B4olZMJsH9DIIutetONSmnhxLmht3IM-sjJP3wXIABBtMyoMCHUU-eO_mUvGep6TTGSjtBehqMiDAa_omXRfNq2SyOwyNL6QVTfY3DBHd_ABvCLqjMYReU-xezbPAA066Z8');">
+                        </div>
+                        <div
+                            class="aspect-square bg-gray-100 dark:bg-surface-dark flex items-center justify-center relative overflow-hidden group">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-24 h-24 border border-gray-300 rounded-full animate-spin-slow"
+                                    style="animation-duration: 10s;"></div>
+                                <div class="absolute w-20 h-20 border border-gray-300 rounded-full animate-spin-slow border-t-primary"
+                                    style="animation-duration: 5s;"></div>
+                            </div>
+                            <span
+                                class="relative z-10 text-[10px] uppercase tracking-widest font-sans font-bold bg-white dark:bg-black px-3 py-1">[
+                                360° 보기 ]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section
+            class="flex-1 lg:max-w-[45%] flex flex-col bg-background-light dark:bg-background-dark relative overflow-y-auto h-auto lg:h-[calc(100vh-85px)]">
+            <div class="p-8 lg:p-12 lg:pt-16 max-w-xl mx-auto w-full">
+                <div class="flex justify-between items-center mb-8 fade-enter">
+                    <span class="text-xs font-sans text-gray-400 uppercase tracking-widest">아우터 / 블레이저</span>
+                    <span class="text-xs font-sans text-primary font-mono">ID: N-D-8821</span>
+                </div>
+                <div class="mb-8 border-b border-[#f0f0f0] dark:border-[#2a2a2a] pb-8 fade-enter"
+                    style="animation-delay: 0.1s;">
+                    <h1 class="text-4xl lg:text-5xl font-display font-medium mb-4">아카이브 블레이저</h1>
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-2xl font-light font-sans">$895.00</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span class="text-xs font-sans uppercase tracking-widest text-gray-500">재고 있음</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-10 fade-enter" style="animation-delay: 0.2s;">
+                    <h3 class="text-xs font-bold font-sans uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-primary">auto_awesome</span>
+                        에디토리얼 로직
+                    </h3>
+                    <p class="font-display text-lg leading-relaxed text-gray-600 dark:text-gray-300 break-keep">
+                        구조적 미니멀리즘에 대한 고찰. 이 더블 브레스트 실루엣은 아카이브 골드 하드웨어와 독특한 아워글래스 허리 라인이 특징이며, 남성적인 테일러링과 여성적인 형태의 간극을
+                        잇습니다. 업데이트된 <span class="text-black dark:text-white italic">뉴럴 핏 (Neural Fit)</span> 기술은 아틀리에에서
+                        갓 나온 듯한 맞춤복의 느낌을 선사합니다.
+                    </p>
+                </div>
+                <div class="mb-10 fade-enter" style="animation-delay: 0.3s;">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xs font-bold font-sans uppercase tracking-widest">기술 사양</h3>
+                        <button class="text-[10px] uppercase underline hover:text-primary">데이터 시트 다운로드</button>
+                    </div>
+                    <div class="border-t border-[#f0f0f0] dark:border-[#2a2a2a]">
+                        <div
+                            class="grid grid-cols-[140px_1fr] py-3 border-b border-[#f0f0f0] dark:border-[#2a2a2a] group hover:bg-surface-light dark:hover:bg-surface-dark transition-colors px-2">
+                            <span class="text-xs font-sans uppercase text-gray-400 tracking-wide pt-0.5">소재</span>
+                            <span class="text-sm font-display italic">100% 버진 울, 슈퍼 120수</span>
+                        </div>
+                        <div
+                            class="grid grid-cols-[140px_1fr] py-3 border-b border-[#f0f0f0] dark:border-[#2a2a2a] group hover:bg-surface-light dark:hover:bg-surface-dark transition-colors px-2">
+                            <span class="text-xs font-sans uppercase text-gray-400 tracking-wide pt-0.5">안감</span>
+                            <span class="text-sm font-display italic">실크-큐프로 혼방 (통기성)</span>
+                        </div>
+                        <div
+                            class="grid grid-cols-[140px_1fr] py-3 border-b border-[#f0f0f0] dark:border-[#2a2a2a] group hover:bg-surface-light dark:hover:bg-surface-dark transition-colors px-2">
+                            <span class="text-xs font-sans uppercase text-gray-400 tracking-wide pt-0.5">실루엣</span>
+                            <span class="text-sm font-display italic">아워글래스, 구조적 숄더</span>
+                        </div>
+                        <div
+                            class="grid grid-cols-[140px_1fr] py-3 border-b border-[#f0f0f0] dark:border-[#2a2a2a] group hover:bg-surface-light dark:hover:bg-surface-dark transition-colors px-2">
+                            <span class="text-xs font-sans uppercase text-gray-400 tracking-wide pt-0.5">원산지</span>
+                            <span class="text-sm font-display italic">이탈리아 밀라노</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-12 fade-enter" style="animation-delay: 0.4s;">
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <span class="text-xs font-sans uppercase tracking-widest text-gray-400 block mb-3">색상</span>
+                            <div class="flex gap-3">
+                                <button
+                                    class="w-8 h-8 rounded-full bg-[#1a1a2e] ring-2 ring-offset-2 ring-primary ring-offset-white dark:ring-offset-[#121212]"></button>
+                                <button
+                                    class="w-8 h-8 rounded-full bg-[#3e3e3e] hover:ring-2 ring-gray-300 ring-offset-2 ring-offset-white dark:ring-offset-[#121212] transition-all"></button>
+                                <button
+                                    class="w-8 h-8 rounded-full bg-[#f5f5f5] border border-gray-300 hover:ring-2 ring-gray-300 ring-offset-2 ring-offset-white dark:ring-offset-[#121212] transition-all"></button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-3">
+                                <span class="text-xs font-sans uppercase tracking-widest text-gray-400">사이즈 (EU)</span>
+                                <button class="text-[10px] uppercase underline hover:text-primary">핏 가이드</button>
+                            </div>
+                            <div class="flex flex-wrap gap-2 font-sans">
+                                <button
+                                    class="h-10 px-4 border border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white text-sm transition-all text-gray-400">34</button>
+                                <button
+                                    class="h-10 px-4 border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-sm">36</button>
+                                <button
+                                    class="h-10 px-4 border border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white text-sm transition-all">38</button>
+                                <button
+                                    class="h-10 px-4 border border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white text-sm transition-all">40</button>
+                                <button
+                                    class="h-10 px-4 border border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white text-sm transition-all">42</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-auto fade-enter" style="animation-delay: 0.5s;">
+                    <div class="flex flex-col gap-3">
+                        <button
+                            class="logic-btn w-full bg-black dark:bg-white text-white dark:text-black py-4 px-6 flex items-center justify-between hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all duration-300 group">
+                            <span class="uppercase tracking-widest text-xs font-bold">
+                                [ <span class="icon-state text-white dark:text-black group-hover:text-white">●</span>
+                                장바구니 담기 ]
+                            </span>
+                            <span
+                                class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        </button>
+                        <button
+                            class="logic-btn w-full border border-gray-200 dark:border-gray-700 py-3 px-6 text-center hover:border-black dark:hover:border-white transition-colors">
+                            <span
+                                class="uppercase tracking-widest text-xs font-bold text-gray-500 hover:text-black dark:hover:text-white">
+                                [ 위시리스트 저장 ]
+                            </span>
+                        </button>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-[#f0f0f0] dark:border-[#2a2a2a]">
+                        <div class="flex gap-3">
+                            <div
+                                class="size-8 rounded-sm bg-surface-light dark:bg-surface-dark flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-primary text-sm">chat_bubble</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-sans text-gray-500 mb-1">뉴럴 어시스턴트 팁:</p>
+                                <p class="text-sm italic font-display break-keep">"레이더 차트 분석 결과, 이 아이템은 귀하의 <span
+                                        class="text-primary">타임리스 (Timelessness)</span> 점수를 8% 상승시킵니다."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+
+</html>
