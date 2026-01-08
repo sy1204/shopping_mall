@@ -33,10 +33,17 @@ export default function OneToOneSection() {
     const currentCategoryConfig = INQUIRY_CATEGORIES.find(c => c.value === category);
 
     useEffect(() => {
-        if (user) {
-            setInquiries(getMyInquiries(user.email));
-            setOrders(getOrders());
-        }
+        const fetchData = async () => {
+            if (user) {
+                const [inqs, ords] = await Promise.all([
+                    getMyInquiries(user.email),
+                    getOrders()
+                ]);
+                setInquiries(inqs);
+                setOrders(ords);
+            }
+        };
+        fetchData();
     }, [user]);
 
     // Get unique products from orders
@@ -61,7 +68,7 @@ export default function OneToOneSection() {
         setSelectedOrderId(orderId);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return;
 
@@ -76,7 +83,7 @@ export default function OneToOneSection() {
             ? `[${category}] ${selectedProductName} - ${title}`
             : `[${category}] ${title}`;
 
-        addOneToOneInquiry({
+        await addOneToOneInquiry({
             userId: user.email,
             category,
             title: finalTitle,
@@ -86,7 +93,8 @@ export default function OneToOneSection() {
         });
 
         alert('문의가 등록되었습니다.');
-        setInquiries(getMyInquiries(user.email));
+        const updated = await getMyInquiries(user.email);
+        setInquiries(updated);
 
         // Reset
         setTitle('');
@@ -128,8 +136,8 @@ export default function OneToOneSection() {
                                         type="button"
                                         onClick={() => handleCategoryChange(cat.value)}
                                         className={`px-4 py-2 text-sm border rounded transition-colors ${category === cat.value
-                                                ? 'bg-black text-white border-black'
-                                                : 'bg-white text-gray-600 border-gray-300 hover:border-black'
+                                            ? 'bg-black text-white border-black'
+                                            : 'bg-white text-gray-600 border-gray-300 hover:border-black'
                                             }`}
                                     >
                                         {cat.label}
@@ -150,8 +158,8 @@ export default function OneToOneSection() {
                                             <label
                                                 key={`${orderId}-${product.cartItemId}-${idx}`}
                                                 className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${selectedProductName === product.name && selectedOrderId === orderId
-                                                        ? 'bg-blue-50'
-                                                        : ''
+                                                    ? 'bg-blue-50'
+                                                    : ''
                                                     }`}
                                             >
                                                 <input
