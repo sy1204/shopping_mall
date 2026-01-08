@@ -36,12 +36,12 @@ const rateLimiter = {
 
 // Types
 interface HexagonParams {
-    adventurous: number;    // 도전 지수: 트렌디/실험적 요소
-    reliability: number;    // 안정 지수: 평점/검증된 소재
-    materialValue: number;  // 소재 가치: 공법/소재 깊이
-    trendiness: number;     // 트렌디함
-    practicality: number;   // 실용성
-    uniqueness: number;     // 독특함
+    boldness: number;        // 도전성: 무난한 기본템 → 파격적이고 트렌디한 디자인
+    materialValue: number;   // 소재 가치: 일반적인 혼용률 → 희소 소재 및 특수 공법
+    utility: number;         // 실용성: 특정 상황용 → 범용성 높은 데일리템
+    reliability: number;     // 신뢰도: 신규/실험적 상품 → 검증된 베스트셀러
+    comfort: number;         // 편안함: 포멀하고 딱딱한 핏 → 활동성 높고 여유로운 핏
+    exclusivity: number;     // 희소성: 대중적인 기성품 → 장인정신 및 리미티드
 }
 
 interface ChatRequest {
@@ -137,31 +137,52 @@ async function searchSimilarContent(
 function buildSystemPrompt(hexagon: HexagonParams): string {
     const guidelines: string[] = [];
 
-    if (hexagon.adventurous > 0.6) {
-        guidelines.push('- 트렌디하고 실험적인 스타일링을 적극 제안하세요.');
-        guidelines.push('- 평소와 다른 새로운 조합을 추천해도 좋습니다.');
+    // 도전성 (Boldness)
+    if (hexagon.boldness > 0.6) {
+        guidelines.push('- 주변의 시선을 사로잡는 독특한 스타일을 제안하세요.');
+        guidelines.push('- 최신 트렌드 키워드와 유니크한 실루엿을 강조하세요.');
+    } else if (hexagon.boldness < 0.4) {
+        guidelines.push('- 유행을 타지 않고 오래 입을 수 있는 클래식한 디자인을 추천하세요.');
     }
 
-    if (hexagon.reliability > 0.6) {
-        guidelines.push('- 리뷰 평점이 높고 검증된 제품 정보를 강조하세요.');
-        guidelines.push('- 실패 없는 클래식한 소재(코마사 면, 메리노 울 등)의 장점을 설명하세요.');
-    }
-
+    // 소재 가치 (Material Value)
     if (hexagon.materialValue > 0.6) {
-        guidelines.push('- 소재의 원산지와 품질(이태리산 캐시미어, 일본 셀비지 데님 등)을 강조하세요.');
-        guidelines.push('- 제작 공법(텐타 가공, 해리 테이핑, 바이오 워싱 등)의 의미를 깊이 있게 해석하세요.');
+        guidelines.push('- 단순한 디자인이라도 원단의 급이 다른 본질적인 고급스러움을 분석하세요.');
+        guidelines.push('- 원단 원산지, 특수 가공(텐타, 컴팩 등), 촉감을 강조하세요.');
+    } else if (hexagon.materialValue < 0.4) {
+        guidelines.push('- 소재보다는 전체적인 룩과 분위기에 집중해서 설명하세요.');
     }
 
-    if (hexagon.trendiness > 0.6) {
-        guidelines.push('- 현재 시즌 트렌드와의 연관성을 언급하세요.');
+    // 실용성 (Utility)
+    if (hexagon.utility > 0.6) {
+        guidelines.push('- 청바지, 슬랙스 어디에나 잘 어울리고 관리가 편한지 알려주세요.');
+        guidelines.push('- 레이어드 활용도, 세탁 용이성 등 실용성을 강조하세요.');
+    } else if (hexagon.utility < 0.4) {
+        guidelines.push('- 특별한 날 주인공이 될 수 있는 화려한 스타일에 집중하세요.');
     }
 
-    if (hexagon.practicality > 0.6) {
-        guidelines.push('- 관리 방법, 세탁 용이성, 다양한 활용도를 강조하세요.');
+    // 신뢰도 (Reliability)
+    if (hexagon.reliability > 0.6) {
+        guidelines.push('- 실사용 리뷰 평점과 재구매율 데이터를 강조하세요.');
+        guidelines.push('- 검증된 베스트셀러 상품을 우선으로 안내하세요.');
+    } else if (hexagon.reliability < 0.4) {
+        guidelines.push('- 신규/실험적 상품의 잠재력과 특별함을 설명하세요.');
     }
 
-    if (hexagon.uniqueness > 0.6) {
-        guidelines.push('- 다른 제품과 차별화되는 독특한 디자인 요소를 부각하세요.');
+    // 편안함 (Comfort)
+    if (hexagon.comfort > 0.6) {
+        guidelines.push('- 신축성(스판), 무게감, 여유로운 실루엿을 강조하세요.');
+        guidelines.push('- 활동성 높고 편안한 착용감을 설명하세요.');
+    } else if (hexagon.comfort < 0.4) {
+        guidelines.push('- 포말하고 단정한 핏의 매력을 설명하세요.');
+    }
+
+    // 희소성 (Exclusivity)
+    if (hexagon.exclusivity > 0.6) {
+        guidelines.push('- 봉제 퀄리티(스티치 등), 소량 생산 여부를 강조하세요.');
+        guidelines.push('- 장인정신과 리미티드 디테일의 가치를 설명하세요.');
+    } else if (hexagon.exclusivity < 0.4) {
+        guidelines.push('- 대중적이면서도 품질 좋은 가성비 아이템을 추천하세요.');
     }
 
     return `당신은 프리미엄 패션 편집샵의 전문 큐레이터입니다.
@@ -257,12 +278,12 @@ export async function POST(request: NextRequest) {
 
         // Default hexagon parameters (balanced)
         const hexagon: HexagonParams = {
-            adventurous: body.hexagon?.adventurous ?? 0.5,
-            reliability: body.hexagon?.reliability ?? 0.5,
+            boldness: body.hexagon?.boldness ?? 0.5,
             materialValue: body.hexagon?.materialValue ?? 0.5,
-            trendiness: body.hexagon?.trendiness ?? 0.5,
-            practicality: body.hexagon?.practicality ?? 0.5,
-            uniqueness: body.hexagon?.uniqueness ?? 0.5
+            utility: body.hexagon?.utility ?? 0.5,
+            reliability: body.hexagon?.reliability ?? 0.5,
+            comfort: body.hexagon?.comfort ?? 0.5,
+            exclusivity: body.hexagon?.exclusivity ?? 0.5
         };
 
         // Rate limiting
