@@ -66,6 +66,7 @@ export default function AdminLayout({
                     { label: '공지사항 관리', href: '/admin/board?tab=notice' },
                     { label: 'FAQ 관리', href: '/admin/board?tab=faq' },
                     { label: '1:1 문의 관리', href: '/admin/board?tab=inquiry' },
+                    { label: '상품 문의 관리', href: '/admin/board?tab=product_inquiry' },
                     { label: '상품 후기 관리', href: '/admin/board?tab=review' },
                 ];
             case 'design':

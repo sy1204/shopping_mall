@@ -1,9 +1,7 @@
 // components/main/PopupModal.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useEffect } from 'react';
 
 interface Popup {
     id: number;
@@ -14,9 +12,6 @@ interface Popup {
 }
 
 export default function PopupModal() {
-    const [popup, setPopup] = useState<Popup | null>(null);
-    const [isVisible, setIsVisible] = useState(false);
-
     useEffect(() => {
         // Check if user dismissed popup today
         const dismissedDate = localStorage.getItem('popup-dismissed-date');
@@ -32,64 +27,61 @@ export default function PopupModal() {
             const popups: Popup[] = JSON.parse(savedPopups);
             const activePopup = popups.find(p => p.status === 'Active');
             if (activePopup) {
-                setPopup(activePopup);
-                setIsVisible(true);
+                // Open popup in new window
+                const width = 500;
+                const height = 600;
+                const left = (window.screen.width - width) / 2;
+                const top = (window.screen.height - height) / 2;
+
+                const popupWindow = window.open(
+                    '',
+                    'popup',
+                    `width=${width},height=${height},left=${left},top=${top},scrollbars=no,resizable=no`
+                );
+
+                if (popupWindow) {
+                    popupWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${activePopup.title}</title>
+                            <style>
+                                * { margin: 0; padding: 0; box-sizing: border-box; }
+                                body { font-family: system-ui, sans-serif; background: #fff; }
+                                .popup-container { position: relative; }
+                                .popup-image { width: 100%; height: auto; display: block; cursor: pointer; }
+                                .popup-footer { padding: 16px; display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; border-top: 1px solid #eee; }
+                                .popup-footer button { padding: 8px 16px; cursor: pointer; border: none; background: none; font-size: 14px; }
+                                .popup-footer button:hover { text-decoration: underline; }
+                                .dismiss-btn { color: #666; }
+                                .close-btn { color: #000; font-weight: bold; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="popup-container">
+                                <a href="${activePopup.link || '#'}" target="_blank">
+                                    <img src="${activePopup.image}" alt="${activePopup.title}" class="popup-image" />
+                                </a>
+                                <div class="popup-footer">
+                                    <button class="dismiss-btn" onclick="dismissToday()">오늘 하루 보지 않기</button>
+                                    <button class="close-btn" onclick="window.close()">닫기</button>
+                                </div>
+                            </div>
+                            <script>
+                                function dismissToday() {
+                                    window.opener.localStorage.setItem('popup-dismissed-date', new Date().toDateString());
+                                    window.close();
+                                }
+                            </script>
+                        </body>
+                        </html>
+                    `);
+                    popupWindow.document.close();
+                }
             }
         }
     }, []);
 
-    const handleClose = () => {
-        setIsVisible(false);
-    };
-
-    const handleDismissToday = () => {
-        localStorage.setItem('popup-dismissed-date', new Date().toDateString());
-        setIsVisible(false);
-    };
-
-    if (!isVisible || !popup) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg overflow-hidden shadow-2xl max-w-md w-full">
-                {popup.link ? (
-                    <Link href={popup.link} onClick={handleClose}>
-                        <div className="relative w-full h-[400px] cursor-pointer">
-                            <Image
-                                src={popup.image}
-                                alt={popup.title}
-                                fill
-                                className="object-cover"
-                                unoptimized
-                            />
-                        </div>
-                    </Link>
-                ) : (
-                    <div className="relative w-full h-[400px]">
-                        <Image
-                            src={popup.image}
-                            alt={popup.title}
-                            fill
-                            className="object-cover"
-                            unoptimized
-                        />
-                    </div>
-                )}
-                <div className="p-4 flex justify-between items-center bg-gray-50">
-                    <button
-                        onClick={handleDismissToday}
-                        className="text-sm text-gray-500 hover:text-gray-700"
-                    >
-                        오늘 하루 보지 않기
-                    </button>
-                    <button
-                        onClick={handleClose}
-                        className="text-sm font-bold text-gray-700 hover:text-black"
-                    >
-                        닫기
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+    // This component doesn't render anything - it just triggers the popup window
+    return null;
 }

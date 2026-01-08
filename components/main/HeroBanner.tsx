@@ -1,18 +1,47 @@
 // components/main/HeroBanner.tsx
+'use client';
+
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+
+interface Banner {
+    id: number;
+    title: string;
+    image: string;
+    status: 'Active' | 'Inactive';
+}
+
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop";
 
 export default function HeroBanner() {
+    const [bannerImage, setBannerImage] = useState(DEFAULT_IMAGE);
+    const [bannerTitle, setBannerTitle] = useState("New Arrivals");
+
+    useEffect(() => {
+        // Load active banner from localStorage (set by admin)
+        const savedBanners = localStorage.getItem('admin-banners');
+        if (savedBanners) {
+            const banners: Banner[] = JSON.parse(savedBanners);
+            const activeBanner = banners.find(b => b.status === 'Active');
+            if (activeBanner) {
+                setBannerImage(activeBanner.image);
+                setBannerTitle(activeBanner.title);
+            }
+        }
+    }, []);
+
     return (
         <div className="relative w-full h-[500px] md:h-[800px] flex flex-col justify-end items-center bg-[var(--neural-black)] text-white overflow-hidden pb-16 md:pb-32">
             {/* Background Image */}
             <div className="absolute inset-0 opacity-90">
                 <Image
-                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
+                    src={bannerImage}
                     alt="Hero Banner"
                     fill
                     className="object-cover object-top"
                     priority
+                    unoptimized
                 />
             </div>
             {/* Gradient Overlay for Text Readability */}
@@ -48,7 +77,7 @@ export default function HeroBanner() {
                 <h1
                     className="text-4xl md:text-7xl font-black mb-6 tracking-tight text-white drop-shadow-lg"
                 >
-                    New Arrivals
+                    {bannerTitle}
                 </h1>
 
                 {/* Subtitle */}
