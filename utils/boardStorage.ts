@@ -1,169 +1,373 @@
 // utils/boardStorage.ts
 import { Review, ProductInquiry, OneToOneInquiry, Notice, FAQ } from "@/types";
+import { supabase } from "./supabase/client";
 import { DUMMY_NOTICES, DUMMY_FAQS } from "./dummyData";
 
-const STORAGE_KEYS = {
-    REVIEWS: 'shop_reviews',
-    PRODUCT_INQUIRIES: 'shop_product_inquiries',
-    ONE_TO_ONE: 'shop_one_to_one',
-    NOTICES: 'shop_notices',
-    FAQS: 'shop_faqs',
-};
+// =====================
+// REVIEWS
+// =====================
 
-const getItems = <T>(key: string, defaultValue: T[] = []): T[] => {
-    if (typeof window === 'undefined') return defaultValue;
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : defaultValue;
-};
+export const getReviews = async (productId: string): Promise<Review[]> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
 
-const saveItems = <T>(key: string, items: T[]) => {
-    if (typeof window !== 'undefined') {
-        localStorage.setItem(key, JSON.stringify(items));
+    if (error) {
+        console.error('Failed to fetch reviews:', error);
+        return [];
     }
+    return (data || []).map(mapDbToReview);
 };
 
-// --- Reviews ---
-export const getReviews = (productId: string): Review[] => {
-    const all = getItems<Review>(STORAGE_KEYS.REVIEWS);
-    return all.filter(r => r.productId === productId).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const getAllReviews = async (): Promise<Review[]> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch all reviews:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToReview);
 };
 
-export const getAllReviews = (): Review[] => {
-    return getItems<Review>(STORAGE_KEYS.REVIEWS).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const addReview = async (review: Omit<Review, 'id' | 'createdAt'>): Promise<Review> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .insert({
+            product_id: review.productId,
+            user_id: review.userId,
+            user_name: review.userName,
+            rating: review.rating,
+            content: review.content,
+            images: review.images || [],
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to add review:', error);
+        throw error;
+    }
+    return mapDbToReview(data);
 };
 
-export const addReview = (review: Omit<Review, 'id' | 'createdAt'>) => {
-    const all = getItems<Review>(STORAGE_KEYS.REVIEWS);
-    const newReview: Review = {
-        ...review,
-        id: `rev_${Date.now()}`,
-        createdAt: new Date().toISOString()
-    };
-    saveItems(STORAGE_KEYS.REVIEWS, [newReview, ...all]);
-    return newReview;
+export const getMyReviews = async (userId: string): Promise<Review[]> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch my reviews:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToReview);
 };
 
-export const getMyReviews = (userId: string): Review[] => {
-    const all = getItems<Review>(STORAGE_KEYS.REVIEWS);
-    return all.filter(r => r.userId === userId).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+// =====================
+// PRODUCT INQUIRIES
+// =====================
+
+export const getProductInquiries = async (productId: string): Promise<ProductInquiry[]> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .select('*')
+        .eq('type', 'product')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch product inquiries:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToProductInquiry);
 };
 
-// --- Product Inquiries ---
-export const getProductInquiries = (productId: string): ProductInquiry[] => {
-    const all = getItems<ProductInquiry>(STORAGE_KEYS.PRODUCT_INQUIRIES);
-    return all.filter(i => i.productId === productId).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const getAllProductInquiries = async (): Promise<ProductInquiry[]> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .select('*')
+        .eq('type', 'product')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch all product inquiries:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToProductInquiry);
 };
 
-export const getAllProductInquiries = (): ProductInquiry[] => {
-    return getItems<ProductInquiry>(STORAGE_KEYS.PRODUCT_INQUIRIES).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const addProductInquiry = async (inquiry: Omit<ProductInquiry, 'id' | 'createdAt'>): Promise<ProductInquiry> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .insert({
+            type: 'product',
+            product_id: inquiry.productId,
+            user_id: inquiry.userId,
+            user_name: inquiry.userName,
+            content: inquiry.content,
+            is_secret: inquiry.isSecret,
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to add product inquiry:', error);
+        throw error;
+    }
+    return mapDbToProductInquiry(data);
 };
 
-export const addProductInquiry = (inquiry: Omit<ProductInquiry, 'id' | 'createdAt'>) => {
-    const all = getItems<ProductInquiry>(STORAGE_KEYS.PRODUCT_INQUIRIES);
-    const newInquiry: ProductInquiry = {
-        ...inquiry,
-        id: `inq_${Date.now()}`,
-        createdAt: new Date().toISOString()
-    };
-    saveItems(STORAGE_KEYS.PRODUCT_INQUIRIES, [newInquiry, ...all]);
-    return newInquiry;
+export const getMyProductInquiries = async (userId: string): Promise<ProductInquiry[]> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .select('*')
+        .eq('type', 'product')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch my product inquiries:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToProductInquiry);
 };
 
-export const getMyProductInquiries = (userId: string): ProductInquiry[] => {
-    const all = getItems<ProductInquiry>(STORAGE_KEYS.PRODUCT_INQUIRIES);
-    return all.filter(i => i.userId === userId).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const updateProductInquiry = async (id: string, updates: Partial<ProductInquiry>): Promise<ProductInquiry | undefined> => {
+    const dbUpdates: Record<string, unknown> = {};
+    if (updates.answer !== undefined) dbUpdates.answer = updates.answer;
+    if (updates.content !== undefined) dbUpdates.content = updates.content;
+
+    const { data, error } = await supabase
+        .from('inquiries')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to update product inquiry:', error);
+        return undefined;
+    }
+    return mapDbToProductInquiry(data);
 };
 
-// --- 1:1 Inquiries ---
-export const getMyInquiries = (userId: string): OneToOneInquiry[] => {
-    const all = getItems<OneToOneInquiry>(STORAGE_KEYS.ONE_TO_ONE);
-    return all.filter(i => i.userId === userId).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+// =====================
+// 1:1 INQUIRIES
+// =====================
+
+export const getMyInquiries = async (userId: string): Promise<OneToOneInquiry[]> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .select('*')
+        .eq('type', 'oneday')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch 1:1 inquiries:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToOneToOneInquiry);
 };
 
-export const getAllOneToOneInquiries = (): OneToOneInquiry[] => {
-    return getItems<OneToOneInquiry>(STORAGE_KEYS.ONE_TO_ONE).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const getAllOneToOneInquiries = async (): Promise<OneToOneInquiry[]> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .select('*')
+        .eq('type', 'oneday')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch all 1:1 inquiries:', error);
+        return [];
+    }
+    return (data || []).map(mapDbToOneToOneInquiry);
 };
 
-export const addOneToOneInquiry = (inquiry: Omit<OneToOneInquiry, 'id' | 'createdAt' | 'status'>) => {
-    const all = getItems<OneToOneInquiry>(STORAGE_KEYS.ONE_TO_ONE);
-    const newInquiry: OneToOneInquiry = {
-        ...inquiry,
-        id: `oto_${Date.now()}`,
-        status: 'Pending',
-        createdAt: new Date().toISOString()
-    };
-    saveItems(STORAGE_KEYS.ONE_TO_ONE, [newInquiry, ...all]);
-    return newInquiry;
+export const addOneToOneInquiry = async (inquiry: Omit<OneToOneInquiry, 'id' | 'createdAt' | 'status'>): Promise<OneToOneInquiry> => {
+    const { data, error } = await supabase
+        .from('inquiries')
+        .insert({
+            type: 'oneday',
+            user_id: inquiry.userId,
+            category: inquiry.category,
+            title: inquiry.title,
+            content: inquiry.content,
+            status: 'Pending',
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to add 1:1 inquiry:', error);
+        throw error;
+    }
+    return mapDbToOneToOneInquiry(data);
 };
 
-export const updateProductInquiry = (id: string, updates: Partial<ProductInquiry>) => {
-    const all = getItems<ProductInquiry>(STORAGE_KEYS.PRODUCT_INQUIRIES);
-    const updated = all.map(item =>
-        item.id === id ? { ...item, ...updates } : item
-    );
-    saveItems(STORAGE_KEYS.PRODUCT_INQUIRIES, updated);
-    return updated.find(item => item.id === id);
+export const updateOneToOneInquiry = async (id: string, updates: Partial<OneToOneInquiry>): Promise<OneToOneInquiry | undefined> => {
+    const dbUpdates: Record<string, unknown> = {};
+    if (updates.answer !== undefined) dbUpdates.answer = updates.answer;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
+
+    const { data, error } = await supabase
+        .from('inquiries')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to update 1:1 inquiry:', error);
+        return undefined;
+    }
+    return mapDbToOneToOneInquiry(data);
 };
 
-export const updateOneToOneInquiry = (id: string, updates: Partial<OneToOneInquiry>) => {
-    const all = getItems<OneToOneInquiry>(STORAGE_KEYS.ONE_TO_ONE);
-    const updated = all.map(item =>
-        item.id === id ? { ...item, ...updates } : item
-    );
-    saveItems(STORAGE_KEYS.ONE_TO_ONE, updated);
-    return updated.find(item => item.id === id);
+// =====================
+// NOTICES
+// =====================
+
+export const getNotices = async (): Promise<Notice[]> => {
+    const { data, error } = await supabase
+        .from('notices')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Failed to fetch notices:', error);
+        return DUMMY_NOTICES;
+    }
+    if (!data || data.length === 0) return DUMMY_NOTICES;
+    return data.map(mapDbToNotice);
 };
 
-// --- Notices ---
-export const getNotices = (): Notice[] => {
-    return getItems<Notice>(STORAGE_KEYS.NOTICES, DUMMY_NOTICES).sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+export const addNotice = async (notice: Omit<Notice, 'id' | 'createdAt'>): Promise<Notice> => {
+    const { data, error } = await supabase
+        .from('notices')
+        .insert({
+            title: notice.title,
+            content: notice.content,
+            category: notice.category,
+            author: notice.author,
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to add notice:', error);
+        throw error;
+    }
+    return mapDbToNotice(data);
 };
 
-export const addNotice = (notice: Omit<Notice, 'id' | 'createdAt'>) => {
-    const all = getItems<Notice>(STORAGE_KEYS.NOTICES, DUMMY_NOTICES);
-    const newItem: Notice = {
-        ...notice,
-        id: `not_${Date.now()}`,
-        createdAt: new Date().toISOString()
-    };
-    saveItems(STORAGE_KEYS.NOTICES, [newItem, ...all]);
-    return newItem;
+// =====================
+// FAQs
+// =====================
+
+export const getFAQs = async (): Promise<FAQ[]> => {
+    const { data, error } = await supabase
+        .from('faqs')
+        .select('*');
+
+    if (error) {
+        console.error('Failed to fetch FAQs:', error);
+        return DUMMY_FAQS;
+    }
+    if (!data || data.length === 0) return DUMMY_FAQS;
+    return data.map(mapDbToFAQ);
 };
 
-// --- FAQs ---
-export const getFAQs = (): FAQ[] => {
-    return getItems<FAQ>(STORAGE_KEYS.FAQS, DUMMY_FAQS);
+export const addFAQ = async (faq: Omit<FAQ, 'id'>): Promise<FAQ> => {
+    const { data, error } = await supabase
+        .from('faqs')
+        .insert({
+            question: faq.question,
+            answer: faq.answer,
+            category: faq.category,
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Failed to add FAQ:', error);
+        throw error;
+    }
+    return mapDbToFAQ(data);
 };
 
-export const addFAQ = (faq: Omit<FAQ, 'id'>) => {
-    const all = getItems<FAQ>(STORAGE_KEYS.FAQS, DUMMY_FAQS);
-    const newItem: FAQ = { ...faq, id: `faq_${Date.now()}` };
-    saveItems(STORAGE_KEYS.FAQS, [newItem, ...all]);
-    return newItem;
-};
-
-// Initialize board data with dummy constants
+// =====================
+// INITIALIZATION (no-op for Supabase)
+// =====================
 export function initializeBoardData() {
-    if (typeof window === 'undefined') return;
-    if (getNotices().length > 0) return;
-    saveItems(STORAGE_KEYS.NOTICES, DUMMY_NOTICES);
-    saveItems(STORAGE_KEYS.FAQS, DUMMY_FAQS);
+    // No-op: Data is managed in Supabase
+}
+
+// =====================
+// MAPPERS
+// =====================
+
+function mapDbToReview(row: Record<string, unknown>): Review {
+    return {
+        id: row.id as string,
+        productId: row.product_id as string,
+        userId: row.user_id as string,
+        userName: (row.user_name as string) || 'Unknown',
+        rating: row.rating as number,
+        content: row.content as string,
+        images: (row.images as string[]) || [],
+        createdAt: row.created_at as string,
+    };
+}
+
+function mapDbToProductInquiry(row: Record<string, unknown>): ProductInquiry {
+    return {
+        id: row.id as string,
+        productId: row.product_id as string,
+        userId: row.user_id as string,
+        userName: (row.user_name as string) || 'Unknown',
+        isSecret: row.is_secret as boolean,
+        content: row.content as string,
+        answer: row.answer as string | undefined,
+        createdAt: row.created_at as string,
+    };
+}
+
+function mapDbToOneToOneInquiry(row: Record<string, unknown>): OneToOneInquiry {
+    return {
+        id: row.id as string,
+        userId: row.user_id as string,
+        category: row.category as string,
+        title: row.title as string,
+        content: row.content as string,
+        answer: row.answer as string | undefined,
+        status: (row.status as 'Pending' | 'Answered') || 'Pending',
+        createdAt: row.created_at as string,
+    };
+}
+
+function mapDbToNotice(row: Record<string, unknown>): Notice {
+    return {
+        id: row.id as string,
+        title: row.title as string,
+        content: row.content as string,
+        category: row.category as Notice['category'],
+        author: row.author as string,
+        createdAt: row.created_at as string,
+    };
+}
+
+function mapDbToFAQ(row: Record<string, unknown>): FAQ {
+    return {
+        id: row.id as string,
+        question: row.question as string,
+        answer: row.answer as string,
+        category: row.category as string,
+    };
 }

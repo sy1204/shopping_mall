@@ -51,12 +51,12 @@ export default function AdminBoardPage() {
         refreshData();
     }, [tab]);
 
-    const refreshData = () => {
-        if (tab === 'notice') setNotices(getNotices());
-        if (tab === 'faq') setFaqs(getFAQs());
-        if (tab === 'inquiry') setInquiries(getAllOneToOneInquiries());
-        if (tab === 'product_inquiry') setProductInquiries(getAllProductInquiries());
-        if (tab === 'review') setReviews(getAllReviews());
+    const refreshData = async () => {
+        if (tab === 'notice') setNotices(await getNotices());
+        if (tab === 'faq') setFaqs(await getFAQs());
+        if (tab === 'inquiry') setInquiries(await getAllOneToOneInquiries());
+        if (tab === 'product_inquiry') setProductInquiries(await getAllProductInquiries());
+        if (tab === 'review') setReviews(await getAllReviews());
     };
 
     const handleTabChange = (newTab: string) => {
@@ -64,30 +64,30 @@ export default function AdminBoardPage() {
         setShowForm(false);
     };
 
-    const handleNoticeSubmit = (e: React.FormEvent) => {
+    const handleNoticeSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        addNotice(noticeForm as any);
+        await addNotice(noticeForm as any);
         setShowForm(false);
         refreshData();
         setNoticeForm({ title: '', content: '', category: 'StyleShop', author: 'Admin' });
     };
 
-    const handleFAQSubmit = (e: React.FormEvent) => {
+    const handleFAQSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        addFAQ(faqForm);
+        await addFAQ(faqForm);
         setShowForm(false);
         refreshData();
         setFaqForm({ question: '', answer: '', category: '주문' });
     };
 
-    const openAnswerModal = (item: OneToOneInquiry | ProductInquiry, type: 'oto' | 'product') => {
+    const openAnswerModal = async (item: OneToOneInquiry | ProductInquiry, type: 'oto' | 'product') => {
         // Reset Info
         setCustomerInfo(undefined);
         setCustomerOrders([]);
         setInquiredProduct(undefined);
 
         // Fetch Customer Info
-        const allUsers = getUsers();
+        const allUsers = await getUsers();
         // Assuming userId matches email or id. In this app, userId is often email.
         // check if item.userId matches user.email or user.id
         const user = allUsers.find(u => u.email === item.userId || u.id === item.userId);
@@ -95,7 +95,7 @@ export default function AdminBoardPage() {
 
         // Fetch Orders
         if (item.userId) {
-            const orders = getOrders(item.userId); // This function filters by userEmail
+            const orders = await getOrders(item.userId); // This function filters by userEmail
             setCustomerOrders(orders.slice(0, 5)); // Recent 5 orders
         }
 
@@ -103,7 +103,7 @@ export default function AdminBoardPage() {
         if (type === 'product') {
             const pId = (item as ProductInquiry).productId;
             if (pId) {
-                const product = getProductById(pId);
+                const product = await getProductById(pId);
                 setInquiredProduct(product);
             }
         }
@@ -112,7 +112,7 @@ export default function AdminBoardPage() {
         setAnswerText(item.answer || '');
     };
 
-    const handleAnswerSubmit = () => {
+    const handleAnswerSubmit = async () => {
         if (!selectedInquiry || !answerText.trim()) {
             showToast('답변 내용을 입력해주세요.', 'error');
             return;
@@ -121,12 +121,12 @@ export default function AdminBoardPage() {
         const { item, type } = selectedInquiry;
 
         if (type === 'oto') {
-            updateOneToOneInquiry(item.id, {
+            await updateOneToOneInquiry(item.id, {
                 answer: answerText.trim(),
                 status: 'Answered'
             });
         } else {
-            updateProductInquiry(item.id, {
+            await updateProductInquiry(item.id, {
                 answer: answerText.trim(),
                 // ProductInquiry might not have 'status' field in type definition, 
                 // but checking types/index.ts usually it does or implies it. 

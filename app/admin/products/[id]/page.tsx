@@ -8,7 +8,7 @@ type Props = {
 
 export default async function ProductDetailAdminPage(props: Props) {
     const params = await props.params;
-    const product = getProductById(params.id);
+    const product = await getProductById(params.id);
 
     if (!product) {
         notFound();
@@ -25,4 +25,3 @@ export default async function ProductDetailAdminPage(props: Props) {
         </div>
     );
 }
-

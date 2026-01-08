@@ -48,20 +48,23 @@ export default function MyOrderPage({ params }: Props) {
     const [exchangeRequest, setExchangeRequest] = useState(''); // 교환 시 원하는 옵션
 
     useEffect(() => {
-        const orders = getOrders();
-        const found = orders.find(o => o.id === orderId);
-        if (found) {
-            setOrder(found);
-        } else {
-            alert('주문 내역을 찾을 수 없습니다.');
-            router.push('/mypage');
-        }
+        const fetchOrder = async () => {
+            const orders = await getOrders();
+            const found = orders.find(o => o.id === orderId);
+            if (found) {
+                setOrder(found);
+            } else {
+                alert('주문 내역을 찾을 수 없습니다.');
+                router.push('/mypage');
+            }
+        };
+        fetchOrder();
     }, [orderId, router]);
 
-    const handleConfirmPurchase = () => {
+    const handleConfirmPurchase = async () => {
         if (!order) return;
         if (!confirm('이미 받으신 상품에 대해 구매를 확정하시겠습니까? 포인트가 즉시 적립됩니다.')) return;
-        updateOrderStatus(order.id, 'Confirmed');
+        await updateOrderStatus(order.id, 'Confirmed');
         setOrder(prev => prev ? { ...prev, status: 'Confirmed' } : null);
         alert('구매가 확정되었습니다.');
     };
@@ -74,7 +77,7 @@ export default function MyOrderPage({ params }: Props) {
         setShowClaimForm(true);
     };
 
-    const handleClaimSubmit = (e: React.FormEvent) => {
+    const handleClaimSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!order) return;
 
@@ -85,7 +88,7 @@ export default function MyOrderPage({ params }: Props) {
         const newStatus = claimType === 'return' ? 'Return Requested' : 'Exchange Requested';
 
         // Update order with reason
-        updateOrderStatus(order.id, newStatus, {
+        await updateOrderStatus(order.id, newStatus, {
             ...(claimType === 'return'
                 ? { returnReason: fullReason }
                 : { exchangeReason: fullReason, exchangeRequest })

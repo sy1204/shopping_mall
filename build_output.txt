@@ -6,53 +6,18 @@
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 3.1s
+✓ Compiled successfully in 2.3s
   Running TypeScript ...
-  Collecting page data using 15 workers ...
-  Generating static pages using 15 workers (0/30) ...
-  Generating static pages using 15 workers (7/30) 
-  Generating static pages using 15 workers (14/30) 
-  Generating static pages using 15 workers (22/30) 
-✓ Generating static pages using 15 workers (30/30) in 269.9ms
-  Finalizing page optimization ...
+Failed to compile.
 
-Route (app)
-┌ ○ /
-├ ○ /_not-found
-├ ○ /admin
-├ ○ /admin/board
-├ ○ /admin/design
-├ ○ /admin/login
-├ ○ /admin/orders
-├ ƒ /admin/orders/[id]
-├ ○ /admin/products
-├ ƒ /admin/products/[id]
-├ ○ /admin/products/edit
-├ ○ /admin/products/new
-├ ○ /admin/settings
-├ ○ /admin/stats
-├ ○ /admin/users
-├ ƒ /admin/users/[id]
-├ ○ /auth/login
-├ ○ /board
-├ ○ /checkout
-├ ○ /checkout/order
-├ ○ /checkout/success
-├ ○ /cs
-├ ○ /events
-├ ○ /faq
-├ ○ /find-account
-├ ○ /login
-├ ○ /mypage
-├ ○ /mypage/check-password
-├ ƒ /mypage/orders/[id]
-├ ○ /mypage/profile/edit
-├ ○ /open-shop
-├ ○ /shop
-├ ƒ /shop/[id]
-└ ○ /signup
+./app/mypage/orders/[id]/page.tsx:52:30
+Type error: Property 'find' does not exist on type 'Promise<Order[]>'.
 
-
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-
+[0m [90m 50 |[39m     useEffect(() [33m=>[39m {
+ [90m 51 |[39m         [36mconst[39m orders [33m=[39m getOrders()[33m;[39m
+[31m[1m>[22m[39m[90m 52 |[39m         [36mconst[39m found [33m=[39m orders[33m.[39mfind(o [33m=>[39m o[33m.[39mid [33m===[39m orderId)[33m;[39m
+ [90m    |[39m                              [31m[1m^[22m[39m
+ [90m 53 |[39m         [36mif[39m (found) {
+ [90m 54 |[39m             setOrder(found)[33m;[39m
+ [90m 55 |[39m         } [36melse[39m {[0m
+Next.js build worker exited with code: 1 and signal: null

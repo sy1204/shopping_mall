@@ -1,12 +1,12 @@
 // utils/systemSettings.ts
+import { supabase } from "./supabase/client";
+
 export interface SystemSetting {
     id: string;
     key: string;
     value: string;
     category: 'basic' | 'policy';
 }
-
-const STORAGE_KEY = 'shop_system_settings';
 
 const defaultSettings: SystemSetting[] = [
     { id: '1', key: 'mall_name', value: '29CM STYLE', category: 'basic' },
@@ -18,39 +18,73 @@ const defaultSettings: SystemSetting[] = [
     { id: '7', key: 'refund_policy', value: '환불 규정 내용입니다.', category: 'policy' },
 ];
 
-export function getSettings(): SystemSetting[] {
-    if (typeof window === 'undefined') return defaultSettings;
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
+export async function getSettings(): Promise<SystemSetting[]> {
+    const { data, error } = await supabase
+        .from('system_settings')
+        .select('*');
+
+    if (error) {
+        console.error('Failed to fetch settings:', error);
         return defaultSettings;
     }
-    return JSON.parse(saved);
-}
 
-export function saveSetting(setting: SystemSetting) {
-    const all = getSettings();
-    const index = all.findIndex(s => s.id === setting.id);
-    if (index >= 0) {
-        all[index] = setting;
-    } else {
-        all.push(setting);
+    if (!data || data.length === 0) {
+        return defaultSettings;
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-    return all;
+
+    return data.map(row => ({
+        id: row.id as string,
+        key: row.key as string,
+        value: row.value as string,
+        category: row.category as 'basic' | 'policy',
+    }));
 }
 
-export function deleteSetting(id: string) {
-    const all = getSettings();
-    const filtered = all.filter(s => s.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    return filtered;
+export async function saveSetting(setting: SystemSetting): Promise<SystemSetting[]> {
+    const { error } = await supabase
+        .from('system_settings')
+        .upsert({
+            id: setting.id,
+            key: setting.key,
+            value: setting.value,
+            category: setting.category,
+        });
+
+    if (error) {
+        console.error('Failed to save setting:', error);
+        throw error;
+    }
+
+    return getSettings();
 }
 
-export function addSetting(setting: Omit<SystemSetting, 'id'>) {
-    const all = getSettings();
-    const newSetting: SystemSetting = { ...setting, id: `set_${Date.now()}` };
-    all.push(newSetting);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-    return all;
+export async function deleteSetting(id: string): Promise<SystemSetting[]> {
+    const { error } = await supabase
+        .from('system_settings')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Failed to delete setting:', error);
+        throw error;
+    }
+
+    return getSettings();
+}
+
+export async function addSetting(setting: Omit<SystemSetting, 'id'>): Promise<SystemSetting[]> {
+    const { error } = await supabase
+        .from('system_settings')
+        .insert({
+            key: setting.key,
+            value: setting.value,
+            category: setting.category,
+        });
+
+    if (error) {
+        console.error('Failed to add setting:', error);
+        throw error;
+    }
+
+    return getSettings();
 }

@@ -17,8 +17,8 @@ export default function AdminInquiriesPage() {
         loadInquiries();
     }, []);
 
-    const loadInquiries = () => {
-        const all = getAllProductInquiries();
+    const loadInquiries = async () => {
+        const all = await getAllProductInquiries();
         setInquiries(all);
     };
 
@@ -33,13 +33,13 @@ export default function AdminInquiriesPage() {
         setAnswerText(inquiry.answer || '');
     };
 
-    const handleSubmitAnswer = () => {
+    const handleSubmitAnswer = async () => {
         if (!selectedInquiry || !answerText.trim()) {
             showToast('답변 내용을 입력해주세요.', 'error');
             return;
         }
 
-        updateProductInquiry(selectedInquiry.id, { answer: answerText.trim() });
+        await updateProductInquiry(selectedInquiry.id, { answer: answerText.trim() });
         loadInquiries();
         setSelectedInquiry(null);
         setAnswerText('');

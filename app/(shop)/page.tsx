@@ -12,9 +12,12 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch products from localStorage (via utility)
-        setProducts(getProducts());
-        setIsLoading(false);
+        const fetchProducts = async () => {
+            const data = await getProducts();
+            setProducts(data);
+            setIsLoading(false);
+        };
+        fetchProducts();
     }, []);
 
     // Filter for sections (Demo logic)

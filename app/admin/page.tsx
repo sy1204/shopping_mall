@@ -15,19 +15,22 @@ export default function AdminDashboard() {
     });
 
     useEffect(() => {
-        const orders = getOrders();
-        const totalSales = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-        const totalOrders = orders.length;
-        const totalProducts = DUMMY_PRODUCTS.length;
-        const activeOrders = orders.filter(o => ['Paid', 'Preparing', 'Shipped'].includes(o.status)).length;
+        const fetchStats = async () => {
+            const orders = await getOrders();
+            const totalSales = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+            const totalOrders = orders.length;
+            const totalProducts = DUMMY_PRODUCTS.length;
+            const activeOrders = orders.filter(o => ['Paid', 'Preparing', 'Shipped'].includes(o.status)).length;
 
-        setStats({
-            totalSales,
-            totalOrders,
-            totalProducts,
-            activeOrders,
-            recentOrders: orders
-        });
+            setStats({
+                totalSales,
+                totalOrders,
+                totalProducts,
+                activeOrders,
+                recentOrders: orders
+            });
+        };
+        fetchStats();
     }, []);
 
     const { totalSales, totalOrders, totalProducts, activeOrders, recentOrders } = stats;

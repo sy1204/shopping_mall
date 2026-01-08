@@ -1,35 +1,71 @@
+// utils/userStorage.ts
 import { AdminUser } from "@/types";
+import { supabase } from "./supabase/client";
 import { DUMMY_USERS } from "./dummyData";
 
-const STORAGE_KEYS = {
-    USERS: 'admin_users_mock',
-};
+// Get all users from Supabase profiles
+export const getUsers = async (): Promise<AdminUser[]> => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-export const getUsers = (): AdminUser[] => {
-    if (typeof window === 'undefined') return DUMMY_USERS;
-
-    const stored = localStorage.getItem(STORAGE_KEYS.USERS);
-    if (!stored) {
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DUMMY_USERS));
+    if (error) {
+        console.error('Failed to fetch users:', error);
         return DUMMY_USERS;
     }
-    return JSON.parse(stored);
-};
 
-export const getUserById = (userId: string): AdminUser | undefined => {
-    const users = getUsers();
-    return users.find(u => u.id === userId || u.email === userId);
-};
-
-export const updateUserStatus = (userId: string, status: AdminUser['status']): AdminUser[] => {
-    const users = getUsers();
-    const updated = users.map(user =>
-        user.id === userId ? { ...user, status } : user
-    );
-
-    if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updated));
+    if (!data || data.length === 0) {
+        return DUMMY_USERS;
     }
 
-    return updated;
+    return data.map(mapDbToAdminUser);
 };
+
+// Get user by ID or email
+export const getUserById = async (userId: string): Promise<AdminUser | undefined> => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`id.eq.${userId},email.eq.${userId}`)
+        .single();
+
+    if (error) {
+        console.error('Failed to fetch user:', error);
+        return DUMMY_USERS.find(u => u.id === userId || u.email === userId);
+    }
+
+    return data ? mapDbToAdminUser(data) : undefined;
+};
+
+// Update user status (requires admin privileges)
+export const updateUserStatus = async (userId: string, status: AdminUser['status']): Promise<AdminUser[]> => {
+    const { error } = await supabase
+        .from('profiles')
+        .update({ status })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Failed to update user status:', error);
+        throw error;
+    }
+
+    return getUsers();
+};
+
+// Helper: Map DB row to AdminUser type
+function mapDbToAdminUser(row: Record<string, unknown>): AdminUser {
+    return {
+        id: row.id as string,
+        email: row.email as string,
+        name: (row.name as string) || 'Unknown',
+        joinDate: row.created_at as string,
+        status: (row.status as AdminUser['status']) || 'Active',
+        points: (row.points as number) || 0,
+        totalOrders: 0, // Would need to query orders
+        totalSpent: 0,  // Would need to query orders
+        phoneNumber: row.phone_number as string | undefined,
+        address: row.address as string | undefined,
+        addressDetail: row.address_detail as string | undefined,
+    };
+}

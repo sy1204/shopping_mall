@@ -27,27 +27,30 @@ export default function AdminOrdersPage() {
     }, []);
 
     useEffect(() => {
-        const allOrders = getOrders();
-        setOrders(allOrders);
-        setFilteredOrders(applyFilter(allOrders, filter));
+        const fetchOrders = async () => {
+            const allOrders = await getOrders();
+            setOrders(allOrders);
+            setFilteredOrders(applyFilter(allOrders, filter));
+        };
+        fetchOrders();
     }, [filter, applyFilter]);
 
-    const handleStatusChange = (orderId: string, newStatus: string) => {
+    const handleStatusChange = async (orderId: string, newStatus: string) => {
         if (window.confirm(`주문 상태를 "${newStatus}"(으)로 변경하시겠습니까?`)) {
-            updateOrderStatus(orderId, newStatus as Order['status']);
-            const updated = getOrders();
+            await updateOrderStatus(orderId, newStatus as Order['status']);
+            const updated = await getOrders();
             setOrders(updated);
             setFilteredOrders(applyFilter(updated, filter));
             showToast('상태가 업데이트되었습니다.', 'success');
         }
     };
 
-    const handleMemoUpdate = (orderId: string, newMemo: string) => {
+    const handleMemoUpdate = async (orderId: string, newMemo: string) => {
         const currentOrder = orders.find(o => o.id === orderId);
         if (currentOrder && currentOrder.adminMemo === newMemo) return;
 
-        updateOrderStatus(orderId, currentOrder?.status as Order['status'], { adminMemo: newMemo });
-        const updated = getOrders();
+        await updateOrderStatus(orderId, currentOrder?.status as Order['status'], { adminMemo: newMemo });
+        const updated = await getOrders();
         setOrders(updated);
         setFilteredOrders(applyFilter(updated, filter));
         showToast('메모가 저장되었습니다.', 'info');

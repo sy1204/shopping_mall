@@ -1,57 +1,102 @@
 // utils/orderStorage.ts
 import { Order } from "@/types";
+import { supabase } from "./supabase/client";
 import { DUMMY_ORDERS } from "./dummyData";
 
-const ORDER_STORAGE_KEY = 'shop_orders';
+// Get orders (optionally filtered by user)
+export const getOrders = async (userId?: string): Promise<Order[]> => {
+    let query = supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-export const getOrders = (userEmail?: string): Order[] => {
-    if (typeof window === 'undefined') return [];
-
-    const saved = localStorage.getItem(ORDER_STORAGE_KEY);
-    let orders: Order[] = [];
-
-    if (!saved || JSON.parse(saved).length === 0) {
-        localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(DUMMY_ORDERS));
-        orders = DUMMY_ORDERS;
-    } else {
-        try {
-            orders = JSON.parse(saved);
-        } catch (e) {
-            console.error('Failed to parse orders', e);
-            orders = [];
-        }
+    if (userId) {
+        query = query.eq('user_id', userId);
     }
 
-    if (userEmail) {
-        return orders.filter(order => order.userId === userEmail);
+    const { data, error } = await query;
+
+    if (error) {
+        console.error('Failed to fetch orders:', error);
+        return userId ? DUMMY_ORDERS.filter(o => o.userId === userId) : DUMMY_ORDERS;
     }
-    return orders;
+
+    if (!data || data.length === 0) {
+        return userId ? DUMMY_ORDERS.filter(o => o.userId === userId) : DUMMY_ORDERS;
+    }
+
+    return data.map(mapDbToOrder);
 };
 
-export const saveOrder = (orderData: Omit<Order, 'id' | 'date' | 'status'>) => {
-    const newOrder: Order = {
-        ...orderData,
-        id: `ord_${Date.now()}`,
-        date: new Date().toISOString(),
-        status: 'Paid'
+// Save new order
+export const saveOrder = async (orderData: Omit<Order, 'id' | 'date' | 'status'>): Promise<Order> => {
+    const newOrder = {
+        user_id: orderData.userId,
+        total_price: orderData.totalPrice,
+        status: 'Paid',
+        shipping_address: orderData.shippingAddress,
+        items: orderData.items,
     };
 
-    // We need to get ALL orders to append, so call getOrders without filter
-    const existingOrders = getOrders();
-    const updatedOrders = [newOrder, ...existingOrders];
+    const { data, error } = await supabase
+        .from('orders')
+        .insert(newOrder)
+        .select()
+        .single();
 
-    if (typeof window !== 'undefined') {
-        localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(updatedOrders));
+    if (error) {
+        console.error('Failed to save order:', error);
+        throw error;
     }
 
-    return newOrder;
+    return mapDbToOrder(data);
 };
 
-export const updateOrderStatus = (orderId: string, status: Order['status'], extraUpdates?: Partial<Order>) => {
-    const orders = getOrders();
-    const updatedOrders = orders.map(order =>
-        order.id === orderId ? { ...order, status, ...extraUpdates } : order
-    );
-    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(updatedOrders));
-    return updatedOrders;
+// Update order status
+export const updateOrderStatus = async (
+    orderId: string,
+    status: Order['status'],
+    extraUpdates?: Partial<Order>
+): Promise<Order[]> => {
+    const updates: Record<string, unknown> = { status };
+
+    if (extraUpdates?.trackingNumber) updates.tracking_number = extraUpdates.trackingNumber;
+    if (extraUpdates?.adminMemo) updates.admin_memo = extraUpdates.adminMemo;
+    if (extraUpdates?.returnReason) updates.return_reason = extraUpdates.returnReason;
+    if (extraUpdates?.exchangeReason) updates.exchange_reason = extraUpdates.exchangeReason;
+
+    const { error } = await supabase
+        .from('orders')
+        .update(updates)
+        .eq('id', orderId);
+
+    if (error) {
+        console.error('Failed to update order:', error);
+        throw error;
+    }
+
+    return getOrders();
 };
+
+// Helper: Map DB row to Order type
+function mapDbToOrder(row: Record<string, unknown>): Order {
+    const items = row.items as Order['items'] || [];
+    const shippingAddress = row.shipping_address as Order['shippingAddress'] || { name: '', address: '', phone: '' };
+
+    return {
+        id: row.id as string,
+        date: row.created_at as string,
+        items,
+        totalPrice: row.total_price as number,
+        shippingAddress,
+        status: row.status as Order['status'],
+        trackingNumber: row.tracking_number as string | undefined,
+        usedPoints: (row.used_points as number) || 0,
+        earnedPoints: (row.earned_points as number) || 0,
+        adminMemo: row.admin_memo as string | undefined,
+        returnReason: row.return_reason as string | undefined,
+        exchangeReason: row.exchange_reason as string | undefined,
+        exchangeRequest: row.exchange_request as string | undefined,
+        userId: row.user_id as string,
+    };
+}

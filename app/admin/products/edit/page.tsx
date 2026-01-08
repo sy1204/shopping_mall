@@ -20,22 +20,25 @@ function EditContent() {
             return;
         }
 
-        const products = getProducts();
-        const found = products.find(p => p.id === productId);
-        if (found) {
-            setProduct(found);
-            setFormData(found);
-        } else {
-            alert('Product not found');
-            router.push('/admin/products');
-        }
+        const fetchProduct = async () => {
+            const products = await getProducts();
+            const found = products.find(p => p.id === productId);
+            if (found) {
+                setProduct(found);
+                setFormData(found);
+            } else {
+                alert('Product not found');
+                router.push('/admin/products');
+            }
+        };
+        fetchProduct();
     }, [productId, router]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!productId) return;
 
-        updateProduct(productId, formData);
+        await updateProduct(productId, formData);
         alert('상품이 수정되었습니다.');
         router.push('/admin/products');
     };

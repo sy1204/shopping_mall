@@ -18,20 +18,23 @@ export default function OrderDetailPage({ params }: Props) {
     const [order, setOrder] = useState<Order | null>(null);
 
     useEffect(() => {
-        const orders = getOrders();
-        const found = orders.find(o => o.id === orderId);
-        if (found) {
-            setOrder(found);
-        } else {
-            alert('Order not found');
-            router.push('/admin/orders');
-        }
+        const fetchOrder = async () => {
+            const orders = await getOrders();
+            const found = orders.find(o => o.id === orderId);
+            if (found) {
+                setOrder(found);
+            } else {
+                alert('Order not found');
+                router.push('/admin/orders');
+            }
+        };
+        fetchOrder();
     }, [orderId, router]);
 
-    const handleStatusChange = (newStatus: Order['status']) => {
+    const handleStatusChange = async (newStatus: Order['status']) => {
         if (!order) return;
         if (confirm(`Change status from "${order.status}" to "${newStatus}"?`)) {
-            updateOrderStatus(order.id, newStatus);
+            await updateOrderStatus(order.id, newStatus);
             setOrder(prev => prev ? { ...prev, status: newStatus } : null);
         }
     };

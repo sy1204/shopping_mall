@@ -14,28 +14,32 @@ export default function AdminSettingsPage() {
     const [formData, setFormData] = useState({ key: '', value: '' });
 
     useEffect(() => {
-        setSettings(getSettings());
+        const fetchSettings = async () => {
+            const data = await getSettings();
+            setSettings(data);
+        };
+        fetchSettings();
     }, []);
 
-    const handleSave = (setting: SystemSetting) => {
-        const updated = saveSetting(setting);
+    const handleSave = async (setting: SystemSetting) => {
+        const updated = await saveSetting(setting);
         setSettings(updated);
         setEditingId(null);
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm('정말 삭제하시겠습니까?')) {
-            const updated = deleteSetting(id);
+            const updated = await deleteSetting(id);
             setSettings(updated);
         }
     };
 
-    const handleAdd = () => {
+    const handleAdd = async () => {
         if (!formData.key || !formData.value) {
             alert('모든 항목을 입력해주세요');
             return;
         }
-        const updated = addSetting({ ...formData, category: tab as any });
+        const updated = await addSetting({ ...formData, category: tab as 'basic' | 'policy' });
         setSettings(updated);
         setFormData({ key: '', value: '' });
     };

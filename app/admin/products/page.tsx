@@ -13,12 +13,16 @@ export default function AdminProductsPage() {
     const { showToast } = useToast();
 
     useEffect(() => {
-        setProducts(getProducts());
+        const fetchProducts = async () => {
+            const data = await getProducts();
+            setProducts(data);
+        };
+        fetchProducts();
     }, []);
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('상품을 삭제하시겠습니까?')) {
-            const updated = deleteProduct(id);
+            const updated = await deleteProduct(id);
             setProducts(updated);
             showToast('ITEM DELETED SUCCESSFULLY', 'success');
         }

@@ -32,22 +32,27 @@ export default function MyPage() {
         }
     }, [user, isLoading, router]);
 
-    const refreshData = () => {
+    const refreshData = async () => {
         if (!user) return;
-        setOrders(getOrders((user as User).email));
-        setMyReviews(getMyReviews((user as User).email));
-        setMyQna(getMyProductInquiries((user as User).email));
+        const [ordersData, reviewsData, qnaData] = await Promise.all([
+            getOrders((user as User).email),
+            getMyReviews((user as User).email),
+            getMyProductInquiries((user as User).email)
+        ]);
+        setOrders(ordersData);
+        setMyReviews(reviewsData);
+        setMyQna(qnaData);
     };
 
     useEffect(() => {
         refreshData();
     }, [user, activeTab]);
 
-    const handleConfirmPurchase = (order: Order) => {
+    const handleConfirmPurchase = async (order: Order) => {
         if (!confirm('구매를 확정하시겠습니까? 포인트가 적립됩니다.')) return;
 
         // 1. Update Order Status
-        updateOrderStatus(order.id, 'Confirmed');
+        await updateOrderStatus(order.id, 'Confirmed');
 
         // 2. Add Points to User
         if (user) {
@@ -58,9 +63,9 @@ export default function MyPage() {
         refreshData();
     };
 
-    const handleRequestClaim = (orderId: string, type: 'Return' | 'Exchange') => {
+    const handleRequestClaim = async (orderId: string, type: 'Return' | 'Exchange') => {
         if (!confirm(`${type === 'Return' ? '반품' : '교환'}을 신청하시겠습니까?`)) return;
-        updateOrderStatus(orderId, type === 'Return' ? 'Return Requested' : 'Exchange Requested');
+        await updateOrderStatus(orderId, type === 'Return' ? 'Return Requested' : 'Exchange Requested');
         alert('신청이 접수되었습니다.');
         refreshData();
     };

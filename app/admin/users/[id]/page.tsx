@@ -19,22 +19,25 @@ export default function AdminUserDetailPage() {
     useEffect(() => {
         if (!id) return;
 
-        const allUsers = getUsers();
-        const foundUser = allUsers.find(u => u.id === id);
+        const fetchUserData = async () => {
+            const allUsers = await getUsers();
+            const foundUser = allUsers.find(u => u.id === id);
 
-        if (foundUser) {
-            setUser(foundUser);
-            // Fetch orders for this user (matching by email or name - simplistic mock matching)
-            const allOrders = getOrders();
-            const matchedOrders = allOrders.filter(o =>
-                o.shippingAddress.name === foundUser.name ||
-                (foundUser.email.includes(o.shippingAddress.name)) // very loose matching for mock
-            );
-            setUserOrders(matchedOrders);
-        } else {
-            alert('User not found');
-            router.push('/admin/users');
-        }
+            if (foundUser) {
+                setUser(foundUser);
+                // Fetch orders for this user (matching by email or name - simplistic mock matching)
+                const allOrders = await getOrders();
+                const matchedOrders = allOrders.filter(o =>
+                    o.shippingAddress.name === foundUser.name ||
+                    (foundUser.email.includes(o.shippingAddress.name)) // very loose matching for mock
+                );
+                setUserOrders(matchedOrders);
+            } else {
+                alert('User not found');
+                router.push('/admin/users');
+            }
+        };
+        fetchUserData();
     }, [id, router]);
 
     if (!user) return <div className="p-8 font-mono">LOADING_USER_DATA...</div>;

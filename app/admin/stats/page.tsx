@@ -70,35 +70,38 @@ export default function AdminStatsPage() {
     const [orders, setOrders] = useState<Order[]>([]);
 
     useEffect(() => {
-        // Load orders and calculate sales data
-        const allOrders = getOrders();
-        setOrders(allOrders);
+        const fetchStats = async () => {
+            // Load orders and calculate sales data
+            const allOrders = await getOrders();
+            setOrders(allOrders);
 
-        // Group orders by date
-        const salesByDate: Record<string, DailySales> = {};
+            // Group orders by date
+            const salesByDate: Record<string, DailySales> = {};
 
-        allOrders.forEach(order => {
-            const date = order.date.split('T')[0];
-            if (!salesByDate[date]) {
-                salesByDate[date] = { date, revenue: 0, orders: 0 };
-            }
-            salesByDate[date].revenue += order.totalPrice;
-            salesByDate[date].orders += 1;
-        });
+            allOrders.forEach(order => {
+                const date = order.date.split('T')[0];
+                if (!salesByDate[date]) {
+                    salesByDate[date] = { date, revenue: 0, orders: 0 };
+                }
+                salesByDate[date].revenue += order.totalPrice;
+                salesByDate[date].orders += 1;
+            });
 
-        // Convert to array and sort by date
-        const salesArray = Object.values(salesByDate).sort((a, b) =>
-            new Date(b.date).getTime() - new Date(a.date).getTime()
-        ).slice(0, 7); // Last 7 days
+            // Convert to array and sort by date
+            const salesArray = Object.values(salesByDate).sort((a, b) =>
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            ).slice(0, 7); // Last 7 days
 
-        setSalesData(salesArray);
+            setSalesData(salesArray);
 
-        // Load visitor stats
-        const visitors = getVisitorStats().sort((a, b) =>
-            new Date(b.date).getTime() - new Date(a.date).getTime()
-        ).slice(0, 7);
+            // Load visitor stats
+            const visitors = getVisitorStats().sort((a, b) =>
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            ).slice(0, 7);
 
-        setVisitorData(visitors);
+            setVisitorData(visitors);
+        };
+        fetchStats();
     }, []);
 
     const totalRevenue = salesData.reduce((sum, d) => sum + d.revenue, 0);

@@ -13,15 +13,18 @@ function ShopContent() {
     const query = searchParams?.get('q');
 
     useEffect(() => {
-        let allProducts = getProducts();
-        if (query) {
-            allProducts = allProducts.filter(p =>
-                p.name.toLowerCase().includes(query.toLowerCase()) ||
-                p.brand.toLowerCase().includes(query.toLowerCase()) ||
-                p.category.toLowerCase().includes(query.toLowerCase())
-            );
-        }
-        setProducts(allProducts);
+        const fetchProducts = async () => {
+            let allProducts = await getProducts();
+            if (query) {
+                allProducts = allProducts.filter(p =>
+                    p.name.toLowerCase().includes(query.toLowerCase()) ||
+                    p.brand.toLowerCase().includes(query.toLowerCase()) ||
+                    p.category.toLowerCase().includes(query.toLowerCase())
+                );
+            }
+            setProducts(allProducts);
+        };
+        fetchProducts();
     }, [query]);
 
     return (
