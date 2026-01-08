@@ -22,8 +22,11 @@ export default function ProductDetailPage(props: Props) {
     const [product, setProduct] = useState<Product | null>(null);
 
     useEffect(() => {
-        const fetchedProduct = getProductById(id);
-        setProduct(fetchedProduct || null);
+        const fetchProduct = async () => {
+            const fetchedProduct = await getProductById(id);
+            setProduct(fetchedProduct || null);
+        };
+        fetchProduct();
     }, [id]);
 
     if (!product) {
