@@ -1,7 +1,6 @@
 // utils/userStorage.ts
 import { AdminUser } from "@/types";
 import { supabase } from "./supabase/client";
-import { DUMMY_USERS } from "./dummyData";
 
 // Get all users from Supabase profiles
 export const getUsers = async (): Promise<AdminUser[]> => {
@@ -12,11 +11,11 @@ export const getUsers = async (): Promise<AdminUser[]> => {
 
     if (error) {
         console.error('Failed to fetch users:', error);
-        return DUMMY_USERS;
+        return [];
     }
 
     if (!data || data.length === 0) {
-        return DUMMY_USERS;
+        return [];
     }
 
     return data.map(mapDbToAdminUser);
@@ -32,7 +31,7 @@ export const getUserById = async (userId: string): Promise<AdminUser | undefined
 
     if (error) {
         console.error('Failed to fetch user:', error);
-        return DUMMY_USERS.find(u => u.id === userId || u.email === userId);
+        return undefined;
     }
 
     return data ? mapDbToAdminUser(data) : undefined;

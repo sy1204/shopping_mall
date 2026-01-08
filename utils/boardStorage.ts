@@ -1,7 +1,6 @@
 // utils/boardStorage.ts
 import { Review, ProductInquiry, OneToOneInquiry, Notice, FAQ } from "@/types";
 import { supabase } from "./supabase/client";
-import { DUMMY_NOTICES, DUMMY_FAQS } from "./dummyData";
 
 // =====================
 // REVIEWS
@@ -242,9 +241,9 @@ export const getNotices = async (): Promise<Notice[]> => {
 
     if (error) {
         console.error('Failed to fetch notices:', error);
-        return DUMMY_NOTICES;
+        return [];
     }
-    if (!data || data.length === 0) return DUMMY_NOTICES;
+    if (!data || data.length === 0) return [];
     return data.map(mapDbToNotice);
 };
 
@@ -278,9 +277,9 @@ export const getFAQs = async (): Promise<FAQ[]> => {
 
     if (error) {
         console.error('Failed to fetch FAQs:', error);
-        return DUMMY_FAQS;
+        return [];
     }
-    if (!data || data.length === 0) return DUMMY_FAQS;
+    if (!data || data.length === 0) return [];
     return data.map(mapDbToFAQ);
 };
 

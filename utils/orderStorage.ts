@@ -1,7 +1,6 @@
 // utils/orderStorage.ts
 import { Order } from "@/types";
 import { supabase } from "./supabase/client";
-import { DUMMY_ORDERS } from "./dummyData";
 
 // Get orders (optionally filtered by user)
 export const getOrders = async (userId?: string): Promise<Order[]> => {
@@ -18,11 +17,11 @@ export const getOrders = async (userId?: string): Promise<Order[]> => {
 
     if (error) {
         console.error('Failed to fetch orders:', error);
-        return userId ? DUMMY_ORDERS.filter(o => o.userId === userId) : DUMMY_ORDERS;
+        return [];
     }
 
     if (!data || data.length === 0) {
-        return userId ? DUMMY_ORDERS.filter(o => o.userId === userId) : DUMMY_ORDERS;
+        return [];
     }
 
     return data.map(mapDbToOrder);

@@ -1,7 +1,6 @@
 // utils/productStorage.ts
 import { Product } from "@/types";
 import { supabase } from "./supabase/client";
-import { DUMMY_PRODUCTS } from "./dummyData";
 
 // Get all products
 export const getProducts = async (): Promise<Product[]> => {
@@ -12,11 +11,11 @@ export const getProducts = async (): Promise<Product[]> => {
 
     if (error) {
         console.error('Failed to fetch products:', error);
-        return DUMMY_PRODUCTS; // Fallback to dummy data
+        return [];
     }
 
     if (!data || data.length === 0) {
-        return DUMMY_PRODUCTS;
+        return [];
     }
 
     return data.map(mapDbToProduct);
@@ -32,8 +31,7 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
 
     if (error) {
         console.error('Failed to fetch product:', error);
-        // Fallback: search in dummy data
-        return DUMMY_PRODUCTS.find(p => p.id === id);
+        return undefined;
     }
 
     return data ? mapDbToProduct(data) : undefined;
