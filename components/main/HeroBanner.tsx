@@ -36,10 +36,7 @@ export default function HeroBanner() {
             {/* Left: Text Content */}
             <div className="w-full lg:w-5/12 p-8 lg:p-24 flex flex-col justify-center border-r border-dashed border-gray-200 relative bg-white">
                 {/* Status Indicator */}
-                <div className="absolute top-24 left-8 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-[var(--primary)] animate-pulse rounded-full"></span>
-                    <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">시스템 온라인</span>
-                </div>
+
 
                 {/* Main Title */}
                 <h1 className="text-5xl lg:text-7xl font-serif leading-tight mb-8">
