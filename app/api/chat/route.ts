@@ -349,10 +349,10 @@ export async function POST(request: NextRequest) {
 
                 // 다양한 Fallback 템플릿
                 const FALLBACK_TEMPLATES = [
-                    (ctx, prods) => `**${ctx} ${prods} 같은 아이템은 어떠신가요? 현재 트렌드에 부합하면서도 고객님의 취향을 반영한 추천입니다.`,
-                    (ctx, prods) => `**분석 결과, ${prods} 등이 가장 적합해 보입니다. ${ctx} 특히 만족도가 높은 상품들입니다.`,
-                    (ctx, prods) => `**${prods} 등을 추천해 드리고 싶네요. ${ctx} 후회 없는 선택이 될 것입니다. 상세 정보를 확인해 보세요!`,
-                    (ctx, prods) => `**고객님의 취향 데이터에 따르면 ${prods} 제품이 매칭률이 높습니다. 소재와 디자인 모두 완성도가 높은 아이템들입니다.`
+                    (ctx: string, prods: string) => `**${ctx} ${prods} 같은 아이템은 어떠신가요? 현재 트렌드에 부합하면서도 고객님의 취향을 반영한 추천입니다.`,
+                    (ctx: string, prods: string) => `**분석 결과, ${prods} 등이 가장 적합해 보입니다. ${ctx} 특히 만족도가 높은 상품들입니다.`,
+                    (ctx: string, prods: string) => `**${prods} 등을 추천해 드리고 싶네요. ${ctx} 후회 없는 선택이 될 것입니다. 상세 정보를 확인해 보세요!`,
+                    (ctx: string, prods: string) => `**고객님의 취향 데이터에 따르면 ${prods} 제품이 매칭률이 높습니다. 소재와 디자인 모두 완성도가 높은 아이템들입니다.`
                 ];
 
                 const hexagonContext = hexagon.boldness > 0.6 ? '트렌디한 스타일을 선호하시는 고객님께' :
