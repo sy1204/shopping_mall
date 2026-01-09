@@ -16,7 +16,7 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1483985988355-763728e19
 
 export default function HeroBanner() {
     const [bannerImage, setBannerImage] = useState(DEFAULT_IMAGE);
-    const [bannerTitle, setBannerTitle] = useState("New Arrivals");
+    const [bannerTitle, setBannerTitle] = useState("뉴럴 스탠다드");
 
     useEffect(() => {
         // Load active banner from localStorage (set by admin)
@@ -32,91 +32,48 @@ export default function HeroBanner() {
     }, []);
 
     return (
-        <div className="relative w-full h-[500px] md:h-[800px] flex flex-col justify-end items-center bg-[var(--neural-black)] text-white overflow-hidden pb-16 md:pb-32">
-            {/* Background Image */}
-            <div className="absolute inset-0 opacity-90">
+        <section className="min-h-[90vh] flex flex-col lg:flex-row relative">
+            {/* Left: Text Content */}
+            <div className="w-full lg:w-5/12 p-8 lg:p-24 flex flex-col justify-center border-r border-dashed border-gray-200 relative bg-white">
+                {/* Status Indicator */}
+                <div className="absolute top-24 left-8 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-[var(--primary)] animate-pulse rounded-full"></span>
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">시스템 온라인</span>
+                </div>
+
+                {/* Main Title */}
+                <h1 className="text-5xl lg:text-7xl font-serif leading-tight mb-8">
+                    <span className="italic text-[var(--primary)]">뉴럴</span><br />
+                    스탠다드.
+                </h1>
+
+                {/* Description */}
+                <p className="font-sans text-sm text-gray-500 tracking-wider mb-12 max-w-xs leading-relaxed break-keep">
+                    알고리즘의 정밀함과 시대를 초월한 에디토리얼 큐레이션의 만남. 트렌드가 클래식으로 진화하는 곳.
+                </p>
+
+                {/* CTA Button */}
+                <div className="flex gap-6">
+                    <Link
+                        href="/shop"
+                        className="nd-btn-primary"
+                    >
+                        <span>[ 컬렉션 둘러보기 ]</span>
+                    </Link>
+                </div>
+            </div>
+
+            {/* Right: Hero Image */}
+            <div className="w-full lg:w-7/12 relative h-[50vh] lg:h-auto overflow-hidden group">
                 <Image
                     src={bannerImage}
-                    alt="Hero Banner"
+                    alt={bannerTitle}
                     fill
-                    className="object-cover object-top"
+                    className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105 grayscale hover:grayscale-0"
                     priority
                     unoptimized
                 />
             </div>
-            {/* Gradient Overlay for Text Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-
-            {/* Dash Grid Overlay */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage: `
-                        repeating-linear-gradient(
-                            0deg,
-                            transparent,
-                            transparent 79px,
-                            rgba(142, 142, 142, 0.1) 79px,
-                            rgba(142, 142, 142, 0.1) 80px
-                        )
-                    `,
-                }}
-                aria-hidden="true"
-            />
-
-            {/* Content - Positioned at bottom (below subject's face) */}
-            <div className="relative z-10 text-center px-4 max-w-4xl">
-                {/* Season Label */}
-                <span
-                    className="block text-sm md:text-base mb-4 font-mono tracking-widest uppercase text-white drop-shadow-md"
-                >
-                    2026 Spring Collection
-                </span>
-
-                {/* Main Title */}
-                <h1
-                    className="text-4xl md:text-7xl font-black mb-6 tracking-tight text-white drop-shadow-lg"
-                >
-                    {bannerTitle}
-                </h1>
-
-                {/* Subtitle */}
-                <h2
-                    className="text-2xl md:text-4xl mb-8 tracking-tight font-light text-gray-100 drop-shadow-md"
-                >
-                    Fresh Styles for the Season
-                </h2>
-
-                {/* Description */}
-                <p
-                    className="max-w-2xl mx-auto text-base md:text-lg mb-10 leading-relaxed text-gray-200 drop-shadow"
-                >
-                    최신 트렌드를 반영한 신상품을 만나보세요.
-                    <br className="hidden md:block" />
-                    특별한 할인과 함께 새로운 스타일을 경험하실 수 있습니다.
-                </p>
-
-                {/* CTA Links */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 font-mono text-sm md:text-base tracking-wide">
-                    <Link
-                        href="/shop"
-                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors text-white drop-shadow-md"
-                    >
-                        <span className="opacity-70">[</span>
-                        <span className="w-2 h-2 rounded-full bg-[var(--brand-accent)] animate-pulse"></span>
-                        <span className="font-medium">SHOP NOW</span>
-                        <span className="opacity-70">]</span>
-                    </Link>
-                    <Link
-                        href="/events"
-                        className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors text-white drop-shadow-md"
-                    >
-                        <span className="opacity-70">[</span>
-                        <span className="font-medium">VIEW SALE</span>
-                        <span className="opacity-70">]</span>
-                    </Link>
-                </div>
-            </div>
-        </div>
+        </section>
     );
 }

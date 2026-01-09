@@ -1,6 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Inter, Cormorant_Garamond, IBM_Plex_Mono, Outfit } from "next/font/google";
+import { Inter, Cormorant_Garamond, IBM_Plex_Mono, Outfit, Nanum_Myeongjo } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
@@ -17,6 +17,13 @@ const cormorant = Cormorant_Garamond({
     subsets: ["latin"],
     display: 'swap',
     variable: '--font-cormorant',
+});
+
+const nanumMyeongjo = Nanum_Myeongjo({
+    weight: ['400', '700', '800'],
+    subsets: ["latin"],
+    display: 'swap',
+    variable: '--font-display',
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -46,7 +53,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="ko" style={{ colorScheme: 'light' }} className={`${inter.variable} ${cormorant.variable} ${ibmPlexMono.variable} ${outfit.variable}`} suppressHydrationWarning>
+        <html lang="ko" style={{ colorScheme: 'light' }} className={`${inter.variable} ${cormorant.variable} ${nanumMyeongjo.variable} ${ibmPlexMono.variable} ${outfit.variable}`} suppressHydrationWarning>
             <body className={inter.className}>
                 <DesignLoader />
                 <AuthProvider>

@@ -29,53 +29,60 @@ export default function Header() {
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full border-b border-[var(--tech-silver)] border-opacity-20 bg-white/95 backdrop-blur-md">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                    {/* [N-D] Logo - prevent wrapping */}
+            <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md transition-all duration-300">
+                <div className="max-w-[1920px] mx-auto flex h-20 items-center justify-between px-6 lg:px-12">
+                    {/* [N-D] Logo */}
                     <Link
                         href="/"
-                        className="font-logo text-2xl md:text-4xl font-black tracking-tight text-[var(--neural-black)] hover:text-[var(--brand-accent)] transition-colors whitespace-nowrap shrink-0"
+                        className="nd-logo font-serif text-2xl lg:text-3xl font-light tracking-widest text-[var(--neural-black)] whitespace-nowrap shrink-0"
                     >
-                        [N-D]
+                        <span className="nd-logo-bracket nd-logo-bracket-left font-sans font-light">[</span>
+                        <span className="font-bold">N</span>
+                        <span className="text-[var(--primary)]">-</span>
+                        <span className="font-bold">D</span>
+                        <span className="nd-logo-bracket nd-logo-bracket-right font-sans font-light">]</span>
                     </Link>
 
                     {/* GNB - Hidden on mobile */}
-                    <nav className="hidden lg:flex gap-8 text-sm font-medium font-mono">
-                        <Link
-                            href="/shop"
-                            className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
-                        >
-                            <span>[N-to-D] ESSENTIALS</span>
+                    {/* GNB Navigation */}
+                    <nav className="hidden lg:flex items-center gap-12 text-xs uppercase tracking-[0.2em] font-medium">
+                        <Link href="/shop" className="nd-link hover:text-[var(--primary)] transition-colors">
+                            쇼핑
                         </Link>
-                        <Link
-                            href="/events"
-                            className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
-                        >
-                            <span>[N-in-D] HERITAGE</span>
+                        <Link href="/events" className="nd-link hover:text-[var(--primary)] transition-colors">
+                            에디토리얼
                         </Link>
-                        <Link
-                            href="/open-shop"
-                            className="group flex items-center gap-2 hover:text-[var(--brand-accent)] transition-colors"
-                        >
-                            <span>[N-beyond-D] LAB</span>
+                    </nav>
+
+                    {/* Right Navigation */}
+                    <nav className="hidden lg:flex items-center gap-8 text-xs uppercase tracking-[0.2em] font-medium">
+                        <Link href="/chat" className="group flex items-center gap-1 hover:text-[var(--primary)] transition-colors">
+                            <span className="text-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity">●</span>
+                            [ N-to-D ]
+                        </Link>
+                        <Link href="/open-shop" className="group flex items-center gap-1 hover:text-[var(--primary)] transition-colors">
+                            <span className="text-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity">●</span>
+                            [ N-in-D ]
                         </Link>
                     </nav>
 
                     {/* Desktop Utilities - Hidden on mobile */}
-                    <div className="hidden md:flex items-center gap-4 text-sm font-mono">
-                        <span className="text-[var(--tech-silver)] opacity-30">─</span>
-
+                    {/* Utility Icons */}
+                    <div className="hidden md:flex items-center gap-4">
                         <button
                             onClick={() => setIsSearchOpen(!isSearchOpen)}
-                            className="hover:text-[var(--brand-accent)] transition-colors"
+                            className="hover:text-[var(--primary)] transition-colors p-2"
+                            aria-label="검색"
                         >
-                            {isSearchOpen ? '[ X ]' : 'SEARCH'}
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                            </svg>
                         </button>
 
                         {user?.isAdmin && (
                             <Link
                                 href="/admin"
-                                className="text-[var(--brand-accent)] font-semibold hover:underline"
+                                className="text-[var(--primary)] font-semibold hover:underline"
                             >
                                 ADMIN
                             </Link>
@@ -84,9 +91,11 @@ export default function Header() {
                         {user ? (
                             <button
                                 onClick={logout}
-                                className="hover:text-[var(--neural-black)] text-[var(--tech-silver)] transition-colors"
+                                className="hover:text-[var(--primary)] text-[var(--tech-silver)] transition-colors p-2"
                             >
-                                LOGOUT
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                                </svg>
                             </button>
                         ) : (
                             <>
@@ -107,20 +116,19 @@ export default function Header() {
 
                         <Link
                             href="/mypage"
-                            className="hover:text-[var(--brand-accent)] transition-colors"
+                            className="hover:text-[var(--primary)] transition-colors p-2"
                         >
-                            MY PAGE
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
                         </Link>
 
-                        <Link href="/checkout" className="relative hover:text-[var(--brand-accent)] transition-colors">
-                            CART
+                        <Link href="/checkout" className="relative hover:text-[var(--primary)] transition-colors p-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
                             {cartCount > 0 && (
-                                <span className="absolute -top-2 -right-3 flex items-center justify-center">
-                                    <Node state="active" size="sm" pulsing />
-                                    <span className="ml-1 text-[10px] font-bold text-[var(--brand-accent)]">
-                                        {cartCount}
-                                    </span>
-                                </span>
+                                <span className="absolute top-0 right-0 w-2 h-2 bg-[var(--primary)] rounded-full"></span>
                             )}
                         </Link>
 

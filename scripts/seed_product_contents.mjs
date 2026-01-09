@@ -8,11 +8,24 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Environment variables (from .env.local)
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgqjkpodrsvabzlmumlm.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_Eg1El6407SBdcEAni8Ze6A_mQNlxScS';
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCfX4Ks_h-yPBIFxy7CCYCLwqiJmft9fZ4';
+// Load .env.local
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+
+// Environment variables
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
+    console.error('❌ 필수 환경 변수가 누락되었습니다 (.env.local 확인 필요)');
+    process.exit(1);
+}
 
 // Supabase client with service role (bypasses RLS)
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);

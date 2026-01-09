@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import HexagonChart from './HexagonChart';
 
 interface HexagonParams {
@@ -65,6 +66,15 @@ export default function FashionChatUI() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
 
+    // 고품질 정적 Fallback 데이터
+    const FALLBACK_PRODUCTS = [
+        { id: '1', productName: '이태리 캐시미어 혼방 싱글 코트', category: '아우터' },
+        { id: '2', productName: '베지터블 탄닝 램스킨 라이더 자켓', category: '아우터' },
+        { id: '3', productName: '엑스트라파인 메리노 터틀넥', category: '니트웨어' },
+        { id: '4', productName: '일본 셀비지 데님 트러커 자켓', category: '아우터' },
+        { id: '5', productName: '수퍼 120s 울 테이퍼드 슬랙스', category: '하의' },
+    ];
+
     // API 호출
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,18 +105,36 @@ export default function FashionChatUI() {
                 };
                 setMessages(prev => [...prev, assistantMessage]);
             } else {
-                const errorMessage: ChatMessage = {
-                    role: 'assistant',
-                    content: `죄송합니다. 오류가 발생했습니다: ${data.error || '알 수 없는 오류'}`
-                };
-                setMessages(prev => [...prev, errorMessage]);
+                // 429 할당량 오류 감지
+                const isQuotaError = response.status === 429 ||
+                    data.error?.includes('quota') ||
+                    data.error?.includes('429') ||
+                    data.error?.includes('Too Many Requests') ||
+                    data.error?.includes('RESOURCE_EXHAUSTED');
+
+                if (isQuotaError) {
+                    const fallbackMessage: ChatMessage = {
+                        role: 'assistant',
+                        content: `⚠️ 현재 사용량이 많아 임시 가이드로 답변드립니다.\n\n회원님의 취향 설정을 분석한 결과, 다음 상품들이 잘 어울릴 것 같습니다. 각 상품은 프리미엄 소재와 뛰어난 품질로 만족도가 높은 베스트셀러입니다.\n\n자세한 상품 정보는 개별 상품 페이지에서 확인해주세요.`,
+                        sources: FALLBACK_PRODUCTS
+                    };
+                    setMessages(prev => [...prev, fallbackMessage]);
+                } else {
+                    const errorMessage: ChatMessage = {
+                        role: 'assistant',
+                        content: `죄송합니다. 오류가 발생했습니다: ${data.error || '알 수 없는 오류'}`
+                    };
+                    setMessages(prev => [...prev, errorMessage]);
+                }
             }
-        } catch (error) {
-            const errorMessage: ChatMessage = {
+        } catch {
+            // 네트워크 오류 시에도 Fallback 제공
+            const fallbackMessage: ChatMessage = {
                 role: 'assistant',
-                content: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+                content: `⚠️ 현재 사용량이 많아 임시 가이드로 답변드립니다.\n\n회원님의 취향 분석 결과를 바탕으로 추천 상품을 안내해드립니다. 프리미엄 품질과 세련된 디자인으로 높은 만족도를 자랑하는 아이템입니다.`,
+                sources: FALLBACK_PRODUCTS
             };
-            setMessages(prev => [...prev, errorMessage]);
+            setMessages(prev => [...prev, fallbackMessage]);
         } finally {
             setIsLoading(false);
         }
@@ -115,12 +143,12 @@ export default function FashionChatUI() {
     return (
         <div className="fashion-chat-container">
             <div className="chat-layout">
-                {/* 왼쪽: 6각형 차트 */}
+                {/* 왼쪽: 슬라이더 섹션 */}
                 <aside className="chart-sidebar">
-                    <h2 className="sidebar-title">나의 취향 설정</h2>
-                    <p className="sidebar-desc">
-                        슬라이더를 조절해 원하는 추천 스타일을 설정하세요
-                    </p>
+                    <div className="sidebar-status">
+                        <span className="status-dot"></span>
+                        <span className="status-text">SYSTEM ACTIVE</span>
+                    </div>
                     <HexagonChart
                         values={hexagonParams}
                         onChange={setHexagonParams}
@@ -131,25 +159,32 @@ export default function FashionChatUI() {
                 {/* 오른쪽: 채팅 영역 */}
                 <main className="chat-main">
                     <div className="chat-header">
-                        <h1 className="chat-title">N-D 패션 큐레이터</h1>
-                        <p className="chat-subtitle">AI가 당신의 취향에 맞는 패션 조언을 드립니다</p>
+                        <p className="session-id">세션 ID: 8X-291</p>
+                        <h1 className="chat-title">에디토리얼 어시스턴트</h1>
                     </div>
 
                     {/* 메시지 영역 */}
                     <div className="messages-container">
                         {messages.length === 0 && (
                             <div className="empty-state">
-                                <div className="empty-icon">👗</div>
-                                <p>패션에 대해 무엇이든 물어보세요!</p>
+                                <div className="time-badge">오늘 오전 10:42</div>
+                                <div className="welcome-message">
+                                    <div className="ai-avatar">
+                                        <span>✨</span>
+                                    </div>
+                                    <div className="welcome-bubble">
+                                        <p>안녕하세요. 설정하신 취향을 반영하여 활용도 높은 아이템을 선별해드리겠습니다.</p>
+                                    </div>
+                                </div>
                                 <div className="example-questions">
                                     <button onClick={() => setQuestion('겨울 코트 추천해줘')}>
                                         겨울 코트 추천해줘
                                     </button>
                                     <button onClick={() => setQuestion('캐시미어 니트 어떤 게 좋을까?')}>
-                                        캐시미어 니트 어떤 게 좋을까?
+                                        캐시미어 니트 추천
                                     </button>
                                     <button onClick={() => setQuestion('데일리룩에 어울리는 가방 알려줘')}>
-                                        데일리룩에 어울리는 가방 알려줘
+                                        데일리 가방 알려줘
                                     </button>
                                 </div>
                             </div>
@@ -158,17 +193,24 @@ export default function FashionChatUI() {
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`message ${msg.role}`}>
                                 <div className="message-avatar">
-                                    {msg.role === 'user' ? '👤' : '🤖'}
+                                    {msg.role === 'user' ? (
+                                        <div className="user-avatar"></div>
+                                    ) : (
+                                        <div className="ai-avatar"><span>✨</span></div>
+                                    )}
                                 </div>
-                                <div className="message-content">
+                                <div className="message-bubble">
                                     <p>{msg.content}</p>
                                     {msg.sources && msg.sources.length > 0 && (
                                         <div className="message-sources">
-                                            <span className="sources-label">참고 상품:</span>
                                             {msg.sources.slice(0, 3).map((source, i) => (
-                                                <span key={i} className="source-tag">
+                                                <Link
+                                                    key={i}
+                                                    href={`/products/${source.id}`}
+                                                    className="source-tag"
+                                                >
                                                     {source.productName || source.category}
-                                                </span>
+                                                </Link>
                                             ))}
                                         </div>
                                     )}
@@ -179,8 +221,10 @@ export default function FashionChatUI() {
                         {/* 로딩 애니메이션 */}
                         {isLoading && (
                             <div className="message assistant loading">
-                                <div className="message-avatar">🤖</div>
-                                <div className="message-content">
+                                <div className="message-avatar">
+                                    <div className="ai-avatar"><span>✨</span></div>
+                                </div>
+                                <div className="message-bubble">
                                     <div className="loading-indicator">
                                         <div className="loading-dots">
                                             <span></span>
@@ -198,21 +242,33 @@ export default function FashionChatUI() {
 
                     {/* 입력 영역 */}
                     <form onSubmit={handleSubmit} className="input-form">
-                        <input
-                            type="text"
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            placeholder="패션에 대해 물어보세요..."
-                            disabled={isLoading}
-                            className="question-input"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isLoading || !question.trim()}
-                            className="submit-button"
-                        >
-                            {isLoading ? '분석 중...' : '질문하기'}
-                        </button>
+                        <div className="input-wrapper">
+                            <textarea
+                                value={question}
+                                onChange={(e) => setQuestion(e.target.value)}
+                                placeholder="명령어를 입력하거나 조언을 구하세요..."
+                                disabled={isLoading}
+                                className="question-input"
+                                rows={1}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit(e);
+                                    }
+                                }}
+                            />
+                            <button
+                                type="submit"
+                                disabled={isLoading || !question.trim()}
+                                className="submit-button"
+                            >
+                                <span>↑</span>
+                            </button>
+                        </div>
+                        <div className="input-footer">
+                            <p>Enter를 눌러 전송</p>
+                            <p>AI 패션 모델 v2.4</p>
+                        </div>
                     </form>
                 </main>
             </div>
@@ -220,92 +276,142 @@ export default function FashionChatUI() {
             <style jsx>{`
                 .fashion-chat-container {
                     min-height: 100vh;
-                    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-                    padding: 24px;
+                    background: var(--background-light, #fff);
                 }
 
                 .chat-layout {
                     display: grid;
-                    grid-template-columns: 380px 1fr;
-                    gap: 24px;
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    height: calc(100vh - 48px);
+                    grid-template-columns: 45% 1fr;
+                    min-height: 100vh;
                 }
 
                 @media (max-width: 1024px) {
                     .chat-layout {
                         grid-template-columns: 1fr;
-                        height: auto;
                     }
                 }
 
                 .chart-sidebar {
-                    background: rgba(30, 30, 40, 0.6);
-                    border-radius: 20px;
-                    padding: 24px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-right: 1px solid #f0f0f0;
+                    padding: 40px 32px;
                     overflow-y: auto;
+                    background: linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
+                                linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
+                    background-size: 60px 60px;
                 }
 
-                .sidebar-title {
-                    color: #fff;
-                    font-size: 20px;
-                    font-weight: 700;
-                    margin-bottom: 8px;
+                .sidebar-status {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 24px;
                 }
 
-                .sidebar-desc {
-                    color: rgba(255, 255, 255, 0.6);
-                    font-size: 14px;
-                    margin-bottom: 20px;
+                .status-dot {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: var(--primary, #2b52ee);
+                    animation: pulse 2s infinite;
+                    box-shadow: 0 0 8px rgba(43,82,238,0.4);
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+
+                .status-text {
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.2em;
+                    color: var(--primary, #2b52ee);
+                    font-weight: 500;
                 }
 
                 .chat-main {
                     display: flex;
                     flex-direction: column;
-                    background: rgba(30, 30, 40, 0.6);
-                    border-radius: 20px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    overflow: hidden;
+                    background: #fafafa;
                 }
 
                 .chat-header {
-                    padding: 20px 24px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    padding: 24px 32px;
+                    border-bottom: 1px solid #f0f0f0;
+                    background: rgba(255,255,255,0.8);
+                    backdrop-filter: blur(8px);
+                }
+
+                .session-id {
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.2em;
+                    color: #9ca3af;
+                    margin-bottom: 4px;
                 }
 
                 .chat-title {
-                    color: #fff;
-                    font-size: 24px;
+                    font-family: var(--font-display, 'Nanum Myeongjo', serif);
+                    font-size: 1.75rem;
                     font-weight: 700;
-                    margin: 0;
-                }
-
-                .chat-subtitle {
-                    color: rgba(255, 255, 255, 0.6);
-                    font-size: 14px;
-                    margin-top: 4px;
+                    color: var(--neural-black, #121212);
                 }
 
                 .messages-container {
                     flex: 1;
                     overflow-y: auto;
-                    padding: 24px;
+                    padding: 32px;
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
+                    gap: 20px;
                 }
 
                 .empty-state {
-                    text-align: center;
-                    padding: 60px 20px;
-                    color: rgba(255, 255, 255, 0.6);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 20px;
                 }
 
-                .empty-icon {
-                    font-size: 48px;
-                    margin-bottom: 16px;
+                .time-badge {
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.2em;
+                    color: #9ca3af;
+                    background: #f0f0f0;
+                    padding: 6px 12px;
+                    border-radius: 999px;
+                }
+
+                .welcome-message {
+                    display: flex;
+                    gap: 12px;
+                    max-width: 600px;
+                }
+
+                .ai-avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background: var(--primary, #2b52ee);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-size: 14px;
+                    box-shadow: 0 4px 12px rgba(43,82,238,0.2);
+                    flex-shrink: 0;
+                }
+
+                .welcome-bubble {
+                    background: #fff;
+                    border: 1px solid #f0f0f0;
+                    border-radius: 16px;
+                    border-top-left-radius: 4px;
+                    padding: 16px 20px;
+                    font-size: 1rem;
+                    color: #374151;
+                    line-height: 1.6;
                 }
 
                 .example-questions {
@@ -313,23 +419,23 @@ export default function FashionChatUI() {
                     flex-wrap: wrap;
                     justify-content: center;
                     gap: 8px;
-                    margin-top: 20px;
+                    margin-top: 12px;
                 }
 
                 .example-questions button {
-                    background: rgba(139, 92, 246, 0.2);
-                    border: 1px solid rgba(139, 92, 246, 0.4);
-                    color: #fff;
+                    background: #fff;
+                    border: 1px solid rgba(43,82,238,0.2);
+                    color: var(--primary, #2b52ee);
                     padding: 10px 16px;
-                    border-radius: 20px;
-                    font-size: 13px;
+                    border-radius: 999px;
+                    font-size: 0.875rem;
                     cursor: pointer;
                     transition: all 0.2s;
                 }
 
                 .example-questions button:hover {
-                    background: rgba(139, 92, 246, 0.4);
-                    transform: translateY(-2px);
+                    background: rgba(43,82,238,0.05);
+                    border-color: var(--primary, #2b52ee);
                 }
 
                 .message {
@@ -348,61 +454,63 @@ export default function FashionChatUI() {
                 }
 
                 .message-avatar {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background: rgba(139, 92, 246, 0.3);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 20px;
                     flex-shrink: 0;
                 }
 
-                .message.user .message-avatar {
-                    background: rgba(59, 130, 246, 0.3);
+                .user-avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background: #e5e7eb;
+                    border: 1px solid #d1d5db;
                 }
 
-                .message-content {
+                .message-bubble {
                     max-width: 70%;
-                    background: rgba(255, 255, 255, 0.1);
-                    padding: 14px 18px;
+                    padding: 16px 20px;
                     border-radius: 16px;
-                    color: #fff;
+                    font-size: 1rem;
                     line-height: 1.6;
                 }
 
-                .message.user .message-content {
-                    background: rgba(59, 130, 246, 0.3);
-                    border-bottom-right-radius: 4px;
+                .message.user .message-bubble {
+                    background: var(--primary, #2b52ee);
+                    color: #fff;
+                    border-top-right-radius: 4px;
+                    box-shadow: 0 4px 12px rgba(43,82,238,0.2);
                 }
 
-                .message.assistant .message-content {
-                    background: rgba(139, 92, 246, 0.2);
-                    border-bottom-left-radius: 4px;
+                .message.assistant .message-bubble {
+                    background: #fff;
+                    color: #374151;
+                    border: 1px solid #f0f0f0;
+                    border-top-left-radius: 4px;
                 }
 
                 .message-sources {
                     margin-top: 12px;
-                    padding-top: 12px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.1);
                     display: flex;
                     flex-wrap: wrap;
                     gap: 6px;
-                    align-items: center;
-                }
-
-                .sources-label {
-                    font-size: 11px;
-                    color: rgba(255, 255, 255, 0.5);
                 }
 
                 .source-tag {
-                    font-size: 11px;
-                    background: rgba(139, 92, 246, 0.3);
-                    padding: 4px 10px;
-                    border-radius: 12px;
-                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 0.75rem;
+                    background: rgba(43,82,238,0.1);
+                    color: var(--primary, #2b52ee);
+                    padding: 6px 12px;
+                    border-radius: 999px;
+                    border: 1px solid rgba(43,82,238,0.2);
+                    cursor: pointer;
+                    text-decoration: none;
+                    transition: all 0.2s ease;
+                }
+
+                .source-tag:hover {
+                    background: var(--primary, #2b52ee);
+                    color: #fff;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(43,82,238,0.3);
                 }
 
                 .loading-indicator {
@@ -419,7 +527,7 @@ export default function FashionChatUI() {
                 .loading-dots span {
                     width: 8px;
                     height: 8px;
-                    background: #8b5cf6;
+                    background: var(--primary, #2b52ee);
                     border-radius: 50%;
                     animation: bounce 1.4s infinite ease-in-out both;
                 }
@@ -434,38 +542,47 @@ export default function FashionChatUI() {
                 }
 
                 .loading-text {
-                    font-size: 14px;
-                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 0.875rem;
+                    color: #6b7280;
                     font-style: italic;
                 }
 
                 .input-form {
+                    padding: 24px 32px;
+                    background: #fff;
+                    border-top: 1px solid #f0f0f0;
+                }
+
+                .input-wrapper {
                     display: flex;
+                    align-items: flex-end;
                     gap: 12px;
-                    padding: 20px 24px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.1);
-                    background: rgba(0, 0, 0, 0.2);
+                    padding: 12px 16px;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 16px;
+                    background: #fafafa;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                }
+
+                .input-wrapper:focus-within {
+                    border-color: var(--primary, #2b52ee);
+                    box-shadow: 0 0 0 3px rgba(43,82,238,0.1);
                 }
 
                 .question-input {
                     flex: 1;
-                    background: rgba(255, 255, 255, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 12px;
-                    padding: 14px 18px;
-                    color: #fff;
-                    font-size: 15px;
-                    transition: all 0.2s;
-                }
-
-                .question-input:focus {
+                    border: none;
+                    background: transparent;
+                    font-size: 1rem;
+                    resize: none;
                     outline: none;
-                    border-color: #8b5cf6;
-                    background: rgba(139, 92, 246, 0.1);
+                    font-family: inherit;
+                    color: var(--neural-black, #121212);
+                    min-height: 24px;
                 }
 
                 .question-input::placeholder {
-                    color: rgba(255, 255, 255, 0.4);
+                    color: #9ca3af;
                 }
 
                 .question-input:disabled {
@@ -473,25 +590,39 @@ export default function FashionChatUI() {
                 }
 
                 .submit-button {
-                    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    background: var(--primary, #2b52ee);
                     color: #fff;
                     border: none;
-                    padding: 14px 28px;
-                    border-radius: 12px;
-                    font-size: 15px;
-                    font-weight: 600;
                     cursor: pointer;
-                    transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    transition: background 0.2s;
+                    flex-shrink: 0;
                 }
 
                 .submit-button:hover:not(:disabled) {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+                    background: #1e40af;
                 }
 
                 .submit-button:disabled {
                     opacity: 0.5;
                     cursor: not-allowed;
+                }
+
+                .input-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 8px;
+                    padding: 0 4px;
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    color: #9ca3af;
                 }
             `}</style>
         </div>

@@ -4,97 +4,75 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/types";
-import Bracket from "@/components/ui/Bracket";
-import Dash from "@/components/ui/Dash";
-import { useState } from "react";
 
 interface ProductCardProps {
     product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-    const [isHovered, setIsHovered] = useState(false);
-
     return (
-        <Link
-            href={`/shop/${product.id}`}
-            className="group block"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <div className="relative overflow-hidden bg-white border border-[var(--tech-silver)] border-opacity-10 transition-all duration-300 hover:border-[var(--brand-accent)] hover:border-opacity-30">
-                {/* Product Image */}
-                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-                    {product.images && product.images.length > 0 ? (
-                        <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            fill
-                            unoptimized
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                    ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-300">
-                            <span className="text-xs font-mono">NO IMAGE</span>
-                        </div>
-                    )}
+        <Link href={`/shop/${product.id}`} className="nd-product-card group block">
+            {/* Product Image */}
+            <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-4">
+                {product.images && product.images.length > 0 ? (
+                    <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        unoptimized
+                        className="nd-product-image object-cover hover-grayscale"
+                    />
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-300 bg-gray-100">
+                        <span className="text-xs uppercase tracking-widest">No Image</span>
+                    </div>
+                )}
 
-                    {/* Dash Overlay on Hover */}
-                    {isHovered && (
-                        <div className="absolute inset-0 pointer-events-none">
-                            <div className="absolute top-0 left-0 right-0">
-                                <Dash opacity={0.3} />
-                            </div>
-                            <div className="absolute bottom-0 left-0 right-0">
-                                <Dash opacity={0.3} />
-                            </div>
-                        </div>
-                    )}
+                {/* Quick Add Button - Appears on hover */}
+                <div className="nd-add-btn absolute bottom-4 left-4 right-4">
+                    <div className="bg-white/90 backdrop-blur border border-gray-200 py-3 text-center text-xs uppercase tracking-widest font-medium hover:bg-[var(--neural-black)] hover:text-white transition-colors">
+                        [ 빠른 보기 ]
+                    </div>
                 </div>
 
-                {/* Product Info */}
-                <div className="p-4 space-y-2">
-                    {/* Brand */}
-                    {product.brand && (
-                        <p className="text-xs font-mono text-[var(--tech-silver)] tracking-wider">
-                            {product.brand}
-                        </p>
-                    )}
+                {/* Sale Badge */}
+                {product.discount_rate && product.discount_rate > 0 && (
+                    <div className="absolute top-3 left-3 bg-[var(--primary)] text-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
+                        Sale
+                    </div>
+                )}
+            </div>
 
-                    {/* Title with Bracket */}
-                    <h3 className="text-sm font-medium text-[var(--neural-black)] line-clamp-2 min-h-[2.5rem]">
-                        <Bracket variant={isHovered ? "hover" : "default"}>
-                            <span className={isHovered ? "font-semibold" : ""}>
-                                {product.name}
-                            </span>
-                        </Bracket>
-                    </h3>
+            {/* Product Info */}
+            <div className="space-y-2">
+                {/* Brand */}
+                {product.brand && (
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
+                        {product.brand}
+                    </p>
+                )}
 
-                    {/* Price - Monospace */}
-                    <div className="flex items-baseline gap-2 font-mono">
-                        {product.discount_rate && product.discount_rate > 0 ? (
-                            <>
-                                <span className="text-sm text-[var(--tech-silver)] line-through">
-                                    ₩{product.original_price?.toLocaleString()}
-                                </span>
-                                <span className="text-base font-semibold text-[var(--brand-accent)]">
-                                    ₩{product.price.toLocaleString()}
-                                </span>
-                                <span className="text-xs text-[var(--brand-accent)]">
-                                    {product.discount_rate}%
-                                </span>
-                            </>
-                        ) : (
-                            <span className="text-base font-semibold text-[var(--neural-black)]">
+                {/* Product Name */}
+                <h3 className="nd-product-name text-base leading-snug line-clamp-2">
+                    {product.name}
+                </h3>
+
+                {/* Price */}
+                <div className="flex items-baseline gap-2 font-mono text-sm">
+                    {product.discount_rate && product.discount_rate > 0 ? (
+                        <>
+                            <span className="text-[var(--primary)] font-semibold">
                                 ₩{product.price.toLocaleString()}
                             </span>
-                        )}
-                    </div>
-
-                    {/* Bottom Dash */}
-                    <div className="pt-3">
-                        <Dash opacity={isHovered ? 0.4 : 0.1} />
-                    </div>
+                            <span className="text-gray-400 line-through text-xs">
+                                ₩{product.original_price?.toLocaleString()}
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-[var(--neural-black)]">
+                            ₩{product.price.toLocaleString()}
+                        </span>
+                    )}
                 </div>
             </div>
         </Link>

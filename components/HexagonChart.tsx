@@ -1,15 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import {
-    Radar,
-    RadarChart,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis,
-    ResponsiveContainer,
-    Tooltip
-} from 'recharts';
+import React, { useCallback } from 'react';
 
 interface HexagonParams {
     boldness: number;        // 도전성
@@ -29,50 +20,41 @@ interface HexagonChartProps {
 const PARAM_LABELS: Record<keyof HexagonParams, string> = {
     boldness: '도전성',
     materialValue: '소재',
-    utility: '실용',
-    reliability: '신뢰',
-    comfort: '편안',
-    exclusivity: '희소'
+    utility: '실용성',
+    reliability: '신뢰도',
+    comfort: '편안함',
+    exclusivity: '희소성'
 };
 
 // Low → High 설명
 const PARAM_DESCRIPTIONS: Record<keyof HexagonParams, { low: string; high: string }> = {
     boldness: {
-        low: '무난한 기본템',
-        high: '파격적이고 트렌디한 디자인'
+        low: '기본 아이템',
+        high: '과감한 트렌드 디자인'
     },
     materialValue: {
-        low: '일반적인 혼용률',
-        high: '희소 소재 및 특수 공법'
+        low: '일반 혼방',
+        high: '희귀 섬유 & 테크 패브릭'
     },
     utility: {
-        low: '특정 상황용(경조사 등)',
-        high: '범용성 높은 데일리템'
+        low: '격식있는 옷',
+        high: '다용도 데일리 룩'
     },
     reliability: {
-        low: '신규/실험적 상품',
+        low: '실험적 신상',
         high: '검증된 베스트셀러'
     },
     comfort: {
-        low: '포멀하고 딱딱한 핏',
-        high: '활동성 높고 여유로운 핏'
+        low: '구조적 포멀',
+        high: '활동성 높은 릴랙스'
     },
     exclusivity: {
-        low: '대중적인 기성품',
-        high: '장인정신 및 리미티드'
+        low: '대중적 인기',
+        high: '장인정신 & 리미티드'
     }
 };
 
 export default function HexagonChart({ values, onChange, disabled = false }: HexagonChartProps) {
-    const [activeParam, setActiveParam] = useState<keyof HexagonParams | null>(null);
-
-    // Chart data 변환
-    const chartData = Object.entries(values).map(([key, value]) => ({
-        param: PARAM_LABELS[key as keyof HexagonParams],
-        value: value * 100,
-        fullMark: 100,
-        key: key as keyof HexagonParams
-    }));
 
     // 슬라이더 변경 핸들러
     const handleSliderChange = useCallback((param: keyof HexagonParams, newValue: number) => {
@@ -85,72 +67,29 @@ export default function HexagonChart({ values, onChange, disabled = false }: Hex
 
     return (
         <div className="hexagon-chart-container">
-            {/* 레이더 차트 */}
-            <div className="chart-wrapper">
-                <ResponsiveContainer width="100%" height={280}>
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
-                        <PolarGrid
-                            gridType="polygon"
-                            stroke="rgba(255,255,255,0.2)"
-                        />
-                        <PolarAngleAxis
-                            dataKey="param"
-                            tick={{ fill: '#fff', fontSize: 12 }}
-                        />
-                        <PolarRadiusAxis
-                            angle={90}
-                            domain={[0, 100]}
-                            tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }}
-                            tickCount={5}
-                        />
-                        <Radar
-                            name="취향"
-                            dataKey="value"
-                            stroke="#8b5cf6"
-                            fill="#8b5cf6"
-                            fillOpacity={0.4}
-                            strokeWidth={2}
-                        />
-                        <Tooltip
-                            content={({ payload }) => {
-                                if (!payload?.length) return null;
-                                const data = payload[0].payload;
-                                const desc = PARAM_DESCRIPTIONS[data.key as keyof HexagonParams];
-                                return (
-                                    <div className="chart-tooltip">
-                                        <div className="tooltip-title">{data.param}</div>
-                                        <div className="tooltip-value">{Math.round(data.value)}%</div>
-                                        <div className="tooltip-desc">
-                                            {data.value <= 50 ? desc.low : desc.high}
-                                        </div>
-                                    </div>
-                                );
-                            }}
-                        />
-                    </RadarChart>
-                </ResponsiveContainer>
+            {/* 제목 */}
+            <div className="chart-header">
+                <h2 className="chart-title">나의 취향 설정</h2>
+                <p className="chart-subtitle">
+                    슬라이더를 조절하여 AI 큐레이션 로직을 정교하게 설정하세요.
+                </p>
             </div>
 
-            {/* 슬라이더 컨트롤 */}
-            <div className="sliders-container">
+            {/* 슬라이더 카드 그리드 */}
+            <div className="sliders-grid">
                 {(Object.keys(values) as Array<keyof HexagonParams>).map((param) => (
-                    <div
-                        key={param}
-                        className={`slider-item ${activeParam === param ? 'active' : ''}`}
-                        onMouseEnter={() => setActiveParam(param)}
-                        onMouseLeave={() => setActiveParam(null)}
-                    >
+                    <div key={param} className="slider-card">
                         <div className="slider-header">
-                            <span className="slider-label">{PARAM_LABELS[param]}</span>
+                            <label className="slider-label">{PARAM_LABELS[param]}</label>
                             <span className="slider-value">{Math.round(values[param] * 100)}%</span>
                         </div>
                         <input
                             type="range"
                             min="0"
-                            max="1"
-                            step="0.1"
-                            value={values[param]}
-                            onChange={(e) => handleSliderChange(param, parseFloat(e.target.value))}
+                            max="100"
+                            step="10"
+                            value={values[param] * 100}
+                            onChange={(e) => handleSliderChange(param, parseInt(e.target.value) / 100)}
                             disabled={disabled}
                             className="slider-input"
                         />
@@ -161,67 +100,104 @@ export default function HexagonChart({ values, onChange, disabled = false }: Hex
                 ))}
             </div>
 
+            {/* 하단 통계 */}
+            <div className="stats-bar">
+                <div className="stat-item">
+                    <p className="stat-label">에디토리얼 스코어</p>
+                    <p className="stat-value">94</p>
+                </div>
+                <div className="stat-item">
+                    <p className="stat-label">취향 매칭</p>
+                    <p className="stat-value">Minimal</p>
+                </div>
+                <div className="stat-item">
+                    <p className="stat-label">예상 선호도</p>
+                    <div className="stat-trend">
+                        <span className="trend-icon">↑</span>
+                        <p className="trend-value">+12%</p>
+                    </div>
+                </div>
+            </div>
+
             <style jsx>{`
                 .hexagon-chart-container {
-                    background: linear-gradient(135deg, rgba(30, 30, 40, 0.9), rgba(20, 20, 30, 0.95));
-                    border-radius: 16px;
-                    padding: 24px;
-                    border: 1px solid rgba(139, 92, 246, 0.3);
+                    background: var(--background-light, #fff);
+                    padding: 0;
                 }
 
-                .chart-wrapper {
+                .chart-header {
                     margin-bottom: 24px;
                 }
 
-                .sliders-container {
+                .chart-title {
+                    font-family: var(--font-display, 'Nanum Myeongjo', serif);
+                    font-size: 2rem;
+                    font-weight: 700;
+                    font-style: italic;
+                    color: var(--neural-black, #121212);
+                    margin-bottom: 8px;
+                }
+
+                .chart-subtitle {
+                    font-family: var(--font-inter, 'Inter', sans-serif);
+                    font-size: 1rem;
+                    color: #6b7280;
+                    font-weight: 300;
+                }
+
+                .sliders-grid {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
                     gap: 16px;
+                    margin-bottom: 24px;
                 }
 
                 @media (max-width: 640px) {
-                    .sliders-container {
+                    .sliders-grid {
                         grid-template-columns: 1fr;
                     }
                 }
 
-                .slider-item {
-                    background: rgba(255, 255, 255, 0.05);
+                .slider-card {
+                    background: #fff;
+                    border: 1px solid #f0f0f0;
                     border-radius: 12px;
-                    padding: 12px;
-                    transition: all 0.2s ease;
+                    padding: 20px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                    transition: box-shadow 0.2s ease, border-color 0.2s ease;
                 }
 
-                .slider-item:hover,
-                .slider-item.active {
-                    background: rgba(139, 92, 246, 0.15);
-                    border-color: rgba(139, 92, 246, 0.5);
+                .slider-card:hover {
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    border-color: var(--primary, #2b52ee);
                 }
 
                 .slider-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 8px;
+                    margin-bottom: 12px;
                 }
 
                 .slider-label {
-                    color: #fff;
-                    font-weight: 600;
-                    font-size: 14px;
+                    font-family: var(--font-display, 'Nanum Myeongjo', serif);
+                    font-size: 1.125rem;
+                    font-weight: 700;
+                    color: var(--neural-black, #121212);
                 }
 
                 .slider-value {
-                    color: #8b5cf6;
-                    font-weight: 700;
-                    font-size: 14px;
+                    font-family: var(--font-inter, 'Inter', sans-serif);
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    color: var(--primary, #2b52ee);
                 }
 
                 .slider-input {
                     width: 100%;
-                    height: 6px;
-                    border-radius: 3px;
-                    background: rgba(255, 255, 255, 0.2);
+                    height: 4px;
+                    border-radius: 2px;
+                    background: #e5e7eb;
                     appearance: none;
                     cursor: pointer;
                     transition: opacity 0.2s;
@@ -237,50 +213,74 @@ export default function HexagonChart({ values, onChange, disabled = false }: Hex
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background: #8b5cf6;
+                    background: var(--primary, #2b52ee);
                     cursor: pointer;
-                    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.5);
+                    box-shadow: 0 0 0 2px #fff;
+                    transition: transform 0.2s ease;
+                }
+
+                .slider-input:hover::-webkit-slider-thumb {
+                    transform: scale(1.2);
                 }
 
                 .slider-input::-moz-range-thumb {
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background: #8b5cf6;
+                    background: var(--primary, #2b52ee);
                     cursor: pointer;
                     border: none;
                 }
 
                 .slider-description {
-                    color: rgba(255, 255, 255, 0.5);
-                    font-size: 11px;
-                    margin-top: 6px;
-                    line-height: 1.4;
+                    font-family: var(--font-inter, 'Inter', sans-serif);
+                    color: #9ca3af;
+                    font-size: 0.75rem;
+                    margin-top: 10px;
+                    line-height: 1.5;
                 }
 
-                :global(.chart-tooltip) {
-                    background: rgba(0, 0, 0, 0.9);
-                    border: 1px solid rgba(139, 92, 246, 0.5);
-                    border-radius: 8px;
-                    padding: 10px 14px;
+                .stats-bar {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 16px;
+                    border-top: 1px solid #f0f0f0;
+                    padding-top: 20px;
                 }
 
-                :global(.tooltip-title) {
-                    color: #8b5cf6;
-                    font-weight: 600;
-                    font-size: 13px;
+                .stat-item {
                 }
 
-                :global(.tooltip-value) {
-                    color: #fff;
-                    font-weight: 700;
-                    font-size: 18px;
-                    margin: 4px 0;
+                .stat-label {
+                    font-family: var(--font-inter, 'Inter', sans-serif);
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    color: #9ca3af;
+                    margin-bottom: 4px;
                 }
 
-                :global(.tooltip-desc) {
-                    color: rgba(255, 255, 255, 0.6);
-                    font-size: 11px;
+                .stat-value {
+                    font-family: var(--font-display, 'Nanum Myeongjo', serif);
+                    font-size: 1.75rem;
+                    font-weight: 300;
+                    color: var(--neural-black, #121212);
+                }
+
+                .stat-trend {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    color: #15803d;
+                }
+
+                .trend-icon {
+                    font-size: 0.875rem;
+                }
+
+                .trend-value {
+                    font-size: 1.25rem;
+                    font-weight: 500;
                 }
             `}</style>
         </div>

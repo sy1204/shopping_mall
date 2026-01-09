@@ -3,7 +3,7 @@
 
 @theme {
     --font-sans: var(--font-inter);
-    --font-serif: var(--font-cormorant);
+    --font-serif: var(--font-display);
     --font-mono: var(--font-ibm-mono);
 }
 
@@ -16,18 +16,24 @@
     --pure-white: #FFFFFF;
     --tech-silver: #8E8E8E;
     --logic-blue: #2F54EB;
+    --primary: #2b52ee;
     --brand-accent: #E2C49C;
-    /* 히어로 코트 색 기반의 기본 세컨색 */
     --accent-primary: var(--brand-accent);
+
+    /* New UI Colors */
+    --background-light: #ffffff;
+    --background-dark: #121212;
+    --surface-light: #f8f9fc;
+    --surface-dark: #1e1e1e;
 
     /* Legacy variables (keeping for compatibility) */
     --foreground-rgb: 18, 18, 18;
-    /* Neural Black */
     --background-start-rgb: 214, 219, 220;
     --background-end-rgb: 255, 255, 255;
 
     /* Font families */
     --font-inter: 'Inter', sans-serif;
+    --font-display: 'Nanum Myeongjo', 'Georgia', serif;
     --font-cormorant: 'Cormorant Garamond', Georgia, serif;
     --font-ibm-mono: 'IBM Plex Mono', 'Courier New', monospace;
     --font-outfit: 'Outfit', sans-serif;
@@ -311,6 +317,267 @@ body {
     * {
         transition: none !important;
     }
+}
+
+/* ============================================
+   [N-D] Link Hover Effect
+   ============================================ */
+.nd-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s ease;
+}
+
+.nd-link::before {
+    content: '[';
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    color: var(--primary);
+}
+
+.nd-link::after {
+    content: ']';
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    color: var(--primary);
+}
+
+.nd-link:hover {
+    color: var(--primary);
+}
+
+.nd-link:hover::before,
+.nd-link:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ============================================
+   [N-D] Logo Animation
+   ============================================ */
+.nd-logo-bracket {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-block;
+}
+
+.nd-logo:hover .nd-logo-bracket-left {
+    transform: translateX(-4px);
+    color: var(--primary);
+}
+
+.nd-logo:hover .nd-logo-bracket-right {
+    transform: translateX(4px);
+    color: var(--primary);
+}
+
+/* ============================================
+   [N-D] Button Styles
+   ============================================ */
+.nd-btn-primary {
+    position: relative;
+    background: var(--neural-black);
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.nd-btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 0;
+    background: var(--primary);
+    transition: width 0.25s ease;
+}
+
+.nd-btn-primary:hover::before {
+    width: 100%;
+}
+
+.nd-btn-primary span {
+    position: relative;
+    z-index: 1;
+}
+
+.nd-btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--neural-black);
+    background: transparent;
+    color: var(--neural-black);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: all 0.2s ease;
+}
+
+.nd-btn-secondary:hover {
+    background: var(--neural-black);
+    color: white;
+}
+
+/* ============================================
+   [N-D] Editorial Grid Background
+   ============================================ */
+.bg-editorial-grid {
+    background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* ============================================
+   [N-D] Infinite Dash Vertical Lines
+   ============================================ */
+.infinite-dash-vertical {
+    background-image: linear-gradient(to bottom, #e5e7eb 50%, transparent 50%);
+    background-size: 1px 24px;
+    background-repeat: repeat-y;
+}
+
+@keyframes dashY {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 0 100%;
+    }
+}
+
+.animate-dash-y {
+    animation: dashY 20s linear infinite;
+}
+
+/* ============================================
+   [N-D] Image Hover Effects
+   ============================================ */
+.hover-reveal-img {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.group:hover .hover-reveal-img {
+    clip-path: inset(0 0 0 0);
+}
+
+.hover-grayscale {
+    filter: grayscale(100%);
+    transition: filter 0.5s ease, transform 0.7s ease;
+}
+
+.hover-grayscale:hover {
+    filter: grayscale(0%);
+}
+
+/* ============================================
+   [N-D] Marquee Animation
+   ============================================ */
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 25s linear infinite;
+}
+
+/* ============================================
+   [N-D] Fade Enter Animation
+   ============================================ */
+@keyframes fadeEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-enter {
+    opacity: 0;
+    animation: fadeEnter 0.6s ease-out forwards;
+}
+
+/* ============================================
+   [N-D] Product Card Styles
+   ============================================ */
+.nd-product-card {
+    cursor: pointer;
+}
+
+.nd-product-card .nd-product-image {
+    transition: transform 0.7s ease;
+}
+
+.nd-product-card:hover .nd-product-image {
+    transform: scale(1.05);
+}
+
+.nd-product-card .nd-product-name {
+    font-family: var(--font-display);
+    font-style: italic;
+    transition: color 0.2s ease;
+}
+
+.nd-product-card:hover .nd-product-name {
+    color: var(--primary);
+}
+
+.nd-product-card .nd-add-btn {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nd-product-card:hover .nd-add-btn {
+    opacity: 1;
+}
+
+/* ============================================
+   [N-D] Spec Table
+   ============================================ */
+.nd-spec-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s ease;
+}
+
+.nd-spec-row:hover {
+    background: var(--surface-light);
+}
+
+.nd-spec-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tech-silver);
+}
+
+.nd-spec-value {
+    font-family: var(--font-display);
+    font-style: italic;
 }
 
 /* ============================================

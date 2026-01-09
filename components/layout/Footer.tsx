@@ -1,113 +1,69 @@
 // components/layout/Footer.tsx
 import Link from "next/link";
-import Bracket from "@/components/ui/Bracket";
-import Dash from "@/components/ui/Dash";
 
 export default function Footer() {
     return (
-        <footer className="border-t border-[var(--tech-silver)] border-opacity-20 bg-[var(--neural-black)] text-white py-16">
-            <div className="container mx-auto px-4">
-                {/* Top Dash */}
-                <Dash className="mb-12" opacity={0.2} />
-
-                <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
+        <footer className="bg-white border-t border-gray-100 pt-24 pb-12 px-6 lg:px-12">
+            <div className="max-w-[1920px] mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-24">
                     {/* Brand Section */}
-                    <div>
-                        <h3 className="mb-6 font-logo text-2xl font-black">
-                            [N-D]
-                        </h3>
-                        <p className="text-sm text-[var(--tech-silver)] leading-relaxed mb-4">
-                            <span className="font-semibold text-white">엔디(ND)</span> | <span className="font-semibold text-white">ND LINK</span>
-                        </p>
-                        <p className="text-sm text-[var(--tech-silver)] leading-relaxed font-mono">
-                            Neural Link & Editorial Logic
-                        </p>
-                        <p className="text-sm text-[var(--tech-silver)] leading-relaxed mt-4 italic">
-                            "Connected by logic, Worn by legacy."
-                        </p>
-                    </div>
-
-                    {/* Customer Center */}
-                    <div>
-                        <h3 className="mb-6 font-mono text-sm font-semibold tracking-wide">
-                            [ CUSTOMER CENTER ]
-                        </h3>
-                        <div className="space-y-2 font-mono text-sm text-[var(--tech-silver)]">
-                            <p>TEL: 1544-0000</p>
-                            <p>MAIL: cs@nd-link.com</p>
-                            <p className="mt-4">MON-FRI 10:00-18:00</p>
-                            <p>LUNCH 12:00-13:00</p>
+                    <div className="md:col-span-1">
+                        <div className="text-2xl font-serif font-light tracking-widest mb-6">
+                            [ N<span className="text-[var(--primary)]">-</span>D ]
                         </div>
+                        <p className="text-xs text-gray-400 max-w-[200px] leading-relaxed">
+                            Neural-Design Inc.<br />
+                            Seoul, Korea<br />
+                            cs@nd-link.com
+                        </p>
                     </div>
 
-                    {/* Navigation */}
+                    {/* Collection */}
                     <div>
-                        <h3 className="mb-6 font-mono text-sm font-semibold tracking-wide">
-                            [ NAVIGATION ]
-                        </h3>
-                        <ul className="space-y-3 font-mono text-sm">
-                            <li>
-                                <Link href="/shop" className="text-[var(--tech-silver)] hover:text-[var(--brand-accent)] transition-colors">
-                                    [N-to-D] ESSENTIALS
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/events" className="text-[var(--tech-silver)] hover:text-[var(--brand-accent)] transition-colors">
-                                    [N-in-D] HERITAGE
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/open-shop" className="text-[var(--tech-silver)] hover:text-[var(--brand-accent)] transition-colors">
-                                    [N-beyond-D] LAB
-                                </Link>
-                            </li>
-                            <li className="mt-4">
-                                <Link href="/board" className="text-[var(--tech-silver)] hover:text-white transition-colors">
-                                    COMMUNITY
-                                </Link>
-                            </li>
+                        <h4 className="text-xs font-bold uppercase tracking-widest mb-6">컬렉션</h4>
+                        <ul className="space-y-3 text-sm text-gray-500 font-light">
+                            <li><Link href="/shop" className="hover:text-[var(--primary)] transition-colors">신상품</Link></li>
+                            <li><Link href="/shop?category=best" className="hover:text-[var(--primary)] transition-colors">디 에디트</Link></li>
+                            <li><Link href="/shop?category=essential" className="hover:text-[var(--primary)] transition-colors">에센셜</Link></li>
+                            <li><Link href="/events" className="hover:text-[var(--primary)] transition-colors">아카이브</Link></li>
                         </ul>
                     </div>
 
-                    {/* Social & Info */}
+                    {/* Neural Link */}
                     <div>
-                        <h3 className="mb-6 font-mono text-sm font-semibold tracking-wide">
-                            [ CONNECT ]
-                        </h3>
-                        <div className="space-y-3 font-mono text-sm text-[var(--tech-silver)]">
-                            <p>Instagram</p>
-                            <p>Youtube</p>
-                            <p>Facebook</p>
+                        <h4 className="text-xs font-bold uppercase tracking-widest mb-6">뉴럴 링크</h4>
+                        <ul className="space-y-3 text-sm text-gray-500 font-light">
+                            <li><Link href="/mypage" className="hover:text-[var(--primary)] transition-colors">대시보드</Link></li>
+                            <li><Link href="/chat" className="hover:text-[var(--primary)] transition-colors">스타일 분석</Link></li>
+                            <li><Link href="/open-shop" className="hover:text-[var(--primary)] transition-colors">워드로브 AI</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* Connect */}
+                    <div>
+                        <h4 className="text-xs font-bold uppercase tracking-widest mb-6">커넥트</h4>
+                        <div className="flex gap-4">
+                            <a href="#" className="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors">
+                                <span className="text-xs">IG</span>
+                            </a>
+                            <a href="#" className="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors">
+                                <span className="text-xs">YT</span>
+                            </a>
+                            <a href="#" className="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors">
+                                <span className="text-xs">FB</span>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                {/* Company Info - Monospace */}
-                <div className="mt-16 pt-8 border-t border-[var(--tech-silver)] border-opacity-10">
-                    <div className="font-mono text-xs text-[var(--tech-silver)] leading-relaxed space-y-1">
-                        <p>COMPANY: [N-D] Co., Ltd. | CEO: Your Name</p>
-                        <p>BUSINESS NO: 123-45-67890 | MAIL ORDER LICENSE: 2026-Seoul-0000</p>
-                        <p>ADDRESS: Seoul, Korea</p>
-                        <p className="mt-4">
-                            Node to Dash: 현재의 선택이 미래의 레거시가 됩니다.
-                        </p>
+                {/* Bottom */}
+                <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-100 text-[10px] text-gray-400 uppercase tracking-widest">
+                    <p>© 2026 Neural-Design. All rights reserved.</p>
+                    <div className="flex gap-6 mt-4 md:mt-0">
+                        <Link href="/board" className="hover:text-[var(--neural-black)]">고객센터</Link>
+                        <Link href="#" className="hover:text-[var(--neural-black)]">개인정보 처리방침</Link>
+                        <Link href="/admin/login" className="hover:text-[var(--primary)]">[ ADMIN ]</Link>
                     </div>
-                </div>
-
-                {/* Bottom Dash */}
-                <Dash className="mt-8 mb-6" opacity={0.2} />
-
-                {/* Copyright */}
-                <div className="text-center font-mono text-xs text-[var(--tech-silver)]">
-                    <p>
-                        © 2026 [N-D] All rights reserved. | {' '}
-                        <Link href="/admin/login" className="hover:text-[var(--brand-accent)] transition-colors">
-                            [ ADMIN ]
-                        </Link>
-                    </p>
-                    <p className="mt-2 opacity-50">
-                        점(Node)과 선(Dash)의 연결로 유행을 레거시로 데이터화합니다.
-                    </p>
                 </div>
             </div>
         </footer>

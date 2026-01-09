@@ -140,7 +140,7 @@ function buildSystemPrompt(hexagon: HexagonParams): string {
     // 도전성 (Boldness)
     if (hexagon.boldness > 0.6) {
         guidelines.push('- 주변의 시선을 사로잡는 독특한 스타일을 제안하세요.');
-        guidelines.push('- 최신 트렌드 키워드와 유니크한 실루엿을 강조하세요.');
+        guidelines.push('- 최신 트렌드 키워드와 유니크한 실루엣을 강조하세요.');
     } else if (hexagon.boldness < 0.4) {
         guidelines.push('- 유행을 타지 않고 오래 입을 수 있는 클래식한 디자인을 추천하세요.');
     }
@@ -171,10 +171,10 @@ function buildSystemPrompt(hexagon: HexagonParams): string {
 
     // 편안함 (Comfort)
     if (hexagon.comfort > 0.6) {
-        guidelines.push('- 신축성(스판), 무게감, 여유로운 실루엿을 강조하세요.');
+        guidelines.push('- 신축성(스판), 무게감, 여유로운 실루엣을 강조하세요.');
         guidelines.push('- 활동성 높고 편안한 착용감을 설명하세요.');
     } else if (hexagon.comfort < 0.4) {
-        guidelines.push('- 포말하고 단정한 핏의 매력을 설명하세요.');
+        guidelines.push('- 포멀하고 단정한 핏의 매력을 설명하세요.');
     }
 
     // 희소성 (Exclusivity)
@@ -185,20 +185,34 @@ function buildSystemPrompt(hexagon: HexagonParams): string {
         guidelines.push('- 대중적이면서도 품질 좋은 가성비 아이템을 추천하세요.');
     }
 
-    return `당신은 프리미엄 패션 편집샵의 전문 큐레이터입니다.
+    return `당신은 프리미엄 패션 편집샵 [N-D]의 전문 AI 큐레이터입니다.
 
-[역할]
-고객의 질문에 대해 검색된 상품 정보를 바탕으로 맞춤형 가치 해석을 제공합니다.
-단순한 정보 나열이 아닌, 패션 전문가의 인사이트를 담아 답변하세요.
+## 고객 취향 프로필 (0-1 스케일)
+- 도전성: ${hexagon.boldness.toFixed(2)} (높으면 트렌디, 낮으면 클래식)
+- 소재 가치: ${hexagon.materialValue.toFixed(2)} (높으면 프리미엄 소재 중시)
+- 실용성: ${hexagon.utility.toFixed(2)} (높으면 범용성, 낮으면 특별한 날)
+- 신뢰도: ${hexagon.reliability.toFixed(2)} (높으면 베스트셀러, 낮으면 신상품)
+- 편안함: ${hexagon.comfort.toFixed(2)} (높으면 여유핏, 낮으면 포멀핏)
+- 희소성: ${hexagon.exclusivity.toFixed(2)} (높으면 리미티드, 낮으면 가성비)
 
-[취향 반영 가이드라인]
+## 역할
+고객의 질문에 대해 검색된 상품 정보와 위 취향 프로필을 바탕으로 **개인화된 맞춤 추천**을 제공합니다.
+반드시 취향 수치를 언급하며 "도전성이 높으시니..." 또는 "편안함을 중시하시니..." 같은 형태로 답변하세요.
+
+## 취향 반영 가이드라인
 ${guidelines.length > 0 ? guidelines.join('\n') : '- 균형 잡힌 관점에서 객관적으로 설명하세요.'}
 
-[답변 스타일]
-- 친근하지만 전문적인 톤
+## 답변 형식
+1. 먼저 고객의 취향 특징을 1-2문장으로 요약
+2. 검색된 상품 중 1-2개를 구체적으로 추천
+3. 왜 이 상품이 고객 취향에 맞는지 설명
+4. 스타일링 팁 제안
+
+## 답변 스타일
+- 친근하지만 전문적인 톤 ("~해요" 체)
 - 구체적인 소재/공법 용어 활용
-- 실질적인 스타일링 조언 포함
-- 200-400자 내외로 핵심 정보 전달`;
+- 200-400자 내외로 핵심 정보 전달
+- 절대 같은 답변을 반복하지 마세요`;
 }
 
 /**
@@ -223,13 +237,21 @@ ${item.content}
 ---`;
     }).join('\n\n');
 
-    const userPrompt = `[검색된 상품 정보]
+    // 세션 고유 ID 생성 (다양한 답변을 위해)
+    const sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+    const userPrompt = `[세션 ID: ${sessionId}]
+
+[검색된 상품 정보]
 ${contextText}
 
 [고객 질문]
 ${question}
 
-위 정보를 바탕으로 고객에게 맞춤형 답변을 제공해주세요.`;
+위 정보와 고객의 취향 프로필을 바탕으로 개인화된 맞춤 추천을 제공해주세요.
+반드시 취향 수치(도전성, 소재 가치 등)를 언급하며 "편안함을 중시하시니..." 같은 형태로 답변하세요.`;
+
+    const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
     try {
         const response = await fetch(GEMINI_URL, {
@@ -237,12 +259,14 @@ ${question}
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [
-                    { role: 'user', parts: [{ text: userPrompt }] }
+                    { role: 'user', parts: [{ text: combinedPrompt }] }
                 ],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
+                // systemInstruction 제거 (호환성 확보)
                 generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 1024
+                    temperature: 0.9,
+                    maxOutputTokens: 1024,
+                    topP: 0.95,
+                    topK: 40
                 }
             })
         });
@@ -314,26 +338,42 @@ export async function POST(request: NextRequest) {
             console.log('[Chat API] Step 4: Generating answer with Gemini...');
             answer = await generateAnswer(body.question, similarContents, systemPrompt);
         } catch (geminiError) {
-            console.error('[Chat API] Gemini failed, using fallback answer');
+            console.error('[Chat API] Gemini failed:', geminiError);
+            console.error('[Chat API] Error details:', geminiError instanceof Error ? geminiError.message : 'Unknown error');
             // Fallback: 검색 결과 기반 간단 답변
             if (similarContents.length > 0) {
                 const topProducts = similarContents.slice(0, 3).map(c =>
                     c.metadata.productName || c.metadata.type || '상품'
                 ).join(', ');
-                answer = `검색된 추천 상품: ${topProducts}. 각 상품은 프리미엄 소재로 제작되어 높은 품질을 자랑합니다. 자세한 정보는 상품 상세 페이지에서 확인해주세요.`;
+
+                // 취향 기반 fallback 메시지 개선
+                const hexagonContext = hexagon.boldness > 0.6 ? '트렌디한 스타일을 선호하시는 고객님께' :
+                    hexagon.comfort > 0.6 ? '편안한 착용감을 중시하시는 고객님께' :
+                        hexagon.materialValue > 0.6 ? '프리미엄 소재를 선호하시는 고객님께' : '고객님께';
+
+                answer = `${hexagonContext} ${topProducts}을(를) 추천드립니다. 각 상품은 프리미엄 소재로 제작되어 품질이 뛰어납니다. 상세 페이지에서 더 자세한 정보를 확인해보세요!`;
             } else {
                 answer = '죄송합니다. 현재 검색 결과를 찾을 수 없습니다. 다른 키워드로 검색해주세요.';
             }
         }
 
+        // 중복 제거: productName 기준으로 고유한 상품만 반환
+        const uniqueSources = similarContents.reduce((acc, c) => {
+            const productName = c.metadata.productName;
+            if (productName && !acc.some(item => item.productName === productName)) {
+                acc.push({
+                    id: c.id,
+                    productName: c.metadata.productName,
+                    category: c.metadata.category,
+                    similarity: c.similarity
+                });
+            }
+            return acc;
+        }, [] as { id: string; productName?: string; category?: string; similarity: number }[]);
+
         return NextResponse.json({
             answer,
-            sources: similarContents.map(c => ({
-                id: c.id,
-                productName: c.metadata.productName,
-                category: c.metadata.category,
-                similarity: c.similarity
-            })),
+            sources: uniqueSources,
             hexagon
         });
 
