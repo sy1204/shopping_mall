@@ -339,19 +339,33 @@ export async function POST(request: NextRequest) {
             answer = await generateAnswer(body.question, similarContents, systemPrompt);
         } catch (geminiError) {
             console.error('[Chat API] Gemini failed:', geminiError);
-            console.error('[Chat API] Error details:', geminiError instanceof Error ? geminiError.message : 'Unknown error');
+            const errorMsg = geminiError instanceof Error ? geminiError.message : 'Unknown error';
+
             // Fallback: 검색 결과 기반 간단 답변
             if (similarContents.length > 0) {
                 const topProducts = similarContents.slice(0, 3).map(c =>
                     c.metadata.productName || c.metadata.type || '상품'
                 ).join(', ');
 
-                // 취향 기반 fallback 메시지 개선
+                // 다양한 Fallback 템플릿
+                const FALLBACK_TEMPLATES = [
+                    (ctx, prods) => `**${ctx} ${prods} 같은 아이템은 어떠신가요? 현재 트렌드에 부합하면서도 고객님의 취향을 반영한 추천입니다.`,
+                    (ctx, prods) => `**분석 결과, ${prods} 등이 가장 적합해 보입니다. ${ctx} 특히 만족도가 높은 상품들입니다.`,
+                    (ctx, prods) => `**${prods} 등을 추천해 드리고 싶네요. ${ctx} 후회 없는 선택이 될 것입니다. 상세 정보를 확인해 보세요!`,
+                    (ctx, prods) => `**고객님의 취향 데이터에 따르면 ${prods} 제품이 매칭률이 높습니다. 소재와 디자인 모두 완성도가 높은 아이템들입니다.`
+                ];
+
                 const hexagonContext = hexagon.boldness > 0.6 ? '트렌디한 스타일을 선호하시는 고객님께' :
                     hexagon.comfort > 0.6 ? '편안한 착용감을 중시하시는 고객님께' :
                         hexagon.materialValue > 0.6 ? '프리미엄 소재를 선호하시는 고객님께' : '고객님께';
 
-                answer = `${hexagonContext} ${topProducts}을(를) 추천드립니다. 각 상품은 프리미엄 소재로 제작되어 품질이 뛰어납니다. 상세 페이지에서 더 자세한 정보를 확인해보세요!`;
+                const randomTemplate = FALLBACK_TEMPLATES[Math.floor(Math.random() * FALLBACK_TEMPLATES.length)];
+
+                // 에러 원인 힌트 추가 (디버깅용)
+                const errorHint = errorMsg.includes('429') ? '(사용량 많음)' :
+                    errorMsg.includes('400') ? '(설정 확인 필요)' : `(오류: ${errorMsg})`;
+
+                answer = `${randomTemplate(hexagonContext, topProducts)} ${errorHint}`;
             } else {
                 answer = '죄송합니다. 현재 검색 결과를 찾을 수 없습니다. 다른 키워드로 검색해주세요.';
             }
