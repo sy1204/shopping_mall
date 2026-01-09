@@ -58,11 +58,11 @@ export default function Header() {
                     <nav className="hidden lg:flex items-center gap-8 text-xs uppercase tracking-[0.2em] font-medium">
                         <Link href="/chat" className="group flex items-center gap-1 hover:text-[var(--primary)] transition-colors">
                             <span className="text-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity">●</span>
-                            [ N-to-D ]
+                            [ AI 큐레이터 ]
                         </Link>
                         <Link href="/open-shop" className="group flex items-center gap-1 hover:text-[var(--primary)] transition-colors">
                             <span className="text-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity">●</span>
-                            [ N-in-D ]
+                            [ Brand Store ]
                         </Link>
                     </nav>
 
