@@ -120,15 +120,40 @@ async function generateProductContent(category, itemType, index) {
         return JSON.parse(jsonMatch[0]);
     } catch (error) {
         console.error(`Error generating content for ${category}/${itemType}:`, error.message);
-        // Fallback content - still with realistic names
+        const FALLBACK_TEMPLATES = [
+            {
+                desc: `미니멀한 감성과 실용성을 겸비한 ${category} 아이템입니다. 군더더기 없는 깔끔한 실루엣으로 어떤 룩에도 자연스럽게 어우러지며, 탄탄한 봉제 마감으로 오랫동안 변형 없이 착용하실 수 있습니다.`,
+                review: `심플해서 자주 손이 가요. 마감도 꼼꼼하고 핏이 딱 떨어져서 마음에 듭니다.`
+            },
+            {
+                desc: `클래식한 디자인을 현대적으로 재해석한 ${itemType}입니다. 부드러운 터치감의 프리미엄 소재를 사용하여 착용감이 뛰어나며, 은은한 광택감이 고급스러움을 더해줍니다. 격식 있는 자리부터 캐주얼한 모임까지 활용도가 높습니다.`,
+                review: `생각보다 훨씬 고급스러워요. 소재가 부드럽고 몸에 감기는 느낌이 좋네요.`
+            },
+            {
+                desc: `트렌디한 오버핏 실루엣이 돋보이는 ${category}입니다. 여유로운 핏감으로 체형을 자연스럽게 커버해주며, 활동성이 좋아 데일리 아이템으로 제격입니다. 유니크한 디테일이 스타일 포인트가 되어줍니다.`,
+                review: `핏이 정말 예뻐요! 오버핏인데 부해보이지 않고 스타일리시해보입니다.`
+            },
+            {
+                desc: `장인정신이 깃든 하이엔드 퀄리티의 ${itemType}입니다. 엄선된 1등급 원단만을 사용하여 제작되었으며, 시간이 지날수록 빈티지한 멋이 살아납니다. 소장 가치가 충분한 마스터피스입니다.`,
+                review: `가격대가 있어서 고민했는데 받아보니 납득이 가네요. 퀄리티가 확실히 다릅니다.`
+            },
+            {
+                desc: `자연스러운 멋을 추구하는 분들을 위한 ${category} 컬렉션입니다. 린넨과 코튼 혼방으로 통기성이 우수하여 쾌적하며, 내추럴한 구김조차 멋스럽게 연출됩니다.`,
+                review: `시원하고 편안해요. 꾸민 듯 안 꾸민 듯 자연스러운 멋이 나서 좋아요.`
+            }
+        ];
+
+        const randomTemplate = FALLBACK_TEMPLATES[index % FALLBACK_TEMPLATES.length];
+
+        // Fallback content - with diverse templates
         return {
-            productName: `프리미엄 ${itemType}`,
-            description: `이태리산 고급 소재로 제작된 ${category} 아이템입니다. 텐타 가공으로 부드러운 촉감을 살렸으며, 해리 테이핑 마감으로 내구성을 높였습니다. 슬림한 실루엣으로 다양한 스타일링에 활용 가능합니다.`,
-            review: `소재가 정말 좋아요. 촉감이 부드럽고 핏도 완벽해요. 가격 대비 퀄리티 최고입니다. 다른 색상도 구매할 예정이에요.`,
-            rating: 5,
+            productName: `프리미엄 ${itemType} ${String.fromCharCode(65 + (index % 5))}`, // A, B, C... suffix for variety
+            description: randomTemplate.desc,
+            review: randomTemplate.review,
+            rating: 4 + (index % 2), // 4 or 5
             brand: 'N-D Atelier',
             materials: ['프리미엄 소재'],
-            techniques: ['텐타 가공', '해리 테이핑']
+            techniques: ['핸드메이드', '친환경 염료']
         };
     }
 }
