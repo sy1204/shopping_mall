@@ -245,8 +245,8 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                         </div>
                     )}
 
-                    {/* Add Image URL */}
-                    <div className="flex gap-2">
+                    {/* Add Image URL or File */}
+                    <div className="flex gap-2 items-center">
                         <input
                             type="url"
                             value={newImageUrl}
@@ -260,16 +260,45 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                                 }
                             }}
                         />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                        const result = ev.target?.result as string;
+                                        if (result && !imageUrls.includes(result)) {
+                                            const updated = [...imageUrls, result];
+                                            setImageUrls(updated);
+                                            setFormData(prev => ({ ...prev, images: updated.join('\n') }));
+                                        }
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                                // Reset input so same file can be selected again if needed (though rare for this case)
+                                e.target.value = '';
+                            }}
+                            className="hidden"
+                            id="product-image-upload"
+                        />
+                        <label
+                            htmlFor="product-image-upload"
+                            className="px-4 py-2 bg-gray-100 border rounded text-sm font-mono hover:bg-gray-200 transition-colors cursor-pointer flex items-center justify-center whitespace-nowrap"
+                        >
+                            📁 파일 선택
+                        </label>
                         <button
                             type="button"
                             onClick={addImageUrl}
-                            className="px-4 py-2 bg-gray-100 border rounded text-sm font-mono hover:bg-gray-200 transition-colors"
+                            className="px-4 py-2 bg-black text-white rounded text-sm font-mono hover:bg-gray-800 transition-colors whitespace-nowrap"
                         >
-                            + 추가
+                            + URL 추가
                         </button>
                     </div>
                     <p className="text-xs text-gray-400 mt-1">
-                        이미지 URL을 입력하고 추가 버튼을 클릭하세요. 첫 번째 이미지가 대표 이미지로 사용됩니다.
+                        이미지 URL을 입력하거나 파일을 업로드하세요. 첫 번째 이미지가 대표 이미지로 사용됩니다.
                     </p>
                 </div>
 

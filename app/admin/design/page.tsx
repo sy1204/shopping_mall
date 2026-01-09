@@ -93,6 +93,13 @@ function DesignContent() {
         alert('팝업이 활성화되었습니다. 다른 팝업은 비활성화됩니다.');
     };
 
+    const handlePopupDeactivate = (id: number) => {
+        setPopups(prev => prev.map(p =>
+            p.id === id ? { ...p, status: 'Inactive' } : p
+        ));
+        alert('팝업이 비활성화되었습니다.');
+    };
+
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -291,12 +298,19 @@ function DesignContent() {
                                         </span>
                                     </td>
                                     <td className="p-3 text-right space-x-2">
-                                        {popup.status === 'Inactive' && (
+                                        {popup.status === 'Inactive' ? (
                                             <button
                                                 onClick={() => handlePopupActivate(popup.id)}
                                                 className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-700"
                                             >
                                                 활성화
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handlePopupDeactivate(popup.id)}
+                                                className="bg-gray-500 text-white px-3 py-1 rounded text-xs font-bold hover:bg-gray-600"
+                                            >
+                                                비활성화
                                             </button>
                                         )}
                                         <button

@@ -5,6 +5,7 @@
     --font-sans: var(--font-inter);
     --font-serif: var(--font-display);
     --font-mono: var(--font-ibm-mono);
+    --color-brand-accent: var(--brand-accent);
 }
 
 /* ============================================
