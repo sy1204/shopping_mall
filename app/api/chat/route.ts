@@ -2,7 +2,9 @@
  * /api/chat - RAG 기반 패션 큐레이션 API
  * 
  * 사용자 질문과 6각형 취향 파라미터를 받아
- * 벡터 검색 후 맞춤형 답변을 생성합니다.
+ * 키워드 검색 후 맞춤형 답변을 생성합니다.
+ * 
+ * AI Provider: OpenAI GPT-4o-mini
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -11,27 +13,22 @@ import { createClient } from '@supabase/supabase-js';
 // Server-side only keys (never exposed to client)
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 // Validate environment variables
 const validateEnvVars = () => {
     const missing: string[] = [];
     if (!SUPABASE_URL) missing.push('NEXT_PUBLIC_SUPABASE_URL');
     if (!SUPABASE_SERVICE_ROLE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY');
-    if (!GEMINI_API_KEY) missing.push('GEMINI_API_KEY');
+    if (!OPENAI_API_KEY) missing.push('OPENAI_API_KEY');
     return missing;
 };
 
 // Supabase client with service role
 const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '');
 
-// API endpoints
-const EMBEDDING_URL = GEMINI_API_KEY
-    ? `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`
-    : '';
-const GEMINI_URL = GEMINI_API_KEY
-    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
-    : '';
+// OpenAI API endpoint
+const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
 
 // Simple in-memory rate limiter (per-server instance)
 const rateLimiter = {
@@ -268,58 +265,36 @@ ${question}
 위 정보와 고객의 취향 프로필을 바탕으로 개인화된 맞춤 추천을 제공해주세요.
 반드시 취향 수치(도전성, 소재 가치 등)를 언급하며 "편안함을 중시하시니..." 같은 형태로 답변하세요.`;
 
-    const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
+    try {
+        const response = await fetch(OPENAI_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt }
+                ],
+                temperature: 0.9,
+                max_tokens: 1024
+            })
+        });
 
-    const maxRetries = 3;
-    let lastError: Error | null = null;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const response = await fetch(GEMINI_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: combinedPrompt }] }
-                    ],
-                    generationConfig: {
-                        temperature: 0.9,
-                        maxOutputTokens: 1024,
-                        topP: 0.95,
-                        topK: 40
-                    }
-                })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text || '답변을 생성하지 못했습니다.';
-            }
-
-            const errorText = await response.text();
-            console.error(`[Chat API] Gemini API error (attempt ${attempt}):`, response.status, errorText);
-
-            // 429 에러면 대기 후 재시도
-            if (response.status === 429 && attempt < maxRetries) {
-                const waitTime = Math.pow(2, attempt) * 2000; // 4초, 8초, 16초
-                console.log(`[Chat API] Rate limited. Waiting ${waitTime}ms before retry...`);
-                await new Promise(resolve => setTimeout(resolve, waitTime));
-                continue;
-            }
-
-            lastError = new Error(`Gemini API error: ${response.status} - ${errorText.substring(0, 200)}`);
-        } catch (error) {
-            console.error(`[Chat API] Fetch error (attempt ${attempt}):`, error);
-            lastError = error instanceof Error ? error : new Error('Unknown error');
-
-            if (attempt < maxRetries) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                continue;
-            }
+        if (response.ok) {
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || '답변을 생성하지 못했습니다.';
         }
-    }
 
-    throw lastError || new Error('All retry attempts failed');
+        const errorText = await response.text();
+        console.error('[Chat API] OpenAI API error:', response.status, errorText);
+        throw new Error(`OpenAI API error: ${response.status} - ${errorText.substring(0, 200)}`);
+    } catch (error) {
+        console.error('[Chat API] Answer generation error:', error);
+        throw error;
+    }
 }
 
 /**
@@ -371,7 +346,8 @@ export async function POST(request: NextRequest) {
                 hexagon,
                 cached: true,
                 debug: {
-                    keyPrefix: GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 10) + '...' : 'NOT_SET'
+                    provider: 'OpenAI (cached)',
+                    model: 'gpt-4o-mini'
                 }
             });
         }
@@ -417,11 +393,11 @@ export async function POST(request: NextRequest) {
         // 4. 최종 답변 생성 (with fallback)
         let answer: string;
         try {
-            console.log('[Chat API] Step 4: Generating answer with Gemini...');
+            console.log('[Chat API] Step 4: Generating answer with OpenAI...');
             answer = await generateAnswer(body.question, similarContents, systemPrompt);
-        } catch (geminiError) {
-            console.error('[Chat API] Gemini failed:', geminiError);
-            const errorMsg = geminiError instanceof Error ? geminiError.message : 'Unknown error';
+        } catch (openaiError) {
+            console.error('[Chat API] OpenAI failed:', openaiError);
+            const errorMsg = openaiError instanceof Error ? openaiError.message : 'Unknown error';
 
             // Fallback: 검색 결과 기반 간단 답변
             if (similarContents.length > 0) {
@@ -481,7 +457,8 @@ export async function POST(request: NextRequest) {
             sources: uniqueSources,
             hexagon,
             debug: {
-                keyPrefix: GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 10) + '...' : 'NOT_SET'
+                provider: 'OpenAI',
+                model: 'gpt-4o-mini'
             }
         });
 
