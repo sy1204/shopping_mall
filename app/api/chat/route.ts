@@ -385,9 +385,8 @@ export async function POST(request: NextRequest) {
 
                 const randomTemplate = FALLBACK_TEMPLATES[Math.floor(Math.random() * FALLBACK_TEMPLATES.length)];
 
-                // 에러 원인 힌트 추가 (디버깅용)
-                const errorHint = errorMsg.includes('429') ? '(사용량 많음)' :
-                    errorMsg.includes('400') ? '(설정 확인 필요)' : `(오류: ${errorMsg})`;
+                // 에러 원인 힌트 추가 (디버깅용 - 전체 에러 표시)
+                const errorHint = `[DEBUG: ${errorMsg.substring(0, 100)}]`;
 
                 answer = `${randomTemplate(hexagonContext, topProducts)} ${errorHint}`;
             } else {
