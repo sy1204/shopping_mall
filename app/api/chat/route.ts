@@ -356,21 +356,40 @@ export async function POST(request: NextRequest) {
         // Rate limiting
         await rateLimiter.wait();
 
-        // 1. 질문 벡터화
-        console.log('[Chat API] Step 1: Getting embedding for:', body.question);
-        const embedding = await getEmbedding(body.question);
-        if (!embedding) {
-            return NextResponse.json(
-                { error: 'Failed to generate embedding. Check GEMINI_API_KEY.' },
-                { status: 500 }
-            );
-        }
-        console.log('[Chat API] Embedding generated, length:', embedding.length);
+        // 1. 키워드 기반 상품 검색 (임베딩 API 호출 생략하여 API 호출 절감)
+        console.log('[Chat API] Step 1: Keyword search for:', body.question);
 
-        // 2. 유사 콘텐츠 검색 (상위 5개)
-        console.log('[Chat API] Step 2: Searching similar contents...');
-        const similarContents = await searchSimilarContent(embedding, 5, 0.3);
-        console.log('[Chat API] Found similar contents:', similarContents.length);
+        // 키워드 추출 및 직접 검색
+        const keywords = body.question.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+
+        let similarContents: ProductContent[] = [];
+
+        // 먼저 키워드로 검색 시도
+        const { data: keywordData, error: keywordError } = await supabase
+            .from('product_contents')
+            .select('id, content, metadata')
+            .or(keywords.map(k => `content.ilike.%${k}%`).join(','))
+            .limit(5);
+
+        if (keywordData && keywordData.length > 0) {
+            similarContents = keywordData.map(item => ({
+                ...item,
+                similarity: 0.7
+            }));
+        } else {
+            // 키워드 검색 실패 시 최신 상품 반환
+            const { data: fallbackData } = await supabase
+                .from('product_contents')
+                .select('id, content, metadata')
+                .limit(5);
+
+            similarContents = (fallbackData || []).map(item => ({
+                ...item,
+                similarity: 0.5
+            }));
+        }
+
+        console.log('[Chat API] Found products:', similarContents.length);
 
         // 3. 시스템 프롬프트 생성
         const systemPrompt = buildSystemPrompt(hexagon);
