@@ -78,72 +78,9 @@ interface ProductContent {
     similarity: number;
 }
 
-/**
- * 질문을 벡터로 변환
- */
-async function getEmbedding(text: string): Promise<number[] | null> {
-    try {
-        const response = await fetch(EMBEDDING_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'models/text-embedding-004',
-                content: { parts: [{ text }] }
-            })
-        });
 
-        if (!response.ok) {
-            console.error('Embedding API error:', response.status);
-            return null;
-        }
+// ProductContent 타입은 그대로 유지
 
-        const data = await response.json();
-        return data.embedding?.values || null;
-    } catch (error) {
-        console.error('Embedding error:', error);
-        return null;
-    }
-}
-
-/**
- * Supabase에서 유사한 콘텐츠 검색
- */
-async function searchSimilarContent(
-    queryEmbedding: number[],
-    matchCount: number = 5,
-    threshold: number = 0.5
-): Promise<ProductContent[]> {
-    // RPC 호출 - 파라미터 순서: query_embedding, match_threshold, match_count
-    const { data, error } = await supabase.rpc('match_contents', {
-        query_embedding: queryEmbedding,
-        match_threshold: threshold,   // 유사도 임계값
-        match_count: matchCount        // 상위 N개 추출
-    });
-
-    if (error) {
-        console.error('[Chat API] Supabase RPC error:', error.message, error.details);
-
-        // Fallback: Direct query without vector search (just get some products)
-        console.log('[Chat API] Falling back to direct query...');
-        const { data: fallbackData, error: fallbackError } = await supabase
-            .from('product_contents')
-            .select('id, content, metadata')
-            .limit(matchCount);
-
-        if (fallbackError) {
-            console.error('[Chat API] Fallback query error:', fallbackError.message);
-            return [];
-        }
-
-        // Add dummy similarity
-        return (fallbackData || []).map(item => ({
-            ...item,
-            similarity: 0.5
-        }));
-    }
-
-    return data || [];
-}
 
 /**
  * 6각형 파라미터 기반 시스템 프롬프트 생성
