@@ -47,6 +47,10 @@ const rateLimiter = {
     }
 };
 
+// Simple response cache (in-memory, per-server instance)
+const responseCache = new Map<string, { answer: string; sources: unknown[]; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5분 캐시
+
 // Types
 interface HexagonParams {
     boldness: number;        // 도전성: 무난한 기본템 → 파격적이고 트렌디한 디자인
@@ -356,6 +360,22 @@ export async function POST(request: NextRequest) {
         // Rate limiting
         await rateLimiter.wait();
 
+        // 캐시 확인
+        const cacheKey = body.question.toLowerCase().trim();
+        const cached = responseCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+            console.log('[Chat API] Returning cached response for:', cacheKey);
+            return NextResponse.json({
+                answer: cached.answer,
+                sources: cached.sources,
+                hexagon,
+                cached: true,
+                debug: {
+                    keyPrefix: GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 10) + '...' : 'NOT_SET'
+                }
+            });
+        }
+
         // 1. 키워드 기반 상품 검색 (임베딩 API 호출 생략하여 API 호출 절감)
         console.log('[Chat API] Step 1: Keyword search for:', body.question);
 
@@ -445,6 +465,16 @@ export async function POST(request: NextRequest) {
             }
             return acc;
         }, [] as { id: string; productName?: string; category?: string; similarity: number }[]);
+
+        // 성공적인 AI 응답만 캐시에 저장 (fallback 응답 제외)
+        if (!answer.startsWith('**')) {
+            responseCache.set(cacheKey, {
+                answer,
+                sources: uniqueSources,
+                timestamp: Date.now()
+            });
+            console.log('[Chat API] Cached successful response for:', cacheKey);
+        }
 
         return NextResponse.json({
             answer,
