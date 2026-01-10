@@ -30,7 +30,7 @@ const EMBEDDING_URL = GEMINI_API_KEY
     ? `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`
     : '';
 const GEMINI_URL = GEMINI_API_KEY
-    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`
     : '';
 
 // Simple in-memory rate limiter (per-server instance)
