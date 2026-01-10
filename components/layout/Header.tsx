@@ -262,23 +262,30 @@ export default function Header() {
                                 <Link
                                     href="/shop"
                                     onClick={closeMobileMenu}
-                                    className="block py-4 text-lg font-bold border-b hover:bg-gray-50"
+                                    className="block py-4 text-xs font-medium uppercase tracking-[0.2em] border-b hover:bg-gray-50 transition-colors"
                                 >
-                                    SHOP
+                                    쇼핑
                                 </Link>
                                 <Link
                                     href="/events"
                                     onClick={closeMobileMenu}
-                                    className="block py-4 text-lg font-bold border-b hover:bg-gray-50"
+                                    className="block py-4 text-xs font-medium uppercase tracking-[0.2em] border-b hover:bg-gray-50 transition-colors"
                                 >
-                                    HERITAGE
+                                    에디토리얼
                                 </Link>
                                 <Link
                                     href="/open-shop"
                                     onClick={closeMobileMenu}
-                                    className="block py-4 text-lg font-bold border-b hover:bg-gray-50"
+                                    className="block py-4 text-xs font-medium uppercase tracking-[0.2em] border-b hover:bg-gray-50 transition-colors"
                                 >
-                                    LAB
+                                    Brand Store
+                                </Link>
+                                <Link
+                                    href="/chat"
+                                    onClick={closeMobileMenu}
+                                    className="block py-4 text-xs font-medium uppercase tracking-[0.2em] border-b text-[var(--primary)] hover:bg-gray-50 transition-colors"
+                                >
+                                    [ AI 큐레이터 ]
                                 </Link>
                             </div>
 
