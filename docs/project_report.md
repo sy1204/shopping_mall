@@ -1,0 +1,133 @@
+# [N-D] 쇼핑몰 구축 프로젝트 최종 보고서
+
+## 1. 브랜드 컨셉 (Brand Concept)
+
+### "Neural Link & Editorial Logic" (Node & Dash)
+**[N-D]**는 "Node(점)"와 "Dash(선)"의 연결을 모티브로 하여, 파편화된 유행(Trend)을 소비(Consumption)하는 것을 넘어 사용자의 고유한 레거시(Legacy)로 데이터화하여 연결한다는 철학을 담고 있습니다.
+
+#### 1.1 시각적 원칙 (Visual Identity)
+- **Symbol System**: UI 전반에 데이터의 구조를 시각화하는 기호를 사용하여 브랜드 아이덴티티를 강화했습니다.
+    - **`[ ]` (Brackets)**: 콘텐츠를 담는 프레임, 버튼, 상태값을 표현 (데이터셋의 의미).
+    - **`-` (Dash)**: 연결성, 흐름, 진행 상태(Progress)를 나타내는 구분선.
+    - **`●` (Node)**: 강조점, 선택된 상태(Active), 데이터의 정점.
+- **Typography Strategy**: 이성의 논리와 감성의 이야기를 동시에 전달하기 위한 이원화 전략.
+    - **Headline (Serif)**: *나눔명조*를 사용하여 매거진의 에디토리얼 감성과 클래식한 무드 전달.
+    - **Body (Sans-serif)**: *Inter/Pretendard*를 사용하여 정보 전달의 명확성과 현대적인 느낌 강조.
+    - **Data (Monospace)**: 가격, 스펙 등 데이터 요소에 사용하여 기술적(Tech) 무드 조성.
+- **Color Palette**: 
+    - **Neural Black & White**: 극단적인 명도 대비를 통해 본질에 집중.
+    - **Logic Blue**: 링크, 데이터 처리, 강조점에 사용하여 이성적인 포인트 부여.
+
+---
+
+## 2. 웹 페이지 구성도 (Site Structure)
+
+서비스는 크게 소비자를 위한 **User Front**와 운영자를 위한 **Admin BO(Back-office)**로 명확히 구분됩니다.
+
+### 2.1 User Interface (사용자 화면)
+소비자의 구매 여정(Journey)과 브랜드 경험에 초점을 맞춘 구조입니다.
+
+| 1Depth | 2Depth | 주요 화면 및 기능 |
+| :--- | :--- | :--- |
+| **Main** | 메인 화면 | 히어로 배너(Split Layout), 마키 텍스트, 뉴럴 링크 추천, 베스트 아이템 |
+| **Shop** | 스타일 숍 | 상품 목록(필터/정렬), **상품 상세(Editorial Layout)** (구매, 리뷰, 문의) |
+| **Events** | 이벤트 | 기획전 및 프로모션 목록, 상세 페이지 |
+| **Brand** | 스토리 | 브랜드 철학 및 소개 페이지 |
+| **My Page** | 마이 페이지 | **주문/배송 조회**(활성/과거 분리), 배송지 관리, 내 정보 수정, **적립금 내역** |
+| **Order** | 주문/결제 | 장바구니, 주문서 작성(포인트 사용), 결제 완료(주문 결과) |
+| **CS** | 고객센터 | 공지사항, 자주 묻는 질문(FAQ), 1:1 문의 작성 및 내역 확인 |
+
+```mermaid
+graph TD
+    User([User Access]) --> Main[메인 페이지]
+    Main --> Shop[Shop List]
+    Shop --> Detail[Product Detail]
+    Main --> MyPage[My Page]
+    MyPage --> OrderHistory[주문 내역]
+    MyPage --> Profile[개인 정보]
+    Main --> Cart[Cart] --> Checkout[Order/Payment]
+```
+
+### 2.2 Admin Interface (관리자 화면)
+운영 효율성과 데이터 가시성을 극대화한 대시보드 중심 구조입니다.
+
+| 1Depth | 2Depth | 주요 화면 및 기능 |
+| :--- | :--- | :--- |
+| **Dashboard** | 대시보드 | 위젯 기반(매출, 방문자, 주문현황, 메모) 메인 화면 |
+| **Product** | 상품 관리 | 상품 목록 조회, **상품 등록/수정**(이미지, 정보), 삭제 |
+| **Order** | 주문 관리 | 전체 주문 현황, 상태 변경(배송중 등), 클레임(취소/교환/반품) 처리 |
+| **Member** | 회원 관리 | 회원 목록, 상세 정보 조회, 적립금 관리, 탈퇴 회원 관리 |
+| **Board** | 게시판 관리 | 공지사항, FAQ, 1:1 문의 답변, 상품 리뷰 모니터링 |
+| **Design** | 전시 관리 | **메인 배너 관리**(이미지 업로드/순서), **팝업 관리**(On/Off 토글) |
+| **Stats** | 통계/분석 | 일별/월별 매출 통계, 방문자 추이 분석 |
+| **Settings** | 시스템 설정 | 사이트 기본 정보, 정책/약관 관리, 관리자 계정 설정 |
+
+```mermaid
+graph TD
+    Admin([Admin Access]) --> Dashboard[Dashboard]
+    Dashboard --> Product[상품 관리]
+    Dashboard --> Order[주문 관리]
+    Dashboard --> Member[회원 관리]
+    Dashboard --> Design[전시/디자인]
+    Dashboard --> Settings[시스템 설정]
+```
+
+---
+
+## 3. 핵심 기능 (Key Features)
+
+### 3.1 사용자 경험 (User Experience)
+1.  **Editorial Commerce**: 단순한 상품 스펙 나열을 지양하고, 고감도 이미지와 스토리텔링이 결합된 매거진 형태의 상세 페이지를 구현하여 구매 설득력을 높였습니다. (Sticky Buy Box 적용)
+2.  **AI Personal Shopper (with Gemini)**: 구글 Gemini Pro 모델을 연동한 챗봇이 사용자의 6가지 성향(Hexagon Parameter: 도전성, 실용성, 트렌드 등)을 분석하여 개인화된 상품 추천과 스타일링 팁을 제공합니다.
+3.  **Neural Standard Design System**: `globals.css` 기반의 통합 디자인 토큰을 정의하여, 버튼 하나부터 레이아웃까지 일관된 브랜드 경험(Hover motion, Animation)을 제공합니다.
+4.  **Integrated Point System**: 구매 금액의 1% 자동 적립 및 결제 시 실시간 포인트 사용(전액 사용 포함) 기능을 완벽하게 구현하여 로열티 프로그램을 구축했습니다.
+
+### 3.2 관리자 운영 (Admin Operations)
+1.  **Dynamic Widget Dashboard**: 관리자가 중요하게 생각하는 데이터를 한눈에 볼 수 있도록, 사이즈와 배치가 최적화된 위젯 기반의 대시보드를 구축했습니다.
+2.  **Self-Service Design Control**: 개발자의 도움 없이도 운영자가 직접 메인 배너를 교체하고, 프로모션 팝업을 즉시 게재하거나 내릴 수 있는 CMS 기능을 구현했습니다.
+3.  **Full-Cycle Order Management**: 주문 접수부터 배송 완료, 취소/교환/반품에 이르기까지 주문의 전 생애주기를 관리할 수 있는 프로세스를 정립했습니다.
+
+---
+
+## 4. 기술적 난관 및 해결 (Troubleshooting)
+
+### 4.1 Supabase 인증 및 데이터 무결성
+*   **문제**: 클라이언트 사이드에서 `supabase.auth.signUp` 호출 시 간헐적인 Hang(멈춤) 현상과 RLS(Row Level Security) 정책 충돌로 인한 데이터 저장 실패.
+*   **해결**: 
+    1.  클라이언트 SDK 의존성을 낮추기 위해 중요 프로세스(회원가입 등)를 **직접 REST API 호출 방식**으로 우회 구현하여 안정성 확보.
+    2.  개발 단계의 생산성과 보안성을 모두 잡기 위해, 초기에는 RLS를 완화하되 `profiles` 등 핵심 테이블에는 엄격한 정책을 적용하는 **이원화된 보안 전략** 수립.
+
+### 4.2 Gemini AI 챗봇 최적화
+*   **문제**: 초기 `gemini-1.5-flash` 모델 사용 시 응답 포맷이 일정하지 않고, Fallback 메시지가 반복적으로 출력되는 현상 발생. 또한 사용자의 성향 파라미터를 제대로 반영하지 못함.
+*   **해결**:
+    1.  모델을 안정성과 추론 능력이 검증된 **`gemini-pro`**로 교체하여 응답 품질 개선.
+    2.  시스템 프롬프트와 사용자 입력(User Prompt)을 통합하여 전송하는 방식으로 구조를 변경하고, **"육각형 파라미터"** 정보를 명시적으로 주입하여 컨텍스트 인식률을 비약적으로 향상.
+
+### 4.3 관리자 데이터 필터링 동기화
+*   **문제**: 주문 관리 페이지에서 탭(Tab)이나 필터를 변경해도 URL 파라미터만 변하고 실제 데이터 리스트가 갱신되지 않거나, 그 반대의 경우 발생.
+*   **해결**: Next.js의 **Server Components**와 **URL SearchParams**를 적극 활용하여, 모든 필터 상태를 URL이 주도(Source of Truth)하게 하고 서버에서 필터링된 데이터를 가져오도록 아키텍처를 개선.
+
+---
+
+## 5. 남은 과제 및 향후 로드맵 (Roadmap)
+
+### Phase 1: 데이터 마이그레이션 (In-Progress)
+*   **현재**: 사용자 인증(Auth)과 프로필 데이터는 Supabase와 연동되어 있으나, 상품 및 주문 데이터는 아직 LocalStorage(Mock Data)를 병행 사용 중.
+*   **목표**: `products`, `orders` 테이블의 완전한 Supabase DB 이관 및 이미지 자산의 Supabase Storage 연동 완료.
+
+### Phase 2: 실 서비스 연동 (Service Integration)
+*   **결제(PG)**: Portone(구 아임포트) 등의 PG사 모듈을 연동하여 실제 결제 프로세스 구현.
+*   **배송**: 택배사 API를 연동하여 실시간 배송 추적 정보 제공.
+
+### Phase 3: AI 고도화 (Advanced AI)
+*   **Function Calling**: 챗봇이 단순 답변을 넘어, 사용자의 요청에 따라 "장바구니 담기", "주문 내역 조회" 등의 기능을 직접 수행하도록 확장.
+*   **Personalization**: 사용자 행동 로그(클릭, 구매)를 기반으로 개인화 추천 알고리즘 정교화.
+
+---
+
+## 6. 총평 (Conclusion)
+
+본 프로젝트는 단순한 "기능 구현"을 넘어, **"[N-D]"**라는 브랜드가 가진 "연결과 데이터"라는 철학을 웹 기술로 실체화하는 과정이었습니다. 
+최신 기술 스택인 **Next.js 15 (App Router)**와 **Supabase BaaS**를 도입하여 개발 효율성과 확장성을 확보했으며, **Google Gemini**를 통한 AI 커머스의 가능성을 확인했습니다.
+초기 인증 모듈의 불안정성과 AI 모델 튜닝이라는 기술적 장벽이 있었으나, 끈질기게 원인을 분석하고 대안을 찾아내어 시스템을 안정화했습니다. 
+이제 [N-D] 쇼핑몰은 기본적인 커머스 기능을 넘어, 사용자의 취향을 학습하고 제안하는 **"지능형 에디토리얼 플랫폼"**으로 진화할 준비를 마쳤습니다.

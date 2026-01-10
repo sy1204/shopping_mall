@@ -11,14 +11,27 @@ import { createClient } from '@supabase/supabase-js';
 // Server-side only keys (never exposed to client)
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Validate environment variables
+const validateEnvVars = () => {
+    const missing: string[] = [];
+    if (!SUPABASE_URL) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+    if (!SUPABASE_SERVICE_ROLE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+    if (!GEMINI_API_KEY) missing.push('GEMINI_API_KEY');
+    return missing;
+};
 
 // Supabase client with service role
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '');
 
 // API endpoints
-const EMBEDDING_URL = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const EMBEDDING_URL = GEMINI_API_KEY
+    ? `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`
+    : '';
+const GEMINI_URL = GEMINI_API_KEY
+    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
+    : '';
 
 // Simple in-memory rate limiter (per-server instance)
 const rateLimiter = {
@@ -273,8 +286,9 @@ ${question}
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Gemini API error:', response.status, errorText);
-            throw new Error(`Gemini API error: ${response.status}`);
+            console.error('[Chat API] Gemini API error:', response.status, errorText);
+            // Include actual error details for debugging
+            throw new Error(`Gemini API error: ${response.status} - ${errorText.substring(0, 200)}`);
         }
 
         const data = await response.json();
@@ -290,6 +304,16 @@ ${question}
  */
 export async function POST(request: NextRequest) {
     try {
+        // Validate environment variables first
+        const missingEnvVars = validateEnvVars();
+        if (missingEnvVars.length > 0) {
+            console.error('[Chat API] Missing environment variables:', missingEnvVars.join(', '));
+            return NextResponse.json(
+                { error: `Server configuration error: Missing ${missingEnvVars.join(', ')}` },
+                { status: 500 }
+            );
+        }
+
         const body: ChatRequest = await request.json();
 
         // Validation
