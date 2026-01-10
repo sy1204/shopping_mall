@@ -411,7 +411,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             answer,
             sources: uniqueSources,
-            hexagon
+            hexagon,
+            debug: {
+                keyPrefix: GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 10) + '...' : 'NOT_SET'
+            }
         });
 
     } catch (error) {
