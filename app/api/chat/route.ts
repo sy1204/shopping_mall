@@ -30,7 +30,7 @@ const EMBEDDING_URL = GEMINI_API_KEY
     ? `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`
     : '';
 const GEMINI_URL = GEMINI_API_KEY
-    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`
+    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
     : '';
 
 // Simple in-memory rate limiter (per-server instance)
@@ -266,37 +266,56 @@ ${question}
 
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-    try {
-        const response = await fetch(GEMINI_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [
-                    { role: 'user', parts: [{ text: combinedPrompt }] }
-                ],
-                // systemInstruction 제거 (호환성 확보)
-                generationConfig: {
-                    temperature: 0.9,
-                    maxOutputTokens: 1024,
-                    topP: 0.95,
-                    topK: 40
-                }
-            })
-        });
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-        if (!response.ok) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(GEMINI_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        { role: 'user', parts: [{ text: combinedPrompt }] }
+                    ],
+                    generationConfig: {
+                        temperature: 0.9,
+                        maxOutputTokens: 1024,
+                        topP: 0.95,
+                        topK: 40
+                    }
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || '답변을 생성하지 못했습니다.';
+            }
+
             const errorText = await response.text();
-            console.error('[Chat API] Gemini API error:', response.status, errorText);
-            // Include actual error details for debugging
-            throw new Error(`Gemini API error: ${response.status} - ${errorText.substring(0, 200)}`);
-        }
+            console.error(`[Chat API] Gemini API error (attempt ${attempt}):`, response.status, errorText);
 
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || '답변을 생성하지 못했습니다.';
-    } catch (error) {
-        console.error('Answer generation error:', error);
-        throw error;
+            // 429 에러면 대기 후 재시도
+            if (response.status === 429 && attempt < maxRetries) {
+                const waitTime = Math.pow(2, attempt) * 2000; // 4초, 8초, 16초
+                console.log(`[Chat API] Rate limited. Waiting ${waitTime}ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                continue;
+            }
+
+            lastError = new Error(`Gemini API error: ${response.status} - ${errorText.substring(0, 200)}`);
+        } catch (error) {
+            console.error(`[Chat API] Fetch error (attempt ${attempt}):`, error);
+            lastError = error instanceof Error ? error : new Error('Unknown error');
+
+            if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                continue;
+            }
+        }
     }
+
+    throw lastError || new Error('All retry attempts failed');
 }
 
 /**
