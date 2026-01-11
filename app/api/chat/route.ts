@@ -79,64 +79,86 @@ interface ProductContent {
 }
 
 
-// ProductContent 타입은 그대로 유지
+/**
+ * 헥사곤 파라미터가 모두 기본값(0.5)인지 확인
+ */
+function isDefaultHexagon(hexagon: HexagonParams): boolean {
+    return Object.values(hexagon).every(v => v === 0.5);
+}
 
 
 /**
- * 6각형 파라미터 기반 시스템 프롬프트 생성
+ * 취향 설정 여부에 따른 시스템 프롬프트 생성
  */
-function buildSystemPrompt(hexagon: HexagonParams): string {
+function buildSystemPrompt(hexagon: HexagonParams, usePreferences: boolean): string {
+    // 취향 설정이 꺼져있을 때 (기본값)
+    if (!usePreferences) {
+        return `당신은 프리미엄 패션 편집샵 [N-D]의 전문 AI 어시스턴트입니다.
+
+## 역할
+고객의 질문에 친절하고 전문적으로 답변합니다.
+상품 정보를 제공할 때는 객관적인 특징(소재, 디자인, 활용도)을 중심으로 설명하세요.
+
+## 답변 구조
+1. **질문 리마인드**: 고객이 물어본 내용을 간략히 언급 (예: "겨울 코트를 찾고 계시는군요!")
+2. **직접 답변**: 질문에 대한 구체적인 답변 제공
+3. **상품 소개**: 검색된 상품이 있다면 객관적으로 소개
+4. **추가 질문**: 필요시 고객의 추가 의견 물어보기 (선택)
+
+## 답변 스타일
+- "~해요" 체로 친근하게
+- 구체적인 정보 제공 (소재, 공법, 디자인 등)
+- 200-300자 내외로 간결하게
+- 대화하듯 자연스럽게
+- 취향이나 개인화 언급 금지 (객관적 정보만)`;
+    }
+
+    // 취향 설정이 켜져있을 때
     const guidelines: string[] = [];
 
     // 도전성 (Boldness)
     if (hexagon.boldness > 0.6) {
-        guidelines.push('- 주변의 시선을 사로잡는 독특한 스타일을 제안하세요.');
-        guidelines.push('- 최신 트렌드 키워드와 유니크한 실루엣을 강조하세요.');
+        guidelines.push('- 독특하고 트렌디한 스타일의 장점을 자연스럽게 언급하세요.');
     } else if (hexagon.boldness < 0.4) {
-        guidelines.push('- 유행을 타지 않고 오래 입을 수 있는 클래식한 디자인을 추천하세요.');
+        guidelines.push('- 클래식하고 오래 입을 수 있는 디자인의 가치를 강조하세요.');
     }
 
     // 소재 가치 (Material Value)
     if (hexagon.materialValue > 0.6) {
-        guidelines.push('- 단순한 디자인이라도 원단의 급이 다른 본질적인 고급스러움을 분석하세요.');
-        guidelines.push('- 원단 원산지, 특수 가공(텐타, 컴팩 등), 촉감을 강조하세요.');
+        guidelines.push('- 원단의 품질과 특수 가공 기술을 자연스럽게 설명하세요.');
     } else if (hexagon.materialValue < 0.4) {
-        guidelines.push('- 소재보다는 전체적인 룩과 분위기에 집중해서 설명하세요.');
+        guidelines.push('- 전체적인 룩과 스타일링에 초점을 맞추세요.');
     }
 
     // 실용성 (Utility)
     if (hexagon.utility > 0.6) {
-        guidelines.push('- 청바지, 슬랙스 어디에나 잘 어울리고 관리가 편한지 알려주세요.');
-        guidelines.push('- 레이어드 활용도, 세탁 용이성 등 실용성을 강조하세요.');
+        guidelines.push('- 다양한 상황에서의 활용도를 언급하세요.');
     } else if (hexagon.utility < 0.4) {
-        guidelines.push('- 특별한 날 주인공이 될 수 있는 화려한 스타일에 집중하세요.');
+        guidelines.push('- 특별한 순간을 위한 아이템임을 강조하세요.');
     }
 
     // 신뢰도 (Reliability)
     if (hexagon.reliability > 0.6) {
-        guidelines.push('- 실사용 리뷰 평점과 재구매율 데이터를 강조하세요.');
-        guidelines.push('- 검증된 베스트셀러 상품을 우선으로 안내하세요.');
+        guidelines.push('- 검증된 베스트셀러나 높은 평점을 언급하세요.');
     } else if (hexagon.reliability < 0.4) {
-        guidelines.push('- 신규/실험적 상품의 잠재력과 특별함을 설명하세요.');
+        guidelines.push('- 신상품의 특별함과 잠재력을 설명하세요.');
     }
 
     // 편안함 (Comfort)
     if (hexagon.comfort > 0.6) {
-        guidelines.push('- 신축성(스판), 무게감, 여유로운 실루엣을 강조하세요.');
-        guidelines.push('- 활동성 높고 편안한 착용감을 설명하세요.');
+        guidelines.push('- 편안한 착용감과 활동성을 강조하세요.');
     } else if (hexagon.comfort < 0.4) {
-        guidelines.push('- 포멀하고 단정한 핏의 매력을 설명하세요.');
+        guidelines.push('- 단정하고 포멀한 핏의 매력을 설명하세요.');
     }
 
     // 희소성 (Exclusivity)
     if (hexagon.exclusivity > 0.6) {
-        guidelines.push('- 봉제 퀄리티(스티치 등), 소량 생산 여부를 강조하세요.');
-        guidelines.push('- 장인정신과 리미티드 디테일의 가치를 설명하세요.');
+        guidelines.push('- 장인정신과 디테일의 가치를 언급하세요.');
     } else if (hexagon.exclusivity < 0.4) {
-        guidelines.push('- 대중적이면서도 품질 좋은 가성비 아이템을 추천하세요.');
+        guidelines.push('- 합리적인 가격과 품질의 균형을 강조하세요.');
     }
 
-    return `당신은 프리미엄 패션 편집샵 [N-D]의 전문 AI 큐레이터입니다.
+    return `당신은 프리미엄 패션 편집샵 [N-D]의 전문 AI 어시스턴트입니다.
 
 ## 고객 취향 프로필 (0-1 스케일)
 - 도전성: ${hexagon.boldness.toFixed(2)} (높으면 트렌디, 낮으면 클래식)
@@ -147,23 +169,25 @@ function buildSystemPrompt(hexagon: HexagonParams): string {
 - 희소성: ${hexagon.exclusivity.toFixed(2)} (높으면 리미티드, 낮으면 가성비)
 
 ## 역할
-고객의 질문에 대해 검색된 상품 정보와 위 취향 프로필을 바탕으로 **개인화된 맞춤 추천**을 제공합니다.
-반드시 취향 수치를 언급하며 "도전성이 높으시니..." 또는 "편안함을 중시하시니..." 같은 형태로 답변하세요.
+고객의 질문에 답변하되, 위 취향 프로필을 참고하여 개인화된 인사이트를 자연스럽게 더합니다.
+취향은 강요하지 말고, 필요할 때만 자연스럽게 언급하세요.
+
+## 답변 구조
+1. **질문 리마인드**: 고객이 물어본 내용을 간략히 언급 (예: "겨울 코트를 찾고 계시는군요!")
+2. **직접 답변**: 질문에 대한 구체적인 답변 제공
+3. **취향 기반 인사이트**: 필요시 "고객님은 [특성]을 선호하시니..." 형태로 자연스럽게 추가
+4. **상품 소개**: 검색된 상품 소개 및 이유 설명
+5. **추가 질문**: 필요시 고객의 추가 의견 물어보기 (선택)
 
 ## 취향 반영 가이드라인
 ${guidelines.length > 0 ? guidelines.join('\n') : '- 균형 잡힌 관점에서 객관적으로 설명하세요.'}
 
-## 답변 형식
-1. 먼저 고객의 취향 특징을 1-2문장으로 요약
-2. 검색된 상품 중 1-2개를 구체적으로 추천
-3. 왜 이 상품이 고객 취향에 맞는지 설명
-4. 스타일링 팁 제안
-
 ## 답변 스타일
-- 친근하지만 전문적인 톤 ("~해요" 체)
+- "~해요" 체로 친근하게
 - 구체적인 소재/공법 용어 활용
-- 200-400자 내외로 핵심 정보 전달
-- 절대 같은 답변을 반복하지 마세요`;
+- 200-300자 내외로 간결하게
+- 대화하듯 자연스럽게
+- 취향은 자연스럽게, 강요하지 않게`;
 }
 
 /**
@@ -199,8 +223,7 @@ ${contextText}
 [고객 질문]
 ${question}
 
-위 정보와 고객의 취향 프로필을 바탕으로 개인화된 맞춤 추천을 제공해주세요.
-반드시 취향 수치(도전성, 소재 가치 등)를 언급하며 "편안함을 중시하시니..." 같은 형태로 답변하세요.`;
+고객의 질문에 직접 답변해주세요. 먼저 질문 내용을 간략히 리마인드한 후 답변을 시작하세요.`;
 
     try {
         const response = await fetch(OPENAI_URL, {
@@ -324,8 +347,9 @@ export async function POST(request: NextRequest) {
 
         console.log('[Chat API] Found products:', similarContents.length);
 
-        // 3. 시스템 프롬프트 생성
-        const systemPrompt = buildSystemPrompt(hexagon);
+        // 3. 시스템 프롬프트 생성 (취향 설정 여부 감지)
+        const usePreferences = !isDefaultHexagon(hexagon);
+        const systemPrompt = buildSystemPrompt(hexagon, usePreferences);
 
         // 4. 최종 답변 생성 (with fallback)
         let answer: string;
