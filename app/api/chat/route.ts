@@ -555,9 +555,6 @@ ${item.content}
     // 세션 고유 ID 생성 (다양한 답변을 위해)
     const sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 
-    // Echo 생성
-    const echo = generateEcho(question, conversationType);
-
     const userPrompt = `[세션 ID: ${sessionId}]
 
 [검색된 상품 정보]
@@ -566,10 +563,12 @@ ${contextText}
 [고객 질문]
 ${question}
 
-[응답 가이드]
-- 먼저 "${echo}"로 시작하여 고객의 말을 확인했음을 표현하세요
-- 최대 ${maxLength}자 이내로 간결하게 답변하세요
-- 고객의 질문에 직접 답변하되, 필요한 정보만 제공하세요`;
+[대화 가이드라인]
+- 고객의 질문을 이해했음을 자연스럽게 표현하세요
+- 간결하면서도 충분한 정보를 제공하세요
+- 검색된 상품을 바탕으로 구체적으로 추천하세요
+- 필요하다면 추가 질문을 자연스럽게 포함하세요
+- 친근하고 전문적인 톤을 유지하세요`;
 
     try {
         const response = await fetch(OPENAI_URL, {
@@ -806,14 +805,8 @@ export async function POST(request: NextRequest) {
         // 응답 품질 검증
         const quality = validateResponseQuality(body.question, answer, maxResponseLength);
 
-        // 후속 질문 생성 (짧은 응답에만)
-        const followUp = generateFollowUpQuestion(conversationType, answer.length, userTone);
-
-        // 후속 질문 추가 (있는 경우)
-        let finalAnswer = answer;
-        if (followUp && !answer.includes('?')) {
-            finalAnswer = `${answer} ${followUp}`;
-        }
+        // AI가 자연스럽게 생성한 답변 그대로 사용
+        const finalAnswer = answer;
 
         // 세션 ID 생성 및 메모리 업데이트
         const sessionId = request.headers.get('x-session-id') || 'default';
