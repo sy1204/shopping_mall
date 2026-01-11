@@ -203,13 +203,8 @@ function shouldSearchProducts(input: string, conversationType: ConversationType)
         return false;
     }
 
-    // 일반 질문은 상품 관련 키워드가 있을 때만
-    if (conversationType === ConversationType.QUESTION) {
-        const productRelated = ['추천', '상품', '제품', '아이템', '옷', '코트', '니트', '자켓', '팬츠', '가방', '신발'];
-        return productRelated.some(keyword => input.includes(keyword));
-    }
-
-    // 요청과 피드백은 대부분 검색 필요
+    // 질문, 요청, 피드백은 모두 AI가 처리 (상품 검색 수행)
+    // AI가 일반 질문도 답변할 수 있도록 변경
     return true;
 }
 
