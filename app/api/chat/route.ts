@@ -86,6 +86,301 @@ function isDefaultHexagon(hexagon: HexagonParams): boolean {
     return Object.values(hexagon).every(v => v === 0.5);
 }
 
+// ============================================
+// 대화 에티켓 시스템
+// ============================================
+
+/**
+ * 대화 유형 정의
+ */
+enum ConversationType {
+    GREETING = 'greeting',           // 인사
+    SMALL_TALK = 'small_talk',       // 잡담
+    QUESTION = 'question',           // 정보 질문
+    REQUEST = 'request',             // 구체적 요청
+    FEEDBACK = 'feedback',           // 반응/평가
+    CLOSING = 'closing'              // 마무리
+}
+
+/**
+ * 대화 유형 감지
+ */
+function detectConversationType(input: string): ConversationType {
+    const lowerInput = input.toLowerCase().trim();
+    const length = input.length;
+
+    // 마무리 인사
+    const closingKeywords = ['고마워', '감사', '됐어', '충분해', '잘 봤어', '바이', 'bye'];
+    if (closingKeywords.some(k => lowerInput.includes(k))) {
+        return ConversationType.CLOSING;
+    }
+
+    // 인사 (짧고 인사 키워드 포함)
+    const greetingKeywords = ['안녕', '좋은 아침', '좋은 저녁', '좋은 밤', '반가', 'hi', 'hello', '헬로', '하이'];
+    if (greetingKeywords.some(k => lowerInput.includes(k)) && length <= 15) {
+        return ConversationType.GREETING;
+    }
+
+    // 피드백
+    const feedbackKeywords = ['좋아', '마음에 들어', '별로', '아니야', '다른 거', '마음에 안'];
+    if (feedbackKeywords.some(k => lowerInput.includes(k))) {
+        return ConversationType.FEEDBACK;
+    }
+
+    // 요청 (명령형)
+    const requestKeywords = ['추천', '찾아줘', '보여줘', '골라줘', '해줘', '주세요', '알려줘'];
+    if (requestKeywords.some(k => lowerInput.includes(k))) {
+        return ConversationType.REQUEST;
+    }
+
+    // 질문
+    const questionIndicators = ['?', '뭐야', '무엇', '어떻게', '왜', '인가', '인지', '설명'];
+    if (questionIndicators.some(k => lowerInput.includes(k))) {
+        return ConversationType.QUESTION;
+    }
+
+    // 잡담
+    const smallTalkKeywords = ['날씨', '어때', '잘 지내', '오늘', '요즘'];
+    if (smallTalkKeywords.some(k => lowerInput.includes(k)) && length <= 20) {
+        return ConversationType.SMALL_TALK;
+    }
+
+    // 기본값: 질문으로 처리
+    return ConversationType.QUESTION;
+}
+
+/**
+ * 입력 길이에 따른 최대 응답 길이 결정
+ */
+function getMaxResponseLength(inputLength: number): number {
+    if (inputLength <= 10) return 50;      // 인사/짧은 말
+    if (inputLength <= 30) return 150;     // 간단한 질문
+    if (inputLength <= 60) return 250;     // 일반 질문
+    return 350;                             // 상세한 요청
+}
+
+/**
+ * 상대 말 반복 (Echo) 생성
+ */
+function generateEcho(input: string, conversationType: ConversationType): string {
+    const trimmed = input.trim().replace(/[!?.。]+$/, '');
+
+    if (conversationType === ConversationType.GREETING) {
+        // 인사는 그대로 반복
+        return `${trimmed}이에요!`;
+    }
+
+    if (conversationType === ConversationType.REQUEST) {
+        // 요청은 핵심 키워드 추출
+        const keywords = ['코트', '니트', '자켓', '팬츠', '슬랙스', '가방', '신발', '아우터'];
+        const found = keywords.find(k => input.includes(k));
+        if (found) {
+            return `${found}를 찾고 계시는군요!`;
+        }
+        return '상품을 찾고 계시는군요!';
+    }
+
+    if (conversationType === ConversationType.QUESTION) {
+        // 질문은 주제 추출
+        const topics = ['캐시미어', '울', '코튼', '린넨', '데님', '가죽', '소재', '브랜드'];
+        const found = topics.find(t => input.includes(t));
+        if (found) {
+            return `${found}에 대해 궁금하시군요!`;
+        }
+        return '궁금하신 점이 있으시군요!';
+    }
+
+    return '';
+}
+
+/**
+ * 상품 검색이 필요한지 판단
+ */
+function shouldSearchProducts(input: string, conversationType: ConversationType): boolean {
+    // 인사, 잡담, 마무리는 검색 불필요
+    if ([ConversationType.GREETING, ConversationType.SMALL_TALK, ConversationType.CLOSING].includes(conversationType)) {
+        return false;
+    }
+
+    // 일반 질문은 상품 관련 키워드가 있을 때만
+    if (conversationType === ConversationType.QUESTION) {
+        const productRelated = ['추천', '상품', '제품', '아이템', '옷', '코트', '니트', '자켓', '팬츠', '가방', '신발'];
+        return productRelated.some(keyword => input.includes(keyword));
+    }
+
+    // 요청과 피드백은 대부분 검색 필요
+    return true;
+}
+
+/**
+ * 대화 유형별 간단한 응답 생성 (검색 불필요한 경우)
+ */
+function generateSimpleResponse(input: string, conversationType: ConversationType): string {
+    const echo = generateEcho(input, conversationType);
+
+    switch (conversationType) {
+        case ConversationType.GREETING:
+            return `${echo} 어떤 도움이 필요하신가요?`;
+
+        case ConversationType.SMALL_TALK:
+            return `${echo} 무엇을 도와드릴까요?`;
+
+        case ConversationType.CLOSING:
+            return '감사합니다! 또 도와드릴 일 있으면 언제든 말씀해주세요.';
+
+        default:
+            return `${echo} 구체적으로 어떤 정보가 필요하신가요?`;
+    }
+}
+
+// ============================================
+// Phase 2: 단기 구현
+// ============================================
+
+/**
+ * 질문 vs 요청 구분
+ */
+function isQuestion(input: string): boolean {
+    const questionIndicators = ['?', '뭐야', '무엇', '어떻게', '왜', '인가', '인지', '설명'];
+    return questionIndicators.some(ind => input.includes(ind));
+}
+
+function isRequest(input: string): boolean {
+    const requestIndicators = ['추천', '찾아줘', '보여줘', '골라줘', '해줘', '주세요'];
+    return requestIndicators.some(ind => input.includes(ind));
+}
+
+/**
+ * 응답 품질 검증
+ */
+interface ResponseQuality {
+    hasEcho: boolean;
+    lengthAppropriate: boolean;
+    notOverwhelming: boolean;
+}
+
+function validateResponseQuality(
+    userInput: string,
+    response: string,
+    maxLength: number
+): ResponseQuality {
+    const hasEcho = response.length > 0; // Echo는 이미 프롬프트에 포함됨
+    const lengthAppropriate = response.length <= maxLength * 1.5; // 약간의 여유
+    const notOverwhelming = response.length < 500;
+
+    return {
+        hasEcho,
+        lengthAppropriate,
+        notOverwhelming
+    };
+}
+
+// ============================================
+// Phase 3: 중기 구현
+// ============================================
+
+/**
+ * 사용자 톤/감정 감지
+ */
+enum UserTone {
+    FRIENDLY = 'friendly',
+    FORMAL = 'formal',
+    URGENT = 'urgent',
+    DISAPPOINTED = 'disappointed',
+    SATISFIED = 'satisfied'
+}
+
+function detectTone(input: string): UserTone {
+    const lowerInput = input.toLowerCase();
+
+    // 급함
+    if (/[!]{2,}/.test(input) || ['빨리', '급해', '서둘러'].some(w => lowerInput.includes(w))) {
+        return UserTone.URGENT;
+    }
+
+    // 실망
+    if (['별로', '아니야', '다른 거', '마음에 안'].some(w => lowerInput.includes(w))) {
+        return UserTone.DISAPPOINTED;
+    }
+
+    // 만족
+    if (['좋아', '마음에 들어', '완벽', '감사', '최고'].some(w => lowerInput.includes(w))) {
+        return UserTone.SATISFIED;
+    }
+
+    // 격식
+    if (['습니다', '주세요', '부탁드립니다'].some(w => lowerInput.includes(w))) {
+        return UserTone.FORMAL;
+    }
+
+    return UserTone.FRIENDLY;
+}
+
+/**
+ * 후속 질문 생성
+ */
+function generateFollowUpQuestion(
+    conversationType: ConversationType,
+    responseLength: number,
+    tone: UserTone
+): string | null {
+    // 응답이 너무 길면 후속 질문 추가 안 함
+    if (responseLength > 200) return null;
+
+    // 격식 있는 톤
+    if (tone === UserTone.FORMAL) {
+        const formalFollowUps = {
+            [ConversationType.GREETING]: '어떤 도움이 필요하신가요?',
+            [ConversationType.QUESTION]: '더 궁금하신 점이 있으신가요?',
+            [ConversationType.REQUEST]: '다른 스타일도 보여드릴까요?',
+            [ConversationType.FEEDBACK]: '어떤 부분이 마음에 드셨나요?'
+        };
+        return formalFollowUps[conversationType] || null;
+    }
+
+    // 친근한 톤
+    const friendlyFollowUps = {
+        [ConversationType.GREETING]: '어떤 도움이 필요하세요?',
+        [ConversationType.QUESTION]: '더 궁금한 점 있으세요?',
+        [ConversationType.REQUEST]: '다른 스타일도 볼까요?',
+        [ConversationType.FEEDBACK]: '어떤 부분이 좋으셨어요?'
+    };
+
+    return friendlyFollowUps[conversationType] || null;
+}
+
+/**
+ * 간단한 컨텍스트 메모리 (세션 기반)
+ */
+interface ConversationContext {
+    lastUserMessage: string;
+    lastAssistantMessage: string;
+    mentionedKeywords: string[];
+}
+
+const conversationMemory = new Map<string, ConversationContext>();
+
+function updateConversationMemory(
+    sessionId: string,
+    userMessage: string,
+    assistantMessage: string
+): void {
+    const keywords = extractKeywords(userMessage);
+    conversationMemory.set(sessionId, {
+        lastUserMessage: userMessage,
+        lastAssistantMessage: assistantMessage,
+        mentionedKeywords: keywords
+    });
+}
+
+function extractKeywords(text: string): string[] {
+    const productKeywords = ['코트', '니트', '자켓', '팬츠', '슬랙스', '가방', '신발'];
+    const materialKeywords = ['캐시미어', '울', '코튼', '린넨', '데님', '가죽'];
+    const allKeywords = [...productKeywords, ...materialKeywords];
+
+    return allKeywords.filter(keyword => text.includes(keyword));
+}
+
 
 /**
  * 취향 설정 여부에 따른 시스템 프롬프트 생성
@@ -196,7 +491,9 @@ ${guidelines.length > 0 ? guidelines.join('\n') : '- 균형 잡힌 관점에서 
 async function generateAnswer(
     question: string,
     context: ProductContent[],
-    systemPrompt: string
+    systemPrompt: string,
+    conversationType: ConversationType,
+    maxLength: number
 ): Promise<string> {
     // 검색된 상품 정보 포맷팅
     const contextText = context.map((item, idx) => {
@@ -210,10 +507,13 @@ ${meta.techniques ? `공법: ${meta.techniques.join(', ')}` : ''}
 
 ${item.content}
 ---`;
-    }).join('\n\n');
+    }).join('\\n\\n');
 
     // 세션 고유 ID 생성 (다양한 답변을 위해)
     const sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+    // Echo 생성
+    const echo = generateEcho(question, conversationType);
 
     const userPrompt = `[세션 ID: ${sessionId}]
 
@@ -223,7 +523,10 @@ ${contextText}
 [고객 질문]
 ${question}
 
-고객의 질문에 직접 답변해주세요. 먼저 질문 내용을 간략히 리마인드한 후 답변을 시작하세요.`;
+[응답 가이드]
+- 먼저 "${echo}"로 시작하여 고객의 말을 확인했음을 표현하세요
+- 최대 ${maxLength}자 이내로 간결하게 답변하세요
+- 고객의 질문에 직접 답변하되, 필요한 정보만 제공하세요`;
 
     try {
         const response = await fetch(OPENAI_URL, {
@@ -239,7 +542,7 @@ ${question}
                     { role: 'user', content: userPrompt }
                 ],
                 temperature: 0.9,
-                max_tokens: 1024
+                max_tokens: Math.min(Math.floor(maxLength / 2), 1024) // 길이 제한
             })
         });
 
@@ -295,6 +598,39 @@ export async function POST(request: NextRequest) {
         // Rate limiting
         await rateLimiter.wait();
 
+        // ============================================
+        // 대화 에티켓 시스템 적용
+        // ============================================
+
+        const inputLength = body.question.length;
+        const conversationType = detectConversationType(body.question);
+        const needsSearch = shouldSearchProducts(body.question, conversationType);
+        const maxResponseLength = getMaxResponseLength(inputLength);
+
+        console.log('[Chat API] Conversation analysis:', {
+            type: conversationType,
+            inputLength,
+            needsSearch,
+            maxResponseLength
+        });
+
+        // 검색이 필요 없는 경우 간단한 응답 반환
+        if (!needsSearch) {
+            const simpleAnswer = generateSimpleResponse(body.question, conversationType);
+            console.log('[Chat API] Returning simple response (no search needed)');
+
+            return NextResponse.json({
+                answer: simpleAnswer,
+                sources: [],
+                hexagon,
+                conversationType,
+                debug: {
+                    provider: 'Simple Response',
+                    model: 'conversation-etiquette'
+                }
+            });
+        }
+
         // 캐시 확인
         const cacheKey = body.question.toLowerCase().trim();
         const cached = responseCache.get(cacheKey);
@@ -316,7 +652,7 @@ export async function POST(request: NextRequest) {
         console.log('[Chat API] Step 1: Keyword search for:', body.question);
 
         // 키워드 추출 및 직접 검색
-        const keywords = body.question.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+        const keywords = body.question.toLowerCase().split(/\\s+/).filter(w => w.length > 1);
 
         let similarContents: ProductContent[] = [];
 
@@ -351,11 +687,12 @@ export async function POST(request: NextRequest) {
         const usePreferences = !isDefaultHexagon(hexagon);
         const systemPrompt = buildSystemPrompt(hexagon, usePreferences);
 
+
         // 4. 최종 답변 생성 (with fallback)
         let answer: string;
         try {
             console.log('[Chat API] Step 4: Generating answer with OpenAI...');
-            answer = await generateAnswer(body.question, similarContents, systemPrompt);
+            answer = await generateAnswer(body.question, similarContents, systemPrompt, conversationType, maxResponseLength);
         } catch (openaiError) {
             console.error('[Chat API] OpenAI failed:', openaiError);
             const errorMsg = openaiError instanceof Error ? openaiError.message : 'Unknown error';
@@ -413,13 +750,45 @@ export async function POST(request: NextRequest) {
             console.log('[Chat API] Cached successful response for:', cacheKey);
         }
 
+        // ============================================
+        // Phase 2 & 3: 응답 품질 개선 및 후속 처리
+        // ============================================
+
+        // 톤 감지
+        const userTone = detectTone(body.question);
+
+        // 응답 품질 검증
+        const quality = validateResponseQuality(body.question, answer, maxResponseLength);
+
+        // 후속 질문 생성 (짧은 응답에만)
+        const followUp = generateFollowUpQuestion(conversationType, answer.length, userTone);
+
+        // 후속 질문 추가 (있는 경우)
+        let finalAnswer = answer;
+        if (followUp && !answer.includes('?')) {
+            finalAnswer = `${answer} ${followUp}`;
+        }
+
+        // 세션 ID 생성 및 메모리 업데이트
+        const sessionId = request.headers.get('x-session-id') || 'default';
+        updateConversationMemory(sessionId, body.question, finalAnswer);
+
+        console.log('[Chat API] Response quality:', quality);
+        console.log('[Chat API] User tone:', userTone);
+
         return NextResponse.json({
-            answer,
+            answer: finalAnswer,
             sources: uniqueSources,
             hexagon,
+            conversationType,
+            userTone,
+            quality,
             debug: {
                 provider: 'OpenAI',
-                model: 'gpt-4o-mini'
+                model: 'gpt-4o-mini',
+                inputLength,
+                maxResponseLength,
+                actualLength: finalAnswer.length
             }
         });
 
