@@ -42,6 +42,7 @@ const LOADING_MESSAGES = [
 
 export default function FashionChatUI() {
     const [hexagonParams, setHexagonParams] = useState<HexagonParams>(DEFAULT_HEXAGON);
+    const [usePreferences, setUsePreferences] = useState(true);
     const [question, setQuestion] = useState('');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +92,7 @@ export default function FashionChatUI() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     question: question.trim(),
-                    hexagon: hexagonParams
+                    hexagon: usePreferences ? hexagonParams : DEFAULT_HEXAGON
                 })
             });
 
@@ -149,10 +150,32 @@ export default function FashionChatUI() {
                         <span className="status-dot"></span>
                         <span className="status-text">SYSTEM ACTIVE</span>
                     </div>
+
+                    {/* 취향 반영 토글 */}
+                    <div className="preference-toggle-container">
+                        <label className="toggle-label">
+                            <span className="toggle-text">나의 취향 반영</span>
+                            <button
+                                type="button"
+                                role="switch"
+                                aria-checked={usePreferences}
+                                onClick={() => setUsePreferences(!usePreferences)}
+                                className={`toggle-switch ${usePreferences ? 'active' : ''}`}
+                                disabled={isLoading}
+                            >
+                                <span className="toggle-slider"></span>
+                            </button>
+                        </label>
+                        {!usePreferences && (
+                            <p className="toggle-info">취향 설정이 비활성화되었습니다. AI는 일반적인 추천을 제공합니다.</p>
+                        )}
+                    </div>
+
                     <HexagonChart
                         values={hexagonParams}
                         onChange={setHexagonParams}
-                        disabled={isLoading}
+                        disabled={isLoading || !usePreferences}
+                        preferencesEnabled={usePreferences}
                     />
                 </aside>
 
@@ -327,6 +350,73 @@ export default function FashionChatUI() {
                     letter-spacing: 0.2em;
                     color: var(--primary, #2b52ee);
                     font-weight: 500;
+                }
+
+                .preference-toggle-container {
+                    margin-bottom: 24px;
+                    padding: 16px;
+                    background: rgba(43,82,238,0.03);
+                    border: 1px solid rgba(43,82,238,0.1);
+                    border-radius: 12px;
+                }
+
+                .toggle-label {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    cursor: pointer;
+                }
+
+                .toggle-text {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: var(--neural-black, #121212);
+                    letter-spacing: 0.02em;
+                }
+
+                .toggle-switch {
+                    position: relative;
+                    width: 48px;
+                    height: 24px;
+                    background: #d1d5db;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                    padding: 0;
+                }
+
+                .toggle-switch:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                .toggle-switch.active {
+                    background: var(--primary, #2b52ee);
+                }
+
+                .toggle-slider {
+                    position: absolute;
+                    top: 2px;
+                    left: 2px;
+                    width: 20px;
+                    height: 20px;
+                    background: #fff;
+                    border-radius: 50%;
+                    transition: transform 0.3s ease;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+
+                .toggle-switch.active .toggle-slider {
+                    transform: translateX(24px);
+                }
+
+                .toggle-info {
+                    margin-top: 12px;
+                    font-size: 0.75rem;
+                    color: #6b7280;
+                    line-height: 1.5;
+                    font-style: italic;
                 }
 
                 .chat-main {

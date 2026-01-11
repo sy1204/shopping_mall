@@ -15,6 +15,7 @@ interface HexagonChartProps {
     values: HexagonParams;
     onChange: (values: HexagonParams) => void;
     disabled?: boolean;
+    preferencesEnabled?: boolean;
 }
 
 const PARAM_LABELS: Record<keyof HexagonParams, string> = {
@@ -54,7 +55,7 @@ const PARAM_DESCRIPTIONS: Record<keyof HexagonParams, { low: string; high: strin
     }
 };
 
-export default function HexagonChart({ values, onChange, disabled = false }: HexagonChartProps) {
+export default function HexagonChart({ values, onChange, disabled = false, preferencesEnabled = true }: HexagonChartProps) {
 
     // 슬라이더 변경 핸들러
     const handleSliderChange = useCallback((param: keyof HexagonParams, newValue: number) => {
@@ -66,7 +67,7 @@ export default function HexagonChart({ values, onChange, disabled = false }: Hex
     }, [values, onChange, disabled]);
 
     return (
-        <div className="hexagon-chart-container">
+        <div className={`hexagon-chart-container ${!preferencesEnabled ? 'disabled' : ''}`}>
             {/* 제목 */}
             <div className="chart-header">
                 <h2 className="chart-title">나의 취향 설정</h2>
@@ -123,6 +124,12 @@ export default function HexagonChart({ values, onChange, disabled = false }: Hex
                 .hexagon-chart-container {
                     background: var(--background-light, #fff);
                     padding: 0;
+                    transition: opacity 0.3s ease;
+                }
+
+                .hexagon-chart-container.disabled {
+                    opacity: 0.5;
+                    pointer-events: none;
                 }
 
                 .chart-header {
