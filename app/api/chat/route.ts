@@ -329,21 +329,25 @@ function generateFollowUpQuestion(
 
     // 격식 있는 톤
     if (tone === UserTone.FORMAL) {
-        const formalFollowUps = {
+        const formalFollowUps: Record<ConversationType, string> = {
             [ConversationType.GREETING]: '어떤 도움이 필요하신가요?',
+            [ConversationType.SMALL_TALK]: '무엇을 도와드릴까요?',
             [ConversationType.QUESTION]: '더 궁금하신 점이 있으신가요?',
             [ConversationType.REQUEST]: '다른 스타일도 보여드릴까요?',
-            [ConversationType.FEEDBACK]: '어떤 부분이 마음에 드셨나요?'
+            [ConversationType.FEEDBACK]: '어떤 부분이 마음에 드셨나요?',
+            [ConversationType.CLOSING]: ''
         };
         return formalFollowUps[conversationType] || null;
     }
 
     // 친근한 톤
-    const friendlyFollowUps = {
+    const friendlyFollowUps: Record<ConversationType, string> = {
         [ConversationType.GREETING]: '어떤 도움이 필요하세요?',
+        [ConversationType.SMALL_TALK]: '무엇을 도와드릴까요?',
         [ConversationType.QUESTION]: '더 궁금한 점 있으세요?',
         [ConversationType.REQUEST]: '다른 스타일도 볼까요?',
-        [ConversationType.FEEDBACK]: '어떤 부분이 좋으셨어요?'
+        [ConversationType.FEEDBACK]: '어떤 부분이 좋으셨어요?',
+        [ConversationType.CLOSING]: ''
     };
 
     return friendlyFollowUps[conversationType] || null;
