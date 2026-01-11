@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { saveChatLog, learnFromConversation } from '../../lib/conversationLearning';
+import { saveChatLog, learnFromConversation } from '@/lib/conversationLearning';
 
 // Server-side only keys (never exposed to client)
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
