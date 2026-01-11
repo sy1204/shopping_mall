@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { saveChatLog, learnFromConversation } from '../../lib/conversationLearning';
 
 // Server-side only keys (never exposed to client)
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -820,6 +821,20 @@ export async function POST(request: NextRequest) {
 
         console.log('[Chat API] Response quality:', quality);
         console.log('[Chat API] User tone:', userTone);
+
+        // 대화 학습 시스템 통합 (비동기)
+        saveChatLog({
+            session_id: sessionId,
+            user_message: body.question,
+            ai_response: finalAnswer,
+            conversation_type: conversationType,
+            user_tone: userTone,
+            extracted_keywords: keywords,
+            hexagon_params: hexagon
+        }).catch(err => console.error('[Chat API] Failed to save chat log:', err));
+
+        learnFromConversation(keywords, conversationType, body.question)
+            .catch(err => console.error('[Chat API] Failed to learn:', err));
 
         return NextResponse.json({
             answer: finalAnswer,
