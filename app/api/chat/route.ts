@@ -376,13 +376,45 @@ function updateConversationMemory(
         mentionedKeywords: keywords
     });
 }
+return allKeywords.filter(keyword => text.includes(keyword));
+}
 
-function extractKeywords(text: string): string[] {
-    const productKeywords = ['코트', '니트', '자켓', '팬츠', '슬랙스', '가방', '신발'];
-    const materialKeywords = ['캐시미어', '울', '코튼', '린넨', '데님', '가죽'];
-    const allKeywords = [...productKeywords, ...materialKeywords];
+/**
+ * 문장 단위로 응답 자르기 (중간에 끝나지 않도록)
+ */
+function truncateToSentence(text: string, maxLength: number): string {
+    // 이미 길이가 적절하면 그대로 반환
+    if (text.length <= maxLength) {
+        return text;
+    }
 
-    return allKeywords.filter(keyword => text.includes(keyword));
+    // maxLength까지 자른 후 마지막 완전한 문장 찾기
+    const truncated = text.substring(0, maxLength);
+
+    // 문장 끝 기호: ., !, ?, 。
+    const sentenceEndings = ['. ', '! ', '? ', '。 ', '.\n', '!\n', '?\n', '。\n'];
+
+    let lastSentenceEnd = -1;
+    for (const ending of sentenceEndings) {
+        const pos = truncated.lastIndexOf(ending);
+        if (pos > lastSentenceEnd) {
+            lastSentenceEnd = pos;
+        }
+    }
+
+    // 문장 끝을 찾았으면 그 위치까지 자르기
+    if (lastSentenceEnd > maxLength * 0.5) { // 최소 50% 이상은 유지
+        return text.substring(0, lastSentenceEnd + 1).trim();
+    }
+
+    // 문장 끝을 못 찾았으면 마지막 공백에서 자르기
+    const lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > maxLength * 0.7) {
+        return text.substring(0, lastSpace).trim() + '...';
+    }
+
+    // 그도 안 되면 그냥 maxLength에서 자르기
+    return truncated.trim() + '...';
 }
 
 
@@ -545,14 +577,17 @@ ${question}
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: userPrompt }
                 ],
-                temperature: 0.9,
-                max_tokens: Math.min(Math.floor(maxLength / 2), 1024) // 길이 제한
+                temperature: 0.9 + (Math.random() * 0.2 - 0.1), // 0.8-1.0 범위로 다양성 부여
+                max_tokens: Math.min(Math.floor(maxLength / 1.5), 1024) // 여유 있게 설정
             })
         });
 
         if (response.ok) {
             const data = await response.json();
-            return data.choices?.[0]?.message?.content || '답변을 생성하지 못했습니다.';
+            let rawAnswer = data.choices?.[0]?.message?.content || '답변을 생성하지 못했습니다.';
+
+            // 문장 단위로 자르기
+            return truncateToSentence(rawAnswer, maxLength * 1.5); // 약간의 여유
         }
 
         const errorText = await response.text();
