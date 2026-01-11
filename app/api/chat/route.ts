@@ -376,7 +376,13 @@ function updateConversationMemory(
         mentionedKeywords: keywords
     });
 }
-return allKeywords.filter(keyword => text.includes(keyword));
+
+function extractKeywords(text: string): string[] {
+    const productKeywords = ['코트', '니트', '자켓', '팬츠', '슬랙스', '가방', '신발'];
+    const materialKeywords = ['캐시미어', '울', '코튼', '린넨', '데님', '가죽'];
+    const allKeywords = [...productKeywords, ...materialKeywords];
+
+    return allKeywords.filter(keyword => text.includes(keyword));
 }
 
 /**
